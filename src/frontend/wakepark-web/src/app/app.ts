@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
+
+import { AuthService } from './core/auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -8,4 +10,14 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {}
+export class App {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  protected readonly user = this.auth.user;
+
+  protected async signOut(): Promise<void> {
+    await this.auth.signOut();
+    await this.router.navigateByUrl('/prihlaseni');
+  }
+}

@@ -11,6 +11,7 @@ rezervace, permanentky). Zbytek zatím existuje jen jako popsaný datový model.
 | `Tenancy` | Kdo systém provozuje a kde? | `Enterprise`, `Park` (vč. politiky storna) |
 | `Operations` | Kdy by se dalo jezdit? | `Cable`, `Season`, `WorkingHours`, `ScheduleOverride` |
 | `Reservations` | Co je volné a kdo to má? | `Slot`, `Reservation`, `RidePass`, `CreditTransaction` |
+| `Identity` | Kdo je to a co smí? | `UserAccount`, `Role`, `Permission`, `UserParkRole` |
 
 ## Stack
 
@@ -128,12 +129,27 @@ odpovědí jsou v metadatech u `Map*Endpoints` v každém modulu.
 
 | Metoda | Endpoint | Co dělá |
 |---|---|---|
+| `POST` | `/api/v1/identity/login` | přihlášení, vystaví cookie |
+| `POST` | `/api/v1/identity/logout` | odhlášení |
+| `GET` | `/api/v1/identity/me` | kdo je přihlášený a co smí |
 | `GET` | `/api/v1/tenancy/parks` | všechny areály |
 | `GET` | `/api/v1/tenancy/enterprises/{id}/parks` | areály provozovatele |
 | `GET` | `/api/v1/operations/cables/{id}/schedule?date=` | rozvrh vleku pro den |
 | `GET` | `/api/v1/reservations/availability?cableId=&date=` | volná kapacita |
 | `POST` | `/api/v1/reservations` | vytvoří rezervaci |
 | `POST` | `/api/v1/reservations/{id}/cancel` | stornuje podle politiky areálu |
+
+#### Přihlášení
+
+Ve vývoji se při startu API založí správce podle `appsettings.Development.json`. **Heslo tam
+není** — nastav si ho mimo repo:
+
+```bash
+dotnet user-secrets set "Identity:BootstrapAdmin:Password" "zvol-si-heslo" --project src/backend/WakePark.Api
+```
+
+Bez hesla se správce nezaloží a v logu je o tom řádek. Seeder taky nepokračuje, pokud nejsou
+aplikované migrace — databázi si sám měnit nebude.
 
 ### Frontend
 
@@ -210,5 +226,13 @@ výsledek. Až se to v SDK opraví, skript zmizí. Test Explorer ve VS 2022 tím
   vydal UPDATE místo INSERT.
 - Enumy jdou po drátě jako **text**. Čísla by znamenala, že vložení hodnoty doprostřed výčtu
   tiše změní význam uložených dat.
+- Session drží **HttpOnly cookie**, ne token v prohlížeči. Do JavaScriptu se nedostane nic,
+  co by šlo ukrást přes XSS.
+- Oprávnění platí **v konkrétním areálu**, ne globálně. Otázka „je admin?" nemá bez areálu smysl.
+- Oprávnění se čtou z databáze **při každém požadavku**, ne z cookie. Odebrání role se tak
+  projeví hned, ne až po odhlášení.
+- Neúspěšné přihlášení odpovídá **vždy stejně**, ať účet neexistuje nebo je špatné heslo.
+  Jinak by šlo zkoušením zjistit, které e-maily v systému jsou.
+- Kontroly oprávnění na frontendu jen **skrývají tlačítka**. Rozhoduje backend.
 
 Podrobně v [docs/datamodel.md](docs/datamodel.md).

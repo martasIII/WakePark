@@ -1,0 +1,40 @@
+<section class="login">
+  <h1>Přihlášení</h1>
+  <p class="login__subtitle">Zadej přihlašovací údaje.</p>
+
+  <form class="login__form" (ngSubmit)="submit()">
+    <label class="field">
+      <span class="field__label">E-mail</span>
+      <input
+        class="field__input"
+        type="email"
+        name="email"
+        autocomplete="username"
+        required
+        [ngModel]="email()"
+        (ngModelChange)="email.set($event)"
+        [disabled]="isSubmitting()" />
+    </label>
+
+    <label class="field">
+      <span class="field__label">Heslo</span>
+      <input
+        class="field__input"
+        type="password"
+        name="password"
+        autocomplete="current-password"
+        required
+        [ngModel]="password()"
+        (ngModelChange)="password.set($event)"
+        [disabled]="isSubmitting()" />
+    </label>
+
+    @if (errorMessage(); as message) {
+      <p class="login__error" role="alert">{{ message }}</p>
+    }
+
+    <button class="button button--primary" type="submit" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Přihlašuji…' : 'Přihlásit se' }}
+    </button>
+  </form>
+</section>

@@ -1,0 +1,66 @@
+.login {
+  width: min(24rem, 100%);
+  margin: 3rem auto;
+  padding: 1.75rem;
+  border: 1px solid var(--wp-border);
+  border-radius: 0.75rem;
+  background: var(--wp-surface);
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  &__subtitle {
+    margin: 0.25rem 0 1.5rem;
+    color: var(--wp-text-muted);
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__error {
+    margin: 0;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--wp-danger-border);
+    border-radius: 0.5rem;
+    background: var(--wp-danger-surface);
+    color: var(--wp-danger-text);
+    font-size: 0.9rem;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  &__label {
+    font-size: 0.85rem;
+    color: var(--wp-text-muted);
+  }
+
+  &__input {
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--wp-border);
+    border-radius: 0.5rem;
+    background: var(--wp-bg);
+    color: inherit;
+    font: inherit;
+
+    &:focus {
+      outline: 2px solid var(--wp-accent);
+      outline-offset: 1px;
+    }
+  }
+}
+
+.button--primary {
+  border-color: var(--wp-accent);
+  background: var(--wp-accent);
+  color: #fff;
+  font-weight: 500;
+}

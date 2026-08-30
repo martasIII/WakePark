@@ -4,9 +4,24 @@
   flex-direction: column;
 
   &__bar {
-    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
     border-bottom: 1px solid var(--wp-border);
     background: var(--wp-surface);
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__email {
+    font-size: 0.9rem;
+    color: var(--wp-text-muted);
   }
 
   &__brand {

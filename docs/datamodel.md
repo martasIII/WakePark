@@ -93,6 +93,11 @@ Přihlášení a oprávnění. **Nesmí obsahovat osobní údaje** — ty jsou v
 | `Status` | enum | `Pending`, `Active`, `Suspended`, `Locked` |
 | `EmailConfirmedAtUtc` | timestamptz? | |
 | `LastLoginAtUtc` | timestamptz? | |
+| `FailedLoginAttempts` | int | po pěti se účet zamkne, odemyká obsluha |
+
+`SecurityStamp` se mění při každé změně hesla i pozastavení účtu. Uloží se do cookie a při
+každém požadavku se porovná s databází — zablokování se tak projeví okamžitě, ne až
+po vypršení session.
 
 ### `Role` — logická role
 
@@ -112,11 +117,14 @@ V náčrtu `PhysicalRole` s `parentRoleId`. Přejmenováno a hierarchie nahrazen
 
 ### `UserParkRole` — kdo má jakou roli v jakém areálu
 
-`Id`, `UserAccountId`, `WakeParkId`, `RoleId`, `ValidFromUtc`, `ValidToUtc?`
+`Id`, `UserAccountId`, `EnterpriseId`, `WakeParkId?`, `RoleId`, `ValidFromUtc`, `ValidToUtc?`
 
 UNIQUE `(UserAccountId, WakeParkId, RoleId)`
 
 Nahrazuje `User.roleId` + `User.wakeParkId` z náčrtu. Jeden člověk může mít roli ve víc areálech a víc rolí v jednom.
+
+**`WakeParkId` je oproti náčrtu volitelný.** Null znamená, že role platí ve všech areálech
+provozovatele — bez toho by nešlo založit prvního správce, který teprve areály zakládá.
 
 ---
 

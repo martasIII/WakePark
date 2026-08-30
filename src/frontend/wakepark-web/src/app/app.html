@@ -1,6 +1,13 @@
 <div class="shell">
   <header class="shell__bar">
     <span class="shell__brand">WakePark</span>
+
+    @if (user(); as currentUser) {
+      <div class="shell__user">
+        <span class="shell__email">{{ currentUser.email }}</span>
+        <button class="button" type="button" (click)="signOut()">Odhlásit</button>
+      </div>
+    }
   </header>
 
   <main class="shell__content">
