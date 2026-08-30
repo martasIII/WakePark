@@ -1,4 +1,5 @@
-# Lokální vývojová databáze. Nic jiného tu zatím není — aplikace se spouští z Visual Studia.
+# Lokální vývojová databáze. Nic jiného tu není — aplikace se spouští z IDE
+# a databáze se prohlíží z VS Code (rozšíření PostgreSQL od Microsoftu).
 services:
   postgres:
     image: postgres:17-alpine

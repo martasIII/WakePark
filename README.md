@@ -61,8 +61,10 @@ v `WakePark.ArchitectureTests`, takže porušení shodí build, ne až produkci.
 ### Předpoklady
 
 - .NET SDK 10.0.400+
-- PostgreSQL 17 (lokálně nebo v Dockeru)
-- Visual Studio 2022 (17.12+) nebo Rider
+- PostgreSQL 17 (lokálně nebo v Dockeru), Docker pro integrační testy
+- **Visual Studio 2026** nebo Rider. VS 2022 řešení **neotevře** — .NET SDK 10 vyžaduje
+  MSBuild 18, poslední řada VS 2022 (17.14) nese MSBuild 17. Z příkazové řádky
+  a z VS Code se staví bez problémů. Viz [ADR 0003](docs/adr/0003-dotnet-10.md).
 
 ### Databáze
 
