@@ -100,8 +100,17 @@ dotnet dotnet-ef migrations add NazevMigrace --project src/backend/Modules/Reser
 dotnet run --project src/backend/WakePark.Api
 ```
 
-API běží na `https://localhost:7101`, gateway (`https://localhost:7100`) se pouští zvlášť
-a přeposílá `/api/**` na API.
+API poslouchá na **dvou portech s různým schématem** — jak to generuje šablona ASP.NET Core:
+
+| Port | Schéma |
+|---|---|
+| `7101` | **https** |
+| `5101` | **http** |
+
+Zaměnit je znamená `ERR_SSL_PROTOCOL_ERROR`: `https://localhost:5101` je HTTPS požadavek
+na HTTP port. Ve Visual Studiu vyber profil *WakePark.Api (https)*, prohlížeč se otevře sám.
+
+Gateway (`https://localhost:7100`) se pouští zvlášť a přeposílá `/api/**` na API.
 
 #### Dokumentace API
 
