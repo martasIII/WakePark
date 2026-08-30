@@ -5,10 +5,11 @@
     <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\backend\Modules\Reservations\WakePark.Modules.Reservations.Domain\WakePark.Modules.Reservations.Domain.csproj" />
+    <ProjectReference Include="..\..\..\..\src\backend\Modules\Reservations\WakePark.Modules.Reservations.Application\WakePark.Modules.Reservations.Application.csproj" />
     <ProjectReference Include="..\..\..\..\src\backend\Modules\Tenancy\WakePark.Modules.Tenancy.Domain\WakePark.Modules.Tenancy.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="NSubstitute" />
     <PackageReference Include="Shouldly" />
     <PackageReference Include="xunit.v3" />
   </ItemGroup>

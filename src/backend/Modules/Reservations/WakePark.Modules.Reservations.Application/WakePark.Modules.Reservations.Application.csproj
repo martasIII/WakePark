@@ -7,4 +7,11 @@
     <ProjectReference Include="..\..\Operations\WakePark.Modules.Operations.Contracts\WakePark.Modules.Operations.Contracts.csproj" />
     <ProjectReference Include="..\..\Tenancy\WakePark.Modules.Tenancy.Contracts\WakePark.Modules.Tenancy.Contracts.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!--
+      Handlery zůstávají internal — testuje se chování modulu, ne jeho veřejné API.
+      Rozšiřovat kvůli testům viditelnost tříd by znamenalo, že si na ně sáhne i produkční kód.
+    -->
+    <InternalsVisibleTo Include="WakePark.Modules.Reservations.UnitTests" />
+  </ItemGroup>
 </Project>

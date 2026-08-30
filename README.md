@@ -17,7 +17,7 @@ rezervace, permanentky). Zbytek zatím existuje jen jako popsaný datový model.
 | Vrstva | Volba | Proč |
 |---|---|---|
 | Backend | .NET 10 (LTS) | podpora do listopadu 2028; .NET 8 končí 10. 11. 2026 |
-| Frontend | Angular (zatím nezaložen) | vyžaduje Node `^22.22.3` nebo `^24.15.0` |
+| Frontend | Angular 22, zoneless, SCSS | Node 22.23.2, TypeScript 6 |
 | Databáze | PostgreSQL 17 | zdarma, bez licenčních pastí, běží kdekoli |
 | ORM | EF Core 10, code-first | migrace verzované v repu |
 | Architektura | modulární monolit + YARP gateway | viz [ADR 0001](docs/adr/0001-modularni-monolit.md) |
@@ -39,6 +39,8 @@ src/backend/
     ...Infrastructure/     EF konfigurace, repozitáře, HTTP endpointy, DI
   WakePark.Api/            host, který moduly skládá dohromady
   WakePark.Gateway/        YARP – jediný vstupní bod pro frontend
+src/frontend/
+  wakepark-web/            Angular aplikace
 tests/
   WakePark.ArchitectureTests/   hlídá směr závislostí a izolaci modulů
   Modules/<Modul>/...UnitTests/
@@ -102,6 +104,19 @@ Gateway (`https://localhost:7100`) se pouští zvlášť a přeposílá `/api/**
 | `GET` | `/api/v1/reservations/availability?cableId=&date=` | volná kapacita |
 | `POST` | `/api/v1/reservations` | vytvoří rezervaci |
 | `POST` | `/api/v1/reservations/{id}/cancel` | stornuje podle politiky areálu |
+
+### Frontend
+
+```bash
+cd src/frontend/wakepark-web
+npm start
+```
+
+Běží na `http://localhost:4200`. Požadavky na `/api/**` proxuje `proxy.conf.json` na gateway
+(`http://localhost:5100`), takže se ve vývoji neřeší CORS a frontend volá stejné cesty jako
+v produkci.
+
+Vyžaduje Node `^22.22.3` nebo `^24.15.0`.
 
 ### Testy
 

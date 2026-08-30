@@ -227,7 +227,7 @@ nezneplatní už přijaté rezervace.
 | `SlotId` | Guid | |
 | `CustomerId` | Guid | |
 | `OrderId` | Guid? | null dokud není vystaven doklad |
-| `Seats` | int | kolik míst ve slotu zabírá (obvykle 1) |
+| `Seats` | int | kolik míst ve slotu zabírá. **Každé místo = jedna jízda** odečtená z kreditu. |
 | `Status` | enum | `Pending`, `Confirmed`, `CheckedIn`, `Completed`, `Cancelled`, `NoShow` |
 | `Source` | enum | `Online`, `Desk`, `Phone` |
 | `IdempotencyKey` | string(64)? | UNIQUE — ochrana proti dvojímu odeslání |
@@ -379,13 +379,11 @@ Struktura je na ně připravená (`Product.Type`, `OrderLine`, `Reservation`), r
 | Storno | Konfigurovatelné **na úrovni areálu** (`Park.CancellationPolicy`) |
 | Docházka brigádníků | Stěhuje se sem jako modul `Staff` |
 | Platební brána | Odloženo mimo MVP |
+| Rezervace pro víc osob | Jedna rezervace může držet víc míst (`Reservation.Seats`). **Každé místo = jedna jízda** — rodina tří osob odečte z kreditu 3 jízdy. |
+| Cena jízdy vs. délka bloku | Jedna jízda je jedno místo v bloku, bez ohledu na `SlotDurationMinutes`. |
 
 ## Otevřené otázky
 
 1. Číselné řady dokladů — jedna na `Enterprise`, nebo na `WakePark`? Reset po roce?
-2. Může jeden zákazník rezervovat víc míst v jednom slotu (rodina na jeden doklad),
-   nebo je vždy jedna rezervace = jeden jezdec?
-3. Stojí „jedna jízda" v kreditu vždy 1 bez ohledu na délku bloku, nebo se odečítá podle
-   `SlotDurationMinutes`?
-4. EET / evidence tržeb — aktuálně zrušena, ale hotovostní uzávěrka směny bude potřeba.
+2. EET / evidence tržeb — aktuálně zrušena, ale hotovostní uzávěrka směny bude potřeba.
    Řešit v MVP?
