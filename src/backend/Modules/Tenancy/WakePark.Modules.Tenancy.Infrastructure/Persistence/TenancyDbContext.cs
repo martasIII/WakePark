@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 
-using WakePark.BuildingBlocks.Application.Abstractions;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
 using WakePark.Modules.Tenancy.Domain.Enterprises;
 using WakePark.Modules.Tenancy.Domain.Parks;
@@ -12,7 +11,7 @@ namespace WakePark.Modules.Tenancy.Infrastructure.Persistence;
 /// tabulky jiných modulů odsud nejsou vidět.
 /// </summary>
 public sealed class TenancyDbContext(DbContextOptions<TenancyDbContext> options)
-    : DbContext(options), IUnitOfWork
+    : DbContext(options)
 {
     public const string Schema = "tenancy";
 

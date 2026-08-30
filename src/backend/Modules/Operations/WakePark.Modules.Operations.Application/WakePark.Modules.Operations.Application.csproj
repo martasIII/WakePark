@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\WakePark.Modules.Operations.Domain\WakePark.Modules.Operations.Domain.csproj" />
+    <ProjectReference Include="..\WakePark.Modules.Operations.Contracts\WakePark.Modules.Operations.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Application\WakePark.BuildingBlocks.Application.csproj" />
+  </ItemGroup>
+</Project>

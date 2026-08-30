@@ -204,6 +204,39 @@ namespace WakePark.Modules.Tenancy.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("WakePark.Modules.Tenancy.Domain.Parks.Park", b =>
                 {
+                    b.OwnsOne("WakePark.Modules.Tenancy.Domain.Parks.CancellationPolicy", "CancellationPolicy", b1 =>
+                        {
+                            b1.Property<Guid>("ParkId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<bool>("CancellationAllowed")
+                                .HasColumnType("boolean")
+                                .HasColumnName("cancellation_policy_cancellation_allowed");
+
+                            b1.Property<int>("FreeCancellationHours")
+                                .HasColumnType("integer")
+                                .HasColumnName("cancellation_policy_free_cancellation_hours");
+
+                            b1.Property<decimal>("LateCancellationRefundPercent")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("cancellation_policy_late_cancellation_refund_percent");
+
+                            b1.Property<decimal>("NoShowRefundPercent")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("cancellation_policy_no_show_refund_percent");
+
+                            b1.HasKey("ParkId");
+
+                            b1.ToTable("wake_parks", "tenancy");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ParkId")
+                                .HasConstraintName("fk_wake_parks_wake_parks_id");
+                        });
+
                     b.OwnsOne("WakePark.BuildingBlocks.Domain.ValueObjects.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("ParkId")
@@ -249,6 +282,9 @@ namespace WakePark.Modules.Tenancy.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("Address")
+                        .IsRequired();
+
+                    b.Navigation("CancellationPolicy")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

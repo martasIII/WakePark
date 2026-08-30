@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\WakePark.Modules.Reservations.Domain\WakePark.Modules.Reservations.Domain.csproj" />
+    <ProjectReference Include="..\WakePark.Modules.Reservations.Contracts\WakePark.Modules.Reservations.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Application\WakePark.BuildingBlocks.Application.csproj" />
+    <!-- Jen KONTRAKTY cizích modulů, nikdy jejich vnitřek. Hlídá architektonický test. -->
+    <ProjectReference Include="..\..\Operations\WakePark.Modules.Operations.Contracts\WakePark.Modules.Operations.Contracts.csproj" />
+    <ProjectReference Include="..\..\Tenancy\WakePark.Modules.Tenancy.Contracts\WakePark.Modules.Tenancy.Contracts.csproj" />
+  </ItemGroup>
+</Project>

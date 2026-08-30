@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <!-- Modul si mapuje vlastní endpointy, proto potřebuje ASP.NET Core. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WakePark.Modules.Operations.Application\WakePark.Modules.Operations.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Infrastructure\WakePark.BuildingBlocks.Infrastructure.csproj" />
+    <!-- Jen KONTRAKT modulu Tenancy, nikdy jeho vnitřek. Hlídá architektonický test. -->
+    <ProjectReference Include="..\..\Tenancy\WakePark.Modules.Tenancy.Contracts\WakePark.Modules.Tenancy.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

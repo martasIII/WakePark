@@ -2,11 +2,9 @@ using System.Reflection;
 
 using NetArchTest.Rules;
 
-using ArchTestResult = NetArchTest.Rules.TestResult;
-
 using Shouldly;
 
-using WakePark.Modules.Tenancy.Domain.Parks;
+using ArchTestResult = NetArchTest.Rules.TestResult;
 
 namespace WakePark.ArchitectureTests;
 
@@ -17,50 +15,81 @@ namespace WakePark.ArchitectureTests;
 /// </summary>
 public sealed class ModuleIsolationTests
 {
-    /// <summary>Namespace prefixy modulů, které v řešení existují.</summary>
-    private static readonly string[] ModuleNamespaces = ["WakePark.Modules.Tenancy"];
+    /// <summary>Prefix namespace každého modulu a jeho reprezentativní assembly.</summary>
+    private static readonly (string Namespace, Assembly Domain, Assembly Contracts)[] Modules =
+    [
+        (
+            "WakePark.Modules.Tenancy",
+            typeof(Modules.Tenancy.Domain.Parks.Park).Assembly,
+            typeof(Modules.Tenancy.Contracts.ParkDto).Assembly
+        ),
+        (
+            "WakePark.Modules.Operations",
+            typeof(Modules.Operations.Domain.Cables.Cable).Assembly,
+            typeof(Modules.Operations.Contracts.CableDto).Assembly
+        ),
+        (
+            "WakePark.Modules.Reservations",
+            typeof(Modules.Reservations.Domain.Slots.Slot).Assembly,
+            typeof(Modules.Reservations.Contracts.ReservationDto).Assembly
+        ),
+    ];
 
     [Fact]
-    public void Modul_nesmi_zaviset_na_vnitrku_jineho_modulu()
+    public void Domena_modulu_nesmi_znat_zadny_jiny_modul()
     {
-        foreach (string moduleNamespace in ModuleNamespaces)
+        foreach ((string moduleNamespace, Assembly domain, _) in Modules)
         {
-            Assembly domainAssembly = typeof(Park).Assembly;
+            string[] forbidden =
+            [
+                .. Modules
+                    .Where(other => !string.Equals(other.Namespace, moduleNamespace, StringComparison.Ordinal))
+                    .Select(other => other.Namespace)
+            ];
 
-            string[] forbidden = ModuleNamespaces
-                .Where(other => !string.Equals(other, moduleNamespace, StringComparison.Ordinal))
-                .SelectMany(other => new[] { $"{other}.Domain", $"{other}.Application", $"{other}.Infrastructure" })
-                .ToArray();
-
-            if (forbidden.Length == 0)
-            {
-                continue;
-            }
-
-            ArchTestResult result = Types.InAssembly(domainAssembly)
+            ArchTestResult result = Types.InAssembly(domain)
                 .ShouldNot()
                 .HaveDependencyOnAny(forbidden)
                 .GetResult();
 
             result.IsSuccessful.ShouldBeTrue(
-                $"Modul {moduleNamespace} sahá do vnitřku jiného modulu: "
-                + string.Join(", ", result.FailingTypeNames ?? []));
+                $"Doména modulu {moduleNamespace} sahá na jiný modul: {Failing(result)}");
         }
     }
 
     [Fact]
-    public void Domenove_entity_modulu_nesmi_opustit_modul_pres_kontrakty()
+    public void Kontrakty_modulu_nesmi_odkazovat_na_jeho_vnitrek()
     {
-        ArchTestResult result = Types.InAssembly(typeof(Modules.Tenancy.Contracts.ParkDto).Assembly)
-            .ShouldNot()
-            .HaveDependencyOnAny(
-                "WakePark.Modules.Tenancy.Domain",
-                "WakePark.Modules.Tenancy.Application",
-                "WakePark.Modules.Tenancy.Infrastructure")
-            .GetResult();
+        foreach ((string moduleNamespace, _, Assembly contracts) in Modules)
+        {
+            ArchTestResult result = Types.InAssembly(contracts)
+                .ShouldNot()
+                .HaveDependencyOnAny(
+                    $"{moduleNamespace}.Domain",
+                    $"{moduleNamespace}.Application",
+                    $"{moduleNamespace}.Infrastructure")
+                .GetResult();
 
-        result.IsSuccessful.ShouldBeTrue(
-            "Kontrakty modulu nesmí odkazovat na jeho vnitřek: "
-            + string.Join(", ", result.FailingTypeNames ?? []));
+            result.IsSuccessful.ShouldBeTrue(
+                $"Kontrakty modulu {moduleNamespace} odkazují na jeho vnitřek: {Failing(result)}");
+        }
     }
+
+    [Fact]
+    public void Kontrakty_nesmi_zaviset_na_infrastrukture()
+    {
+        foreach ((string moduleNamespace, _, Assembly contracts) in Modules)
+        {
+            ArchTestResult result = Types.InAssembly(contracts)
+                .ShouldNot()
+                .HaveDependencyOnAny("Microsoft.EntityFrameworkCore", "Npgsql", "Microsoft.AspNetCore")
+                .GetResult();
+
+            result.IsSuccessful.ShouldBeTrue(
+                $"Kontrakty modulu {moduleNamespace} tahají infrastrukturu: {Failing(result)}");
+        }
+    }
+
+    private static string Failing(ArchTestResult result) =>
+        string.Join(", ", result.FailingTypeNames ?? []);
 }

@@ -29,6 +29,12 @@ internal sealed class ParkConfiguration : IEntityTypeConfiguration<Park>
             address.Property(a => a.CountryCode).HasMaxLength(2).IsRequired();
         });
 
+        builder.OwnsOne(p => p.CancellationPolicy, policy =>
+        {
+            policy.Property(c => c.LateCancellationRefundPercent).HasPrecision(5, 2);
+            policy.Property(c => c.NoShowRefundPercent).HasPrecision(5, 2);
+        });
+
         builder.HasIndex(p => p.EnterpriseId);
 
         builder.Ignore(p => p.DomainEvents);

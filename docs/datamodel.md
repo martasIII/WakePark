@@ -1,6 +1,6 @@
 # Datový model
 
-Stav: **návrh po první revizi** (verze 0.2). Vychází z ručního náčrtu a připomínek z 30. 8. 2026.
+Stav: **implementováno pro moduly Tenancy, Operations a Reservations** (verze 0.4). Vychází z ručního náčrtu a připomínek z 30. 8. 2026.
 Entity a atributy jsou anglicky, komentáře česky.
 
 ---
@@ -54,8 +54,23 @@ Kdo systém provozuje a jaké areály má.
 | `TimeZoneId` | string(64) | IANA, např. `Europe/Prague` — **nutné** pro převod lokální doby na UTC |
 | `Currency` | string(3) | ISO 4217, výchozí měna pro doklady |
 | `ReservationEmail` | string(320)? | adresa pro notifikace o rezervacích |
+| `CancellationPolicy` | *value object* | pravidla storna, viz níže |
 
 Pozn.: `pricelistId` z náčrtu **zrušen** — vazba jde opačně, `PriceList` má `WakeParkId` + platnost od/do.
+
+### `CancellationPolicy` — value object
+
+Storno je konfigurovatelné **na úrovni areálu**, ne globálně — každý park má jiná pravidla.
+
+| Složka | Typ | Význam |
+|---|---|---|
+| `FreeCancellationHours` | int | kolik hodin před startem slotu lze stornovat bez sankce |
+| `LateCancellationRefundPercent` | decimal(5,2) | kolik % se vrací při pozdním stornu (0 = nic, 100 = vše) |
+| `NoShowRefundPercent` | decimal(5,2) | kolik % se vrací, když zákazník nepřijde |
+| `CancellationAllowed` | bool | false = storno není možné vůbec |
+
+Vrácení se počítá z toho, čím bylo placeno: kredit se vrací jako `CreditTransaction`
+s kladnou `Delta`, peníze jako dobropis. Nikdy se needituje původní doklad.
 
 ### `Address` — value object (ne tabulka)
 
@@ -147,6 +162,10 @@ Provozní realita areálu: co jezdí, kdy a s jakou kapacitou.
 
 `slotsPerHour` z náčrtu **rozděleno** na dvě veličiny a přesunuto na `WorkingHours` — délka jízdy i kapacita se mění podle sezóny a denní doby.
 
+**Provozní realita dvousloupu:** na laně je v jednu chvíli **vždy jen jeden jezdec**. Víc lidí
+ve slotu znamená, že se v něm **střídají**, ne že jedou současně. Kapacita slotu je tedy počet
+jezdců sdílejících blok, ne počet lan.
+
 ### `Season` — sezóna
 
 `Id`, `WakeParkId`, `CableId?` (null = platí pro všechny vleky), `Name`, `StartDate`, `EndDate`
@@ -160,14 +179,22 @@ Provozní realita areálu: co jezdí, kdy a s jakou kapacitou.
 | `SeasonId` | Guid | |
 | `DayOfWeek` | int (0–6) | nahrazuje `weekend` bool z náčrtu |
 | `StartTime`, `EndTime` | time | lokální čas parku |
-| `SlotDurationMinutes` | int | délka jedné jízdy (10 / 15 / 20 / 30 / 60) |
-| `Capacity` | int | kolik jezdců najednou na laně (u nás 3) |
+| `SlotDurationMinutes` | int | délka bloku (10 / 15 / 20 / 30 / 60) |
+| `Capacity` | int | kolik jezdců si blok sdílí a **střídá se** v něm (u nás 3, jinde jinak) |
 
-### `OperatingException` — výjimka z provozní doby
+### `ScheduleOverride` — výjimka z provozní doby
 
 `Id`, `CableId`, `Date`, `IsClosed`, `CustomStartTime?`, `CustomEndTime?`, `Reason`
 
+V náčrtu i v první verzi tohoto dokumentu `OperatingException`. Přejmenováno: typ končící
+na `Exception`, který není výjimkou, mate čtenáře i analyzátory.
+
 Bouřka, údržba, závody, svátek. U wakeparku běžná věc, ne okrajový případ.
+
+## Modul `Reservations`
+
+Slot je záměrně tady, ne v `Operations` — obsazenost a odečet kreditu musí proběhnout
+v jedné transakci. Zdůvodnění v [ADR 0005](adr/0005-kde-zije-slot.md).
 
 ### `Slot` — kapacitní jednotka v čase
 
@@ -177,7 +204,7 @@ Bouřka, údržba, závody, svátek. U wakeparku běžná věc, ne okrajový př
 | `CableId` | Guid | |
 | `StartUtc` | timestamptz | UNIQUE spolu s `CableId` |
 | `DurationMinutes` | int | zamrazeno z `WorkingHours` v okamžiku vzniku |
-| `Capacity` | int | zamrazeno z `WorkingHours` |
+| `Capacity` | int | zamrazeno z `WorkingHours`; počet jezdců, kteří se ve slotu vystřídají |
 | `ReservedCount` | int | počet obsazených míst, `<= Capacity` |
 | `Status` | enum | `Open`, `Closed`, `Cancelled` |
 | `RowVersion` | xmin | optimistic concurrency |
@@ -186,9 +213,11 @@ Bouřka, údržba, závody, svátek. U wakeparku běžná věc, ne okrajový př
 
 **Invariant:** `ReservedCount <= Capacity`. Překročení = HTTP 422, kolize souběhu = HTTP 409.
 
+Kapacita se **zamrazuje do slotu** při jeho vzniku. Změna `WorkingHours` tak nikdy zpětně
+nezneplatní už přijaté rezervace.
+
 ---
 
-## Modul `Reservations`
 
 ### `Reservation`
 
@@ -340,10 +369,23 @@ Struktura je na ně připravená (`Product.Type`, `OrderLine`, `Reservation`), r
 
 ---
 
+## Vyřešené otázky
+
+| Otázka | Rozhodnutí |
+|---|---|
+| Prodává se čas, nebo jízdy? | **Jízdy.** Kredit permanentky se vede v jízdách, ne v minutách. |
+| Kolik lidí najednou na laně? | **Jeden.** Víc lidí ve slotu se střídá. |
+| Tenant | `Enterprise` |
+| Storno | Konfigurovatelné **na úrovni areálu** (`Park.CancellationPolicy`) |
+| Docházka brigádníků | Stěhuje se sem jako modul `Staff` |
+| Platební brána | Odloženo mimo MVP |
+
 ## Otevřené otázky
 
 1. Číselné řady dokladů — jedna na `Enterprise`, nebo na `WakePark`? Reset po roce?
-2. Storno rezervace — do kdy zdarma? Vrací se kredit celý, nebo s penále?
-3. Může jeden zákazník rezervovat víc míst v jednom slotu (rodina), nebo vždy 1:1?
-4. Online platební brána — kterou? (Comgate / GoPay / Stripe) Ovlivní model `Payment`.
-5. EET / evidence tržeb — aktuálně zrušena, ale hotovostní uzávěrka směny bude potřeba. Řešit v MVP?
+2. Může jeden zákazník rezervovat víc míst v jednom slotu (rodina na jeden doklad),
+   nebo je vždy jedna rezervace = jeden jezdec?
+3. Stojí „jedna jízda" v kreditu vždy 1 bez ohledu na délku bloku, nebo se odečítá podle
+   `SlotDurationMinutes`?
+4. EET / evidence tržeb — aktuálně zrušena, ale hotovostní uzávěrka směny bude potřeba.
+   Řešit v MVP?

@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <ItemGroup>
     <ProjectReference Include="..\Modules\Tenancy\WakePark.Modules.Tenancy.Infrastructure\WakePark.Modules.Tenancy.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Operations\WakePark.Modules.Operations.Infrastructure\WakePark.Modules.Operations.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Reservations\WakePark.Modules.Reservations.Infrastructure\WakePark.Modules.Reservations.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />

@@ -2,10 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using WakePark.BuildingBlocks.Application.Abstractions;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
 using WakePark.Modules.Tenancy.Application;
 using WakePark.Modules.Tenancy.Application.Abstractions;
+using WakePark.Modules.Tenancy.Contracts;
 using WakePark.Modules.Tenancy.Infrastructure.Persistence;
 using WakePark.Modules.Tenancy.Infrastructure.Persistence.Repositories;
 
@@ -32,8 +32,8 @@ public static class TenancyModule
                 .UseWakeParkNpgsql(connectionString, TenancyDbContext.Schema)
                 .AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>()));
 
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<TenancyDbContext>());
         services.AddScoped<IParkReadRepository, ParkReadRepository>();
+        services.AddScoped<IParkDirectory, ParkDirectory>();
         services.AddTenancyApplication();
 
         return services;

@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Veřejný kontrakt modulu. Jediná assembly, na kterou smí odkazovat jiné moduly.
+    Obsahuje DTO a rozhraní, NIKDY doménové entity.
+  -->
+</Project>

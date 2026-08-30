@@ -23,7 +23,12 @@ internal sealed class ParkReadRepository(TenancyDbContext dbContext) : IParkRead
                 p.Address.City,
                 p.Address.CountryCode,
                 p.TimeZoneId,
-                p.Currency))
+                p.Currency,
+                new CancellationPolicyDto(
+                    p.CancellationPolicy.CancellationAllowed,
+                    p.CancellationPolicy.FreeCancellationHours,
+                    p.CancellationPolicy.LateCancellationRefundPercent,
+                    p.CancellationPolicy.NoShowRefundPercent)))
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
     }
@@ -41,7 +46,12 @@ internal sealed class ParkReadRepository(TenancyDbContext dbContext) : IParkRead
                 p.Address.City,
                 p.Address.CountryCode,
                 p.TimeZoneId,
-                p.Currency))
+                p.Currency,
+                new CancellationPolicyDto(
+                    p.CancellationPolicy.CancellationAllowed,
+                    p.CancellationPolicy.FreeCancellationHours,
+                    p.CancellationPolicy.LateCancellationRefundPercent,
+                    p.CancellationPolicy.NoShowRefundPercent)))
             .FirstOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
     }

@@ -29,6 +29,7 @@ public sealed class Park : AggregateRoot, IAuditable, ITenantOwned
         Address = address;
         TimeZoneId = timeZoneId;
         Currency = currency;
+        CancellationPolicy = CancellationPolicy.Default;
     }
 
     public Guid EnterpriseId { get; private set; }
@@ -49,6 +50,9 @@ public sealed class Park : AggregateRoot, IAuditable, ITenantOwned
     public string Currency { get; private set; } = string.Empty;
 
     public string? ReservationEmail { get; private set; }
+
+    /// <summary>Pravidla storna. Každý areál si je nastavuje sám.</summary>
+    public CancellationPolicy CancellationPolicy { get; private set; } = CancellationPolicy.Default;
 
     public DateTimeOffset CreatedAtUtc { get; set; }
 
@@ -93,4 +97,10 @@ public sealed class Park : AggregateRoot, IAuditable, ITenantOwned
 
     public void SetReservationEmail(string? email) =>
         ReservationEmail = string.IsNullOrWhiteSpace(email) ? null : email.Trim().ToLowerInvariant();
+
+    public void SetCancellationPolicy(CancellationPolicy policy)
+    {
+        ArgumentNullException.ThrowIfNull(policy);
+        CancellationPolicy = policy;
+    }
 }

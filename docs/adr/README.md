@@ -12,3 +12,4 @@ Rozhodnutí se **nepřepisují**. Když se změní, přidá se nové ADR, které
 | [0002](0002-postgresql.md) | PostgreSQL a míra nezávislosti na DB enginu | Přijato |
 | [0003](0003-dotnet-10.md) | .NET 10 místo .NET 8 | Přijato |
 | [0004](0004-cas-a-penize.md) | Práce s časem a penězi | Přijato |
+| [0005](0005-kde-zije-slot.md) | Slot patří do modulu Reservations, ne Operations | Přijato |
