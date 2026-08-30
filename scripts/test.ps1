@@ -17,7 +17,8 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$Configuration = 'Debug'
+    [string]$Configuration = 'Debug',
+    [switch]$SkipIntegration
 )
 
 $ErrorActionPreference = 'Stop'
@@ -31,7 +32,10 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Get-ChildItem -Path (Join-Path $repoRoot 'tests') -Filter '*.csproj' -Recurse | ForEach-Object {
+$projects = Get-ChildItem -Path (Join-Path $repoRoot 'tests') -Filter '*.csproj' -Recurse
+if ($SkipIntegration) { $projects = $projects | Where-Object { $_.BaseName -notlike '*IntegrationTests' } }
+
+$projects | ForEach-Object {
     Write-Host "`n=== $($_.BaseName) ===" -ForegroundColor Cyan
     dotnet run --project $_.FullName --configuration $Configuration --no-build
     if ($LASTEXITCODE -ne 0) { $failed += $_.BaseName }

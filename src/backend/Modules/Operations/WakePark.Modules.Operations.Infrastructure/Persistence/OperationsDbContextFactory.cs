@@ -5,11 +5,15 @@ using WakePark.BuildingBlocks.Infrastructure.Persistence;
 
 namespace WakePark.Modules.Operations.Infrastructure.Persistence;
 
-/// <summary>Umožňuje spouštět <c>dotnet ef</c> nad tímto modulem bez startu celého hostu.</summary>
+/// <summary>
+/// Umožňuje spouštět <c>dotnet ef</c> nad tímto modulem bez startu celého hostu.
+/// Výchozí connection string míří na lokální vývojovou databázi z docker-compose;
+/// pro jiný cíl nastav proměnnou <c>WAKEPARK_DESIGNTIME_CONNECTION</c>.
+/// </summary>
 public sealed class OperationsDbContextFactory : IDesignTimeDbContextFactory<OperationsDbContext>
 {
     private const string DesignTimeConnectionString =
-        "Host=localhost;Port=5432;Database=wakepark;Username=wakepark;Password=design-time";
+        "Host=localhost;Port=5432;Database=wakepark;Username=wakepark;Password=wakepark";
 
     public OperationsDbContext CreateDbContext(string[] args)
     {

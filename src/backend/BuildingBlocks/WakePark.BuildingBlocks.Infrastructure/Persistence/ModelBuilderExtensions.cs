@@ -10,7 +10,8 @@ namespace WakePark.BuildingBlocks.Infrastructure.Persistence;
 public static class ModelBuilderExtensions
 {
     /// <summary>
-    /// Nastaví přesnost peněžních sloupců a vynutí <c>timestamptz</c> u všech okamžiků.
+    /// Označí primární klíče jako přiřazované aplikací, nastaví přesnost peněžních sloupců
+    /// a vynutí <c>timestamptz</c> u všech okamžiků.
     /// </summary>
     public static ModelBuilder ApplyWakeParkConventions(this ModelBuilder modelBuilder)
     {
@@ -18,6 +19,18 @@ public static class ModelBuilderExtensions
 
         foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
         {
+            // Primární klíče přiřazujeme v kódu (UUID v7), nikdy je negeneruje databáze.
+            // Bez tohoto by EF u Guid klíčů předpokládal generování na straně databáze a nový
+            // objekt v agregátu — který klíč už má — by považoval za existující řádek
+            // a místo INSERT vydal UPDATE, který nic nezmění.
+            foreach (IMutableProperty keyProperty in entityType.FindPrimaryKey()?.Properties ?? [])
+            {
+                if (keyProperty.ClrType == typeof(Guid))
+                {
+                    keyProperty.ValueGenerated = ValueGenerated.Never;
+                }
+            }
+
             foreach (IMutableProperty property in entityType.GetProperties())
             {
                 if (property.ClrType == typeof(decimal) || property.ClrType == typeof(decimal?))

@@ -22,7 +22,7 @@ rezervace, permanentky). Zbytek zatím existuje jen jako popsaný datový model.
 | ORM | EF Core 10, code-first | migrace verzované v repu |
 | Architektura | modulární monolit + YARP gateway | viz [ADR 0001](docs/adr/0001-modularni-monolit.md) |
 | API | REST/JSON, OpenAPI, Scalar | kontrakt generuje klienta pro frontend |
-| Testy | xunit.v3, Shouldly, NetArchTest | architektonická pravidla se vynucují buildem |
+| Testy | xunit.v3, Shouldly, NetArchTest, Testcontainers | architektonická pravidla se vynucují buildem |
 
 ## Struktura
 
@@ -42,8 +42,9 @@ src/backend/
 src/frontend/
   wakepark-web/            Angular aplikace
 tests/
-  WakePark.ArchitectureTests/   hlídá směr závislostí a izolaci modulů
-  Modules/<Modul>/...UnitTests/
+  WakePark.ArchitectureTests/        hlídá směr závislostí a izolaci modulů
+  Modules/<Modul>/...UnitTests/      doména a případy užití, bez databáze
+  Modules/<Modul>/...IntegrationTests/  proti reálnému Postgresu v Testcontainers
 docs/
   datamodel.md             specifikace datového modelu
   adr/                     architektonická rozhodnutí a jejich důvody
@@ -81,6 +82,9 @@ dotnet dotnet-ef database update --project src/backend/Modules/Tenancy/WakePark.
 
 Každý modul má **vlastní schéma a vlastní historii migrací** (`<schema>.__ef_migrations_history`),
 takže se aktualizuje samostatně — `TenancyDbContext`, `OperationsDbContext`, `ReservationsDbContext`.
+
+Design-time factory každého modulu míří na tuhle lokální databázi, takže `dotnet ef` funguje
+bez další konfigurace. Pro jiný cíl nastav `WAKEPARK_DESIGNTIME_CONNECTION`.
 
 Nová migrace:
 
@@ -124,6 +128,13 @@ Vyžaduje Node `^22.22.3` nebo `^24.15.0`.
 powershell -ExecutionPolicy Bypass -File scripts/test.ps1
 ```
 
+Integrační testy si zvednou vlastní PostgreSQL kontejner (Testcontainers), takže **vyžadují
+běžící Docker**. Bez něj:
+
+```bash
+powershell -ExecutionPolicy Bypass -File scripts/test.ps1 -SkipIntegration
+```
+
 `dotnet test` v SDK 10.0.400 nefunguje s xunit.v3 — proces naběhne, ale nenajde žádný test
 a skončí s kódem 5. Skript proto pouští testovací projekty přes `dotnet run`, což dává stejný
 výsledek. Až se to v SDK opraví, skript zmizí. Test Explorer ve VS 2022 tím není dotčený.
@@ -139,5 +150,10 @@ výsledek. Až se to v SDK opraví, skript zmizí. Test Explorer ve VS 2022 tím
 - Na laně je vždy jeden jezdec. Kapacita slotu = kolik lidí se v něm vystřídá.
 - Každý modul má **vlastní** `IUnitOfWork`. Sdílené rozhraní by se v jednom DI kontejneru
   přepsalo registrací posledního modulu a handler by ukládal cizí kontext.
+- Primární klíče přiřazuje **aplikace** (UUID v7), ne databáze. V EF je to explicitně nastavené
+  (`ValueGenerated.Never`) — jinak by EF u nového objektu v agregátu, který klíč už má,
+  vydal UPDATE místo INSERT.
+- Enumy jdou po drátě jako **text**. Čísla by znamenala, že vložení hodnoty doprostřed výčtu
+  tiše změní význam uložených dat.
 
 Podrobně v [docs/datamodel.md](docs/datamodel.md).

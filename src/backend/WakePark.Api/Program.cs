@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Scalar.AspNetCore;
@@ -33,6 +35,12 @@ builder.Services.AddReservationsModule(builder.Configuration);
 // --- HTTP ---
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
+
+// Enumy jdou po drátě jako text. Čísla by v JSON API znamenala, že klient musí znát pořadí
+// hodnot a že vložení nové hodnoty doprostřed tiše změní význam dat.
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 
 WebApplication app = builder.Build();

@@ -12,7 +12,7 @@ namespace WakePark.Modules.Tenancy.Infrastructure.Persistence;
 public sealed class TenancyDbContextFactory : IDesignTimeDbContextFactory<TenancyDbContext>
 {
     private const string DesignTimeConnectionString =
-        "Host=localhost;Port=5432;Database=wakepark;Username=wakepark;Password=design-time";
+        "Host=localhost;Port=5432;Database=wakepark;Username=wakepark;Password=wakepark";
 
     public TenancyDbContext CreateDbContext(string[] args)
     {
