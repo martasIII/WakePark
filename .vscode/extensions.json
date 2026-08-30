@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "angular.ng-template",
+    "editorconfig.editorconfig",
+    "ms-ossdata.vscode-pgsql",
+    "ms-dotnettools.csdevkit"
+  ]
+}

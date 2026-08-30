@@ -154,6 +154,29 @@ jsou signály, takže se v komponentách nedrží žádné ruční `isLoading`.
 
 Vyžaduje Node `^22.22.3` nebo `^24.15.0`.
 
+#### Vývoj frontendu ve VS Code
+
+Otevři **kořen repa**, ne jen složku s Angularem — jinak nebudou sedět cesty v úlohách.
+VS Code sám nabídne doporučená rozšíření z `.vscode/extensions.json`.
+
+- **F5** spustí `ng serve` a otevře Edge s připojeným debuggerem. Body zastavení fungují
+  přímo v `.ts` souborech.
+- `Ctrl+Shift+P` → *Tasks: Run Task* nabídne jednotlivé části i úlohu
+  **vse: db + api + gateway + fe**, která nahodí celé prostředí najednou.
+
+Backend se dá ladit ve VS Code taky (C# Dev Kit), ale pohodlnější je na něj Visual Studio.
+Ať už si vybereš cokoli, **nepouštěj API z obou najednou** — druhé spuštění selže na
+zamčených souborech.
+
+#### Zobrazení na telefonu
+
+```bash
+npx ng serve --host 0.0.0.0
+```
+
+Pak `http://<IP-počítače>:4200` ze zařízení ve stejné síti. Windows Firewall si při prvním
+spuštění řekne o povolení.
+
 ### Testy
 
 ```bash

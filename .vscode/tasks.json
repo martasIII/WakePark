@@ -1,0 +1,83 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "fe: ng serve",
+      "detail": "Vývojový server Angularu na http://localhost:4200",
+      "type": "npm",
+      "script": "start",
+      "path": "src/frontend/wakepark-web",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "ts",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^\\s*(.*)\\((\\d+),(\\d+)\\)\\s*:\\s*(error|warning)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "(Building|Changes detected)",
+          "endsPattern": "(Watch mode enabled|Application bundle generation complete|Local:)"
+        }
+      },
+      "presentation": { "group": "wakepark", "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "fe: build",
+      "type": "npm",
+      "script": "build",
+      "path": "src/frontend/wakepark-web",
+      "problemMatcher": ["$tsc"],
+      "group": "build"
+    },
+    {
+      "label": "be: api",
+      "detail": "WakePark.Api na http://localhost:5101",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["run", "--project", "src/backend/WakePark.Api", "--no-launch-profile"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": { "ASPNETCORE_ENVIRONMENT": "Development", "ASPNETCORE_URLS": "http://localhost:5101" }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "group": "wakepark", "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "be: gateway",
+      "detail": "WakePark.Gateway na http://localhost:5100",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["run", "--project", "src/backend/WakePark.Gateway", "--no-launch-profile"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": { "ASPNETCORE_ENVIRONMENT": "Development", "ASPNETCORE_URLS": "http://localhost:5100" }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "group": "wakepark", "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "db: up",
+      "detail": "PostgreSQL v Dockeru",
+      "type": "shell",
+      "command": "docker compose -f deploy/docker-compose.dev.yml up -d",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "vse: db + api + gateway + fe",
+      "dependsOn": ["db: up", "be: api", "be: gateway", "fe: ng serve"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}
