@@ -1,5 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup>  <UserSecretsId>8ee809c8-f2a0-49d6-a540-0acf4492c968</UserSecretsId>
+  </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Modules\Identity\WakePark.Modules.Identity.Infrastructure\WakePark.Modules.Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Tenancy\WakePark.Modules.Tenancy.Infrastructure\WakePark.Modules.Tenancy.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Operations\WakePark.Modules.Operations.Infrastructure\WakePark.Modules.Operations.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Reservations\WakePark.Modules.Reservations.Infrastructure\WakePark.Modules.Reservations.Infrastructure.csproj" />

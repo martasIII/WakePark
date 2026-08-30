@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 using WakePark.BuildingBlocks.Application.Messaging;
+using WakePark.Modules.Identity.Contracts;
 using WakePark.Modules.Operations.Application.Schedule;
 using WakePark.Modules.Operations.Contracts;
 
@@ -34,7 +35,8 @@ public static class OperationsEndpoints
                 nebo celodenní výjimka. Není to chyba.
                 """)
             .Produces<IReadOnlyList<SlotTemplateDto>>()
-            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity)
+            .RequireAuthorization(PermissionPolicies.For(Permissions.OperationsRead));
 
         return endpoints;
     }

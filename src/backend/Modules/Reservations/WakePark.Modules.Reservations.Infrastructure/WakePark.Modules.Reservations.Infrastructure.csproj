@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <!-- Kódy oprávnění pro zabezpečení vlastních endpointů. -->
+    <ProjectReference Include="..\..\Identity\WakePark.Modules.Identity.Contracts\WakePark.Modules.Identity.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WakePark.Modules.Reservations.Application\WakePark.Modules.Reservations.Application.csproj" />

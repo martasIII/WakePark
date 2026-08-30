@@ -23,10 +23,18 @@ internal sealed partial class DomainExceptionHandler(ILogger<DomainExceptionHand
 
         LogDomainRuleViolated(logger, domainException.Code, domainException);
 
+        // Neplatné přihlašovací údaje nejsou porušené doménové pravidlo, ale odepřený
+        // přístup. Klient na ně reaguje jinak, proto jim patří vlastní stavový kód.
+        int status = string.Equals(domainException.Code, "auth.invalid_credentials", StringComparison.Ordinal)
+            ? StatusCodes.Status401Unauthorized
+            : StatusCodes.Status422UnprocessableEntity;
+
         ProblemDetails problem = new()
         {
-            Status = StatusCodes.Status422UnprocessableEntity,
-            Title = "Porušeno doménové pravidlo",
+            Status = status,
+            Title = status == StatusCodes.Status401Unauthorized
+                ? "Přihlášení se nezdařilo"
+                : "Porušeno doménové pravidlo",
             Detail = domainException.Message,
             Type = "https://tools.ietf.org/html/rfc9110#section-15.5.21",
         };
@@ -36,7 +44,7 @@ internal sealed partial class DomainExceptionHandler(ILogger<DomainExceptionHand
             problem.Extensions["code"] = domainException.Code;
         }
 
-        httpContext.Response.StatusCode = StatusCodes.Status422UnprocessableEntity;
+        httpContext.Response.StatusCode = status;
         await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken).ConfigureAwait(false);
 
         return true;

@@ -19,6 +19,11 @@ public sealed class ModuleIsolationTests
     private static readonly (string Namespace, Assembly Domain, Assembly Contracts)[] Modules =
     [
         (
+            "WakePark.Modules.Identity",
+            typeof(Modules.Identity.Domain.Users.UserAccount).Assembly,
+            typeof(Modules.Identity.Contracts.CurrentUserDto).Assembly
+        ),
+        (
             "WakePark.Modules.Tenancy",
             typeof(Modules.Tenancy.Domain.Parks.Park).Assembly,
             typeof(Modules.Tenancy.Contracts.ParkDto).Assembly

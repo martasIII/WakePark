@@ -2,6 +2,8 @@
   <ItemGroup>
     <!-- Modul si mapuje vlastní endpointy, proto potřebuje ASP.NET Core. -->
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <!-- Kódy oprávnění pro zabezpečení vlastních endpointů. -->
+    <ProjectReference Include="..\..\Identity\WakePark.Modules.Identity.Contracts\WakePark.Modules.Identity.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WakePark.Modules.Operations.Application\WakePark.Modules.Operations.Application.csproj" />

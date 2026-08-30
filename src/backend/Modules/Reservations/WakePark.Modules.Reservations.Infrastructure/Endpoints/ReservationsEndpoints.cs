@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 using WakePark.BuildingBlocks.Application.Messaging;
+using WakePark.Modules.Identity.Contracts;
 using WakePark.Modules.Reservations.Application.Availability;
 using WakePark.Modules.Reservations.Application.Reservations.CancelReservation;
 using WakePark.Modules.Reservations.Application.Reservations.CreateReservation;
@@ -34,7 +35,8 @@ public static class ReservationsEndpoints
                 Parametr `date` je v lokálním čase areálu.
                 """)
             .Produces<IReadOnlyList<SlotAvailabilityDto>>()
-            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity)
+            .RequireAuthorization(PermissionPolicies.For(Permissions.ReservationsRead));
 
         group.MapPost("/", CreateAsync)
             .WithName("CreateReservation")
@@ -56,7 +58,8 @@ public static class ReservationsEndpoints
             .Produces<ReservationDto>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity)
+            .RequireAuthorization(PermissionPolicies.For(Permissions.ReservationsCreate));
 
         group.MapPost("/{reservationId:guid}/cancel", CancelAsync)
             .WithName("CancelReservation")
@@ -73,7 +76,8 @@ public static class ReservationsEndpoints
                 """)
             .Produces<ReservationDto>()
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity)
+            .RequireAuthorization(PermissionPolicies.For(Permissions.ReservationsCancel));
 
         return endpoints;
     }
