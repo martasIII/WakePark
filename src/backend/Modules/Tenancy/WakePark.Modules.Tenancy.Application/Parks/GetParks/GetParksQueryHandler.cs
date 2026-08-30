@@ -12,6 +12,15 @@ internal sealed class GetParksQueryHandler(IParkReadRepository repository)
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query);
-        return repository.GetAllAsync(query.EnterpriseId, cancellationToken);
+        return repository.GetByEnterpriseAsync(query.EnterpriseId, cancellationToken);
     }
+}
+
+internal sealed class GetAllParksQueryHandler(IParkReadRepository repository)
+    : IQueryHandler<GetAllParksQuery, IReadOnlyList<ParkDto>>
+{
+    public Task<IReadOnlyList<ParkDto>> HandleAsync(
+        GetAllParksQuery query,
+        CancellationToken cancellationToken = default) =>
+        repository.GetAllAsync(cancellationToken);
 }

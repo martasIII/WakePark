@@ -14,6 +14,7 @@ public static class DependencyInjection
         ArgumentNullException.ThrowIfNull(services);
 
         services.AddScoped<IQueryHandler<GetParksQuery, IReadOnlyList<ParkDto>>, GetParksQueryHandler>();
+        services.AddScoped<IQueryHandler<GetAllParksQuery, IReadOnlyList<ParkDto>>, GetAllParksQueryHandler>();
 
         return services;
     }

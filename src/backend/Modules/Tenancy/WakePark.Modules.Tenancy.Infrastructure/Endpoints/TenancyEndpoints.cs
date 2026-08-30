@@ -19,6 +19,17 @@ public static class TenancyEndpoints
             .MapGroup("/api/v1/tenancy")
             .WithTags("Tenancy");
 
+        group.MapGet("/parks", GetAllParksAsync)
+            .WithName("GetAllParks")
+            .WithSummary("Seznam všech areálů")
+            .WithDescription("""
+                Areály napříč provozovateli, seřazené podle názvu.
+
+                Až přibude autentizace, bude se seznam omezovat na tenanta přihlášeného
+                uživatele. Dokud modul Identity neexistuje, je otevřený.
+                """)
+            .Produces<IReadOnlyList<ParkDto>>();
+
         group.MapGet("/enterprises/{enterpriseId:guid}/parks", GetParksAsync)
             .WithName("GetParks")
             .WithSummary("Seznam areálů provozovatele")
@@ -28,6 +39,17 @@ public static class TenancyEndpoints
             .Produces<IReadOnlyList<ParkDto>>();
 
         return endpoints;
+    }
+
+    private static async Task<IResult> GetAllParksAsync(
+        IQueryHandler<GetAllParksQuery, IReadOnlyList<ParkDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<ParkDto> parks = await handler
+            .HandleAsync(new GetAllParksQuery(), cancellationToken)
+            .ConfigureAwait(false);
+
+        return Results.Ok(parks);
     }
 
     private static async Task<IResult> GetParksAsync(

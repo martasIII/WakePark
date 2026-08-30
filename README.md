@@ -128,6 +128,7 @@ odpovědí jsou v metadatech u `Map*Endpoints` v každém modulu.
 
 | Metoda | Endpoint | Co dělá |
 |---|---|---|
+| `GET` | `/api/v1/tenancy/parks` | všechny areály |
 | `GET` | `/api/v1/tenancy/enterprises/{id}/parks` | areály provozovatele |
 | `GET` | `/api/v1/operations/cables/{id}/schedule?date=` | rozvrh vleku pro den |
 | `GET` | `/api/v1/reservations/availability?cableId=&date=` | volná kapacita |
@@ -144,6 +145,12 @@ npm start
 Běží na `http://localhost:4200`. Požadavky na `/api/**` proxuje `proxy.conf.json` na gateway
 (`http://localhost:5100`), takže se ve vývoji neřeší CORS a frontend volá stejné cesty jako
 v produkci.
+
+Aby stránka ukázala data, musí běžet **všechno tři**: databáze, `WakePark.Api` (5101)
+a `WakePark.Gateway` (5100). Když něco z toho chybí, přehled to řekne místo prázdné stránky.
+
+Stránky se načítají líně (`loadComponent`), stav dotazu drží `httpResource` — načítání i chyba
+jsou signály, takže se v komponentách nedrží žádné ruční `isLoading`.
 
 Vyžaduje Node `^22.22.3` nebo `^24.15.0`.
 

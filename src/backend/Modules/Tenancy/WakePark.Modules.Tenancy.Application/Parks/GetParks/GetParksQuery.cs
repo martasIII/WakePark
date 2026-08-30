@@ -5,3 +5,6 @@ namespace WakePark.Modules.Tenancy.Application.Parks.GetParks;
 
 /// <summary>Seznam areálů jednoho provozovatele.</summary>
 public sealed record GetParksQuery(Guid EnterpriseId) : IQuery<IReadOnlyList<ParkDto>>;
+
+/// <summary>Seznam všech areálů bez ohledu na provozovatele.</summary>
+public sealed record GetAllParksQuery : IQuery<IReadOnlyList<ParkDto>>;

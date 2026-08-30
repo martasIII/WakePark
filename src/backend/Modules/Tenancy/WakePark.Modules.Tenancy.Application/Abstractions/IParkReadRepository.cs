@@ -8,7 +8,18 @@ namespace WakePark.Modules.Tenancy.Application.Abstractions;
 /// </summary>
 public interface IParkReadRepository
 {
-    Task<IReadOnlyList<ParkDto>> GetAllAsync(Guid enterpriseId, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Všechny areály napříč provozovateli.
+    /// </summary>
+    /// <remarks>
+    /// Až přibude autentizace, musí se výsledek omezit na tenanta přihlášeného uživatele.
+    /// Dokud modul Identity neexistuje, je to otevřený seznam.
+    /// </remarks>
+    Task<IReadOnlyList<ParkDto>> GetAllAsync(CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ParkDto>> GetByEnterpriseAsync(
+        Guid enterpriseId,
+        CancellationToken cancellationToken = default);
 
     Task<ParkDto?> GetByIdAsync(Guid parkId, CancellationToken cancellationToken = default);
 }

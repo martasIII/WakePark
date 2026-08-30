@@ -1,1 +1,39 @@
-/* You can add global styles to this file, and also import other style files */
+/* Barvy jsou proměnné, aby šel tmavý režim doplnit bez sahání do komponent. */
+:root {
+  --wp-bg: #f7f7f8;
+  --wp-surface: #ffffff;
+  --wp-border: #d9d9de;
+  --wp-text: #1b1b1f;
+  --wp-text-muted: #61616b;
+  --wp-accent: #0f766e;
+  --wp-danger-border: #e5b4b4;
+  --wp-danger-surface: #fdf1f1;
+  --wp-danger-text: #8c2f2f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --wp-bg: #131316;
+    --wp-surface: #1c1c20;
+    --wp-border: #33333a;
+    --wp-text: #ececf0;
+    --wp-text-muted: #a0a0ac;
+    --wp-accent: #2dd4bf;
+    --wp-danger-border: #5c3030;
+    --wp-danger-surface: #2a1a1a;
+    --wp-danger-text: #f0a8a8;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--wp-bg);
+  color: var(--wp-text);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+}

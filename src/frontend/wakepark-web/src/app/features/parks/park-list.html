@@ -1,0 +1,44 @@
+<section class="parks">
+  <header class="parks__header">
+    <div>
+      <h1>Areály</h1>
+      <p class="parks__subtitle">Přehled všech wakeparků napříč provozovateli.</p>
+    </div>
+    <button type="button" class="button" (click)="reload()" [disabled]="parks.isLoading()">
+      Načíst znovu
+    </button>
+  </header>
+
+  @if (parks.isLoading()) {
+    <p class="parks__state" role="status">Načítám areály…</p>
+  } @else if (parks.error()) {
+    <div class="parks__state parks__state--error" role="alert">
+      <strong>Areály se nepodařilo načíst.</strong>
+      <p>Běží backend na portu 5101 a gateway na 5100?</p>
+    </div>
+  } @else if (isEmpty()) {
+    <p class="parks__state">Zatím tu není žádný areál.</p>
+  } @else {
+    <ul class="parks__grid">
+      @for (park of parks.value(); track park.id) {
+        <li class="park">
+          <h2 class="park__name">{{ park.name }}</h2>
+          <p class="park__place">{{ park.city }} · {{ park.countryCode }}</p>
+
+          @if (park.description) {
+            <p class="park__description">{{ park.description }}</p>
+          }
+
+          <dl class="park__facts">
+            <dt>Časová zóna</dt>
+            <dd>{{ park.timeZoneId }}</dd>
+            <dt>Měna</dt>
+            <dd>{{ park.currency }}</dd>
+            <dt>Storno</dt>
+            <dd>{{ cancellationSummary(park) }}</dd>
+          </dl>
+        </li>
+      }
+    </ul>
+  }
+</section>

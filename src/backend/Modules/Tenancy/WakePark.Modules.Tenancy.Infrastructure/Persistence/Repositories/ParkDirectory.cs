@@ -15,5 +15,5 @@ internal sealed class ParkDirectory(IParkReadRepository repository) : IParkDirec
     public Task<IReadOnlyList<ParkDto>> GetParksAsync(
         Guid enterpriseId,
         CancellationToken cancellationToken = default) =>
-        repository.GetAllAsync(enterpriseId, cancellationToken);
+        repository.GetByEnterpriseAsync(enterpriseId, cancellationToken);
 }
