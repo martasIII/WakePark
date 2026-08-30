@@ -1,0 +1,24 @@
+# Lokální vývojová databáze. Nic jiného tu zatím není — aplikace se spouští z Visual Studia.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: wakepark-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wakepark
+      POSTGRES_USER: wakepark
+      POSTGRES_PASSWORD: wakepark
+      # Kolace nezávislá na locale, aby se řazení chovalo stejně na Windows i v Linuxu
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=cs-CZ"
+    ports:
+      - "5432:5432"
+    volumes:
+      - wakepark-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wakepark -d wakepark"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  wakepark-pgdata:

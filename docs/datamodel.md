@@ -1,0 +1,349 @@
+# Datový model
+
+Stav: **návrh po první revizi** (verze 0.2). Vychází z ručního náčrtu a připomínek z 30. 8. 2026.
+Entity a atributy jsou anglicky, komentáře česky.
+
+---
+
+## Globální konvence
+
+Platí pro **všechny** entity, nebudou se opakovat u každé tabulky.
+
+| Konvence | Pravidlo |
+|---|---|
+| Primární klíč | `Guid` (UUID v7 – sekvenční, šetrný k indexům). Sloupec `Id`. |
+| Audit | `CreatedAtUtc`, `CreatedBy`, `UpdatedAtUtc`, `UpdatedBy` – doplňuje EF interceptor, ne aplikační kód. |
+| Souběh | `RowVersion` (`xmin`) u entit, kde hrozí kolize: `Slot`, `RidePass`, `Order`. |
+| Mazání | Soft delete (`DeletedAtUtc`, `DeletedBy`) tam, kde je potřeba historie. Finanční doklady se **nemažou nikdy**. |
+| Čas – okamžik | Vždy UTC, sloupec končí na `Utc`, typ `timestamptz`. |
+| Čas – denní doba | Lokální čas parku, typ `time`. Bez zóny, bez data. |
+| Časový interval | Polouzavřený `[start, end)`. Konec je vždy exkluzivní. |
+| Peníze | `decimal(18,2)` + `Currency` (ISO 4217, 3 znaky). Nikdy `float`/`double`. |
+| Tenant | `EnterpriseId` na každé tenant-scoped entitě + globální EF query filter. |
+| Číselníky | Pevné stavy = C# `enum` uložený jako `string`. Uživatelsky spravované = tabulka. |
+| Pojmenování | Entity jednotné číslo, PascalCase. Cizí klíč `<Entita>Id`. |
+
+---
+
+## Modul `Tenancy`
+
+Kdo systém provozuje a jaké areály má.
+
+### `Enterprise` — provozovatel (tenant)
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK, zároveň **TenantId** pro celý systém |
+| `Name` | string(200) | |
+| `Address` | *value object* | vloženo přes `OwnsOne`, ne samostatná tabulka |
+| `RegistrationNumber` | string(20) | IČO |
+| `VatNumber` | string(20)? | DIČ, null když neplátce |
+| `BankAccountNumber` | string(50)? | tuzemský formát |
+| `Iban` | string(34)? | |
+| `OwnerUserAccountId` | Guid | FK → `Identity.UserAccount` (cross-modul: **jen ID, ne navigace**) |
+
+### `WakePark` — areál
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `EnterpriseId` | Guid | FK → `Enterprise` |
+| `Name` | string(200) | |
+| `Description` | string(2000)? | |
+| `Address` | *value object* | |
+| `TimeZoneId` | string(64) | IANA, např. `Europe/Prague` — **nutné** pro převod lokální doby na UTC |
+| `Currency` | string(3) | ISO 4217, výchozí měna pro doklady |
+| `ReservationEmail` | string(320)? | adresa pro notifikace o rezervacích |
+
+Pozn.: `pricelistId` z náčrtu **zrušen** — vazba jde opačně, `PriceList` má `WakeParkId` + platnost od/do.
+
+### `Address` — value object (ne tabulka)
+
+`Street`, `HouseNumber`, `City`, `PostalCode`, `CountryCode` (ISO 3166-1 alpha-2)
+
+---
+
+## Modul `Identity`
+
+Přihlášení a oprávnění. **Nesmí obsahovat osobní údaje** — ty jsou v `Customers`/`Staff`.
+
+### `UserAccount`
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `Email` | string(320) | UNIQUE, přihlašovací identifikátor |
+| `PasswordHash` | string(500) | ASP.NET Core Identity hasher. **Nikdy plain heslo.** |
+| `SecurityStamp` | string | invalidace tokenů při změně hesla |
+| `Status` | enum | `Pending`, `Active`, `Suspended`, `Locked` |
+| `EmailConfirmedAtUtc` | timestamptz? | |
+| `LastLoginAtUtc` | timestamptz? | |
+
+### `Role` — logická role
+
+`Id`, `EnterpriseId?`, `Name`, `Description`
+
+Systémové role mají `EnterpriseId = null` (Guest, Customer, Employee, Instructor, Admin), tenant si může přidat vlastní.
+
+### `Permission` — konkrétní oprávnění
+
+`Id`, `Code` (UNIQUE, např. `reservation.delete`), `Description`
+
+V náčrtu `PhysicalRole` s `parentRoleId`. Přejmenováno a hierarchie nahrazena M:N — jinak nelze dát stejné oprávnění dvěma rolím bez duplikace. `Code` je zároveň konstanta v C# (`Permissions.Reservation.Delete`), tabulka slouží jen pro administraci.
+
+### `RolePermission`
+
+`RoleId`, `PermissionId` — složený PK
+
+### `UserParkRole` — kdo má jakou roli v jakém areálu
+
+`Id`, `UserAccountId`, `WakeParkId`, `RoleId`, `ValidFromUtc`, `ValidToUtc?`
+
+UNIQUE `(UserAccountId, WakeParkId, RoleId)`
+
+Nahrazuje `User.roleId` + `User.wakeParkId` z náčrtu. Jeden člověk může mít roli ve víc areálech a víc rolí v jednom.
+
+---
+
+## Modul `Customers`
+
+### `Customer`
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `EnterpriseId` | Guid | |
+| `UserAccountId` | Guid? | **null = walk-in host bez registrace** |
+| `FirstName`, `LastName` | string(100) | |
+| `Email` | string(320)? | |
+| `Phone` | string(30)? | |
+| `DateOfBirth` | date? | kvůli juniorské sazbě a nezletilosti |
+| `Address` | *value object*? | |
+| `Note` | string(1000)? | |
+
+### `CustomerCard` — RFID čip / karta
+
+`Id`, `CustomerId`, `CardNumber` (UNIQUE), `IssuedAtUtc`, `RevokedAtUtc?`
+
+### `Consent` — souhlasy (GDPR, zákonný zástupce)
+
+`Id`, `CustomerId`, `Type` (enum: `GdprProcessing`, `Marketing`, `GuardianApproval`, `LiabilityWaiver`), `GrantedAtUtc`, `RevokedAtUtc?`, `DocumentUrl?`, `GuardianName?`
+
+---
+
+## Modul `Operations`
+
+Provozní realita areálu: co jezdí, kdy a s jakou kapacitou.
+
+### `Cable` — vlek
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `WakeParkId` | Guid | |
+| `Name`, `Description` | | |
+| `TowerCount` | int | 2 pro dvousloup |
+| `IsActive` | bool | |
+
+`slotsPerHour` z náčrtu **rozděleno** na dvě veličiny a přesunuto na `WorkingHours` — délka jízdy i kapacita se mění podle sezóny a denní doby.
+
+### `Season` — sezóna
+
+`Id`, `WakeParkId`, `CableId?` (null = platí pro všechny vleky), `Name`, `StartDate`, `EndDate`
+
+### `WorkingHours` — provozní doba
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `CableId` | Guid | |
+| `SeasonId` | Guid | |
+| `DayOfWeek` | int (0–6) | nahrazuje `weekend` bool z náčrtu |
+| `StartTime`, `EndTime` | time | lokální čas parku |
+| `SlotDurationMinutes` | int | délka jedné jízdy (10 / 15 / 20 / 30 / 60) |
+| `Capacity` | int | kolik jezdců najednou na laně (u nás 3) |
+
+### `OperatingException` — výjimka z provozní doby
+
+`Id`, `CableId`, `Date`, `IsClosed`, `CustomStartTime?`, `CustomEndTime?`, `Reason`
+
+Bouřka, údržba, závody, svátek. U wakeparku běžná věc, ne okrajový případ.
+
+### `Slot` — kapacitní jednotka v čase
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `CableId` | Guid | |
+| `StartUtc` | timestamptz | UNIQUE spolu s `CableId` |
+| `DurationMinutes` | int | zamrazeno z `WorkingHours` v okamžiku vzniku |
+| `Capacity` | int | zamrazeno z `WorkingHours` |
+| `ReservedCount` | int | počet obsazených míst, `<= Capacity` |
+| `Status` | enum | `Open`, `Closed`, `Cancelled` |
+| `RowVersion` | xmin | optimistic concurrency |
+
+**Materializace:** řádek vzniká **lazy** — až s první rezervací v daném čase. Kalendář se dopředu negeneruje.
+
+**Invariant:** `ReservedCount <= Capacity`. Překročení = HTTP 422, kolize souběhu = HTTP 409.
+
+---
+
+## Modul `Reservations`
+
+### `Reservation`
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `SlotId` | Guid | |
+| `CustomerId` | Guid | |
+| `OrderId` | Guid? | null dokud není vystaven doklad |
+| `Seats` | int | kolik míst ve slotu zabírá (obvykle 1) |
+| `Status` | enum | `Pending`, `Confirmed`, `CheckedIn`, `Completed`, `Cancelled`, `NoShow` |
+| `Source` | enum | `Online`, `Desk`, `Phone` |
+| `IdempotencyKey` | string(64)? | UNIQUE — ochrana proti dvojímu odeslání |
+| `CancelledAtUtc`, `CancellationReason` | | |
+| `RowVersion` | xmin | |
+
+### `RidePass` — permanentka / kredit
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `CustomerId` | Guid | |
+| `WakeParkId` | Guid | |
+| `Kind` | enum | `RideCredit` (počet jízd), `SeasonPass` (neomezeně v období) |
+| `ValidFrom`, `ValidTo` | date | |
+| `IsTransferable` | bool | |
+| `Status` | enum | `Active`, `Expired`, `Suspended`, `Refunded` |
+| `RowVersion` | xmin | |
+
+**Zůstatek NENÍ sloupec.** Počítá se jako suma `CreditTransaction.Delta`.
+
+### `CreditTransaction` — pohyb kreditu (append-only)
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `RidePassId` | Guid | |
+| `Delta` | int | v **jízdách**, kladné = nabití, záporné = čerpání |
+| `Reason` | enum | `Purchase`, `RideConsumed`, `Refund`, `ManualAdjustment`, `Expiry` |
+| `ReservationId` | Guid? | |
+| `OccurredAtUtc` | timestamptz | |
+| `Note` | string(500)? | |
+
+Řádky se **nikdy neaktualizují ani nemažou**. Oprava = nová opačná transakce.
+
+---
+
+## Modul `Catalog`
+
+### `PriceList`
+
+`Id`, `WakeParkId`, `Name`, `ValidFrom`, `ValidTo?`, `IsActive`
+
+### `PriceItem`
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `PriceListId` | Guid | |
+| `ProductId` | Guid | |
+| `UnitPrice` | decimal(18,2) | |
+| `Currency` | string(3) | |
+| `VatRate` | decimal(5,2) | sazba v procentech |
+| `CustomerSegment` | enum? | `Standard`, `Junior`, `Student`, `Senior` — null = pro všechny |
+| `DayType` | enum? | `Weekday`, `Weekend`, `Holiday` — null = pro všechny |
+
+### `Product` — co se prodává
+
+`Id`, `EnterpriseId`, `Code` (UNIQUE), `Name`, `Type` (enum: `SingleRide`, `RideCreditPack`, `SeasonPass`, `Other`), `RideCount?`
+
+---
+
+## Modul `Billing`
+
+Finanční doklady jsou **immutable**. Oprava = nový doklad (dobropis), nikdy UPDATE.
+
+### `Order`
+
+`Id`, `EnterpriseId`, `WakeParkId`, `CustomerId`, `Number` (UNIQUE, číselná řada), `Status` (enum: `Draft`, `AwaitingPayment`, `Paid`, `Cancelled`, `Refunded`), `Currency`, `TotalNet`, `TotalVat`, `TotalGross`, `IssuedAtUtc`, `RowVersion`
+
+### `OrderLine`
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `OrderId` | Guid | |
+| `ProductId` | Guid | jen reference, ne zdroj ceny |
+| `Description` | string(500) | **zkopírováno** z produktu |
+| `Quantity` | decimal(18,3) | |
+| `UnitPrice` | decimal(18,2) | **zamrazená cena** z ceníku |
+| `VatRate` | decimal(5,2) | **zamrazená sazba** |
+| `LineNet`, `LineVat`, `LineGross` | decimal(18,2) | |
+| `ReservationId` | Guid? | vazba na to, co se prodalo |
+
+Klíčové pravidlo: řádek **nikdy** neodkazuje na `PriceItem` kvůli ceně. Když příští sezónu zdražíš, loňské doklady se nesmí změnit.
+
+### `Payment`
+
+`Id`, `OrderId`, `Method` (enum: `Cash`, `Card`, `BankTransfer`, `OnlineGateway`, `RidePass`), `Amount`, `Currency`, `Status` (enum: `Pending`, `Succeeded`, `Failed`, `Refunded`), `ExternalTransactionId?`, `IdempotencyKey` (UNIQUE), `ReceivedAtUtc`
+
+---
+
+## Modul `Staff`
+
+Přebírá agendu stávajícího systému Dochazka.
+
+### `Employee`
+
+`Id`, `EnterpriseId`, `WakeParkId`, `UserAccountId?`, `FirstName`, `LastName`, `Phone`, `Address` (VO), `Position`, `HourlyRate`, `Currency`, `EmploymentType` (enum: `Brigade`, `Contract`, `Employment`), `StartDate`, `EndDate?`
+
+### `Shift` — plánovaná směna
+
+`Id`, `EmployeeId`, `CableId?`, `PlannedStartUtc`, `PlannedEndUtc`, `Status` (enum: `Planned`, `Confirmed`, `Cancelled`)
+
+### `WorkHour` — odpracovaný čas
+
+`Id`, `EmployeeId`, `ShiftId?`, `StartUtc`, `EndUtc?`, `Source` (enum: `Terminal`, `Manual`, `Import`), `ApprovedBy?`, `ApprovedAtUtc?`
+
+---
+
+## Modul `Notifications`
+
+### `Message`
+
+| Sloupec | Typ | Pozn. |
+|---|---|---|
+| `Id` | Guid | PK |
+| `RecipientUserAccountId` | Guid? | |
+| `RecipientAddress` | string(320) | e-mail nebo telefon — doklad, kam to reálně šlo |
+| `Channel` | enum | `Email`, `Sms`, `InApp` |
+| `Type` | enum | `ReservationConfirmed`, `ReservationCancelled`, `PaymentReceipt`, `PassExpiring`, `Custom` |
+| `Subject`, `Body` | | |
+| `Status` | enum | `Queued`, `Sent`, `Failed`, `Cancelled` |
+| `SentAtUtc`, `FailedAtUtc`, `FailureReason`, `RetryCount` | | |
+
+---
+
+## Vědomě odložené (mimo MVP)
+
+| Oblast | Poznámka |
+|---|---|
+| Půjčovna vybavení | Prkna, vesty, helmy, neopreny — velikosti, kusová evidence, servis |
+| Tréninky a kurzy | Instruktor, kapacita skupiny, opakované lekce |
+| Závody a akce | Registrace, startovní listiny, výsledky |
+| Věrnostní program | Body, slevy za objem |
+| Účetní export | ISDOC, napojení na účetní SW |
+
+Struktura je na ně připravená (`Product.Type`, `OrderLine`, `Reservation`), rozšíření nebude vyžadovat přepis jádra.
+
+---
+
+## Otevřené otázky
+
+1. Číselné řady dokladů — jedna na `Enterprise`, nebo na `WakePark`? Reset po roce?
+2. Storno rezervace — do kdy zdarma? Vrací se kredit celý, nebo s penále?
+3. Může jeden zákazník rezervovat víc míst v jednom slotu (rodina), nebo vždy 1:1?
+4. Online platební brána — kterou? (Comgate / GoPay / Stripe) Ovlivní model `Payment`.
+5. EET / evidence tržeb — aktuálně zrušena, ale hotovostní uzávěrka směny bude potřeba. Řešit v MVP?

@@ -1,0 +1,55 @@
+<Project>
+
+  <!--
+    Společné nastavení pro všechny projekty v repu.
+    Verze balíčků se řídí centrálně v Directory.Packages.props.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!--
+      Globalizace ZŮSTÁVÁ zapnutá. Bez ICU by TimeZoneInfo neuměl IANA identifikátory
+      (Europe/Prague) a nešlo by převádět provozní dobu na UTC.
+    -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Varování = chyba. Nechceme, aby se v repu usadily ignorované warningy. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors></WarningsNotAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591: chybějící XML komentář u veřejného typu – zapneme, až budeme publikovat SDK -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <Company>Wake Park s.r.o.</Company>
+    <Product>WakePark</Product>
+  </PropertyGroup>
+
+  <!--
+    Testovací projekty: názvy testů se čtou líp s podtržítky (CA1707) a XML dokumentaci
+    u nich nikdo nečte.
+  -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);CA1707;CA1861;CA2007;CA1024;IDE0005</NoWarn>
+    <!--
+      .NET 10: dotnet test běží přes Microsoft.Testing.Platform, opt-in je v global.json.
+      Bez UseMicrosoftTestingPlatformRunner použije xunit vlastní runner a dotnet test
+      nenajde ani jeden test.
+    -->
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+  </PropertyGroup>
+
+</Project>

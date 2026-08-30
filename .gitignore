@@ -1,0 +1,77 @@
+## .NET
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Bb]uild[Ll]og.*
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.cache
+*.pidb
+*.svclog
+*.scc
+artifacts/
+TestResults/
+BenchmarkDotNet.Artifacts/
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+coverage*.info
+
+## Visual Studio
+.vs/
+*.vsp
+*.vspx
+*.sap
+*.psess
+*.vspx
+_ReSharper*/
+*.DotSettings.user
+
+## Rider / VS Code
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!packages/build/
+
+## Node / Angular
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+## Konfigurace s tajemstvími – NIKDY do repa
+appsettings.Local.json
+appsettings.*.Local.json
+*.local.json
+.env
+.env.*
+!.env.example
+secrets.json
+
+## OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+## Docker / lokální data
+.data/
+pgdata/

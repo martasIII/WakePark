@@ -1,0 +1,26 @@
+# Git nechá řádkové konce na sobě – normalizace na LF v repu, CRLF v pracovní kopii na Windows
+* text=auto
+
+*.cs        text diff=csharp
+*.csproj    text eol=crlf
+*.sln       text eol=crlf
+*.props     text
+*.targets   text
+*.json      text
+*.ts        text
+*.html      text
+*.scss      text
+*.md        text
+*.yml       text
+*.yaml      text
+*.sh        text eol=lf
+*.ps1       text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
