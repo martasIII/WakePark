@@ -7,6 +7,7 @@ using Scalar.AspNetCore;
 using Serilog;
 
 using WakePark.Api.Infrastructure;
+using WakePark.Api.OpenApi;
 using WakePark.BuildingBlocks.Application.Abstractions;
 using WakePark.BuildingBlocks.Infrastructure;
 using WakePark.Modules.Operations.Infrastructure;
@@ -41,7 +42,7 @@ builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
 // hodnot a že vložení nové hodnoty doprostřed tiše změní význam dat.
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options => options.AddDocumentTransformer<ApiDocumentTransformer>());
 
 WebApplication app = builder.Build();
 
@@ -51,8 +52,16 @@ app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
+    // Jeden OpenAPI dokument, dvě čtečky. Swagger UI je zvyk, Scalar je čitelnější;
+    // ať si každý vybere. Mimo vývoj se nepublikuje ani jedno.
     app.MapOpenApi();
     app.MapScalarApiReference();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "WakePark API v1");
+        options.DocumentTitle = "WakePark API";
+        options.RoutePrefix = "swagger";
+    });
 }
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }))

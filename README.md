@@ -21,7 +21,7 @@ rezervace, permanentky). Zbytek zatím existuje jen jako popsaný datový model.
 | Databáze | PostgreSQL 17 | zdarma, bez licenčních pastí, běží kdekoli |
 | ORM | EF Core 10, code-first | migrace verzované v repu |
 | Architektura | modulární monolit + YARP gateway | viz [ADR 0001](docs/adr/0001-modularni-monolit.md) |
-| API | REST/JSON, OpenAPI, Scalar | kontrakt generuje klienta pro frontend |
+| API | REST/JSON, OpenAPI, Swagger UI + Scalar | kontrakt generuje klienta pro frontend |
 | Testy | xunit.v3, Shouldly, NetArchTest, Testcontainers | architektonická pravidla se vynucují buildem |
 
 ## Struktura
@@ -100,8 +100,22 @@ dotnet dotnet-ef migrations add NazevMigrace --project src/backend/Modules/Reser
 dotnet run --project src/backend/WakePark.Api
 ```
 
-API: `https://localhost:7101`, dokumentace `https://localhost:7101/scalar/v1`, health `/health`.
-Gateway (`https://localhost:7100`) se pouští zvlášť a přeposílá `/api/**` na API.
+API běží na `https://localhost:7101`, gateway (`https://localhost:7100`) se pouští zvlášť
+a přeposílá `/api/**` na API.
+
+#### Dokumentace API
+
+Jeden OpenAPI dokument, dvě čtečky — vyber si:
+
+| Adresa | Co to je |
+|---|---|
+| `/swagger` | Swagger UI. Umí *Try it out*, takže se endpointy dají rovnou zkoušet. |
+| `/scalar/v1` | Scalar. Čitelnější, generuje ukázky volání v různých jazycích. |
+| `/openapi/v1.json` | Samotný dokument. Z něj se generuje klient pro Angular. |
+| `/health` | Kontrola, že aplikace i databáze žijí. |
+
+Publikuje se **jen ve vývojovém prostředí**. Popisy endpointů včetně dokumentovaných chybových
+odpovědí jsou v metadatech u `Map*Endpoints` v každém modulu.
 
 | Metoda | Endpoint | Co dělá |
 |---|---|---|

@@ -22,6 +22,9 @@ public static class TenancyEndpoints
         group.MapGet("/enterprises/{enterpriseId:guid}/parks", GetParksAsync)
             .WithName("GetParks")
             .WithSummary("Seznam areálů provozovatele")
+            .WithDescription(
+                "Vrací i politiku storna areálu — podle ní se řídí, kolik se vrátí při zrušení rezervace. "
+                + "Neznámý provozovatel není chyba, vrátí se prázdný seznam.")
             .Produces<IReadOnlyList<ParkDto>>();
 
         return endpoints;

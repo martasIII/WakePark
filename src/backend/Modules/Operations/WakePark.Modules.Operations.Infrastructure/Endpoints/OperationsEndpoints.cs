@@ -22,8 +22,19 @@ public static class OperationsEndpoints
         group.MapGet("/cables/{cableId:guid}/schedule", GetScheduleAsync)
             .WithName("GetCableSchedule")
             .WithSummary("Rozvrh vleku pro daný den")
-            .WithDescription("Datum se zadává v lokálním čase areálu, začátky slotů se vracejí v UTC.")
-            .Produces<IReadOnlyList<SlotTemplateDto>>();
+            .WithDescription("""
+                Vypočítá, kdy se na vleku daný den jezdí. Vychází z provozní doby platné sezóny
+                a promítá do ní výjimky (uzavírka, zkrácený provoz).
+
+                Parametr `date` je v **lokálním čase areálu**, začátky slotů se vracejí v **UTC**.
+                Přechod na letní čas je ošetřený: neexistující hodina se vynechá, dvojznačná
+                se započítá jednou.
+
+                Prázdný seznam znamená, že se ten den nejezdí — mimo sezónu, zavírací den
+                nebo celodenní výjimka. Není to chyba.
+                """)
+            .Produces<IReadOnlyList<SlotTemplateDto>>()
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
         return endpoints;
     }
