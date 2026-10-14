@@ -1,0 +1,14 @@
+# Do kontextu buildu jen zdrojáky. Výstupy buildu z Windows by v Linuxovém
+# obrazu působily potíže a zbytečně zvětšují kontext.
+**/bin/
+**/obj/
+**/node_modules/
+**/TestResults/
+**/.vs/
+**/.vscode/
+**/*.user
+.git/
+.angular/
+deploy/
+docs/
+tests/
