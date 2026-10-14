@@ -6,17 +6,13 @@ namespace WakePark.Modules.Tenancy.Application.Abstractions;
 /// Čtecí přístup k areálům. Rozhraní je v aplikační vrstvě, implementace v infrastruktuře —
 /// aplikační kód tak nezná EF Core ani konkrétní databázi.
 /// </summary>
+/// <remarks>
+/// Repozitář o přihlášeném uživateli nic neví; na provozovatele omezují dotazy aplikační
+/// vrstvy (ADR 0007). Záměrně tu není „všechny areály napříč provozovateli“ —
+/// co neexistuje, nejde omylem použít.
+/// </remarks>
 public interface IParkReadRepository
 {
-    /// <summary>
-    /// Všechny areály napříč provozovateli.
-    /// </summary>
-    /// <remarks>
-    /// Až přibude autentizace, musí se výsledek omezit na tenanta přihlášeného uživatele.
-    /// Dokud modul Identity neexistuje, je to otevřený seznam.
-    /// </remarks>
-    Task<IReadOnlyList<ParkDto>> GetAllAsync(CancellationToken cancellationToken = default);
-
     Task<IReadOnlyList<ParkDto>> GetByEnterpriseAsync(
         Guid enterpriseId,
         CancellationToken cancellationToken = default);

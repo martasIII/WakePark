@@ -19,7 +19,7 @@ Platí pro **všechny** entity, nebudou se opakovat u každé tabulky.
 | Čas – denní doba | Lokální čas parku, typ `time`. Bez zóny, bez data. |
 | Časový interval | Polouzavřený `[start, end)`. Konec je vždy exkluzivní. |
 | Peníze | `decimal(18,2)` + `Currency` (ISO 4217, 3 znaky). Nikdy `float`/`double`. |
-| Tenant | `EnterpriseId` na každé tenant-scoped entitě + globální EF query filter. |
+| Tenant | `EnterpriseId` na každé tenant-scoped entitě. Data omezují **dotazy aplikační vrstvy** podle `ITenantContext`, ne globální filtr EF — viz [ADR 0007](adr/0007-omezeni-dat-na-provozovatele.md). |
 | Číselníky | Pevné stavy = C# `enum` uložený jako `string`. Uživatelsky spravované = tabulka. |
 | Pojmenování | Entity jednotné číslo, PascalCase. Cizí klíč `<Entita>Id`. |
 

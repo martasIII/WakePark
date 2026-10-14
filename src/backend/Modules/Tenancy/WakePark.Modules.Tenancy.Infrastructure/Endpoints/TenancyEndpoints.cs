@@ -20,14 +20,13 @@ public static class TenancyEndpoints
             .MapGroup("/api/v1/tenancy")
             .WithTags("Tenancy");
 
-        group.MapGet("/parks", GetAllParksAsync)
-            .WithName("GetAllParks")
-            .WithSummary("Seznam všech areálů")
+        group.MapGet("/parks", GetTenantParksAsync)
+            .WithName("GetTenantParks")
+            .WithSummary("Areály mého provozovatele")
             .WithDescription("""
-                Areály napříč provozovateli, seřazené podle názvu.
-
-                Až přibude autentizace, bude se seznam omezovat na tenanta přihlášeného
-                uživatele. Dokud modul Identity neexistuje, je otevřený.
+                Areály provozovatele, pod kterého spadá přihlášený uživatel, seřazené podle názvu.
+                Areály jiných provozovatelů se nevrací nikdy. Uživatel bez provozovatele
+                dostane prázdný seznam.
                 """)
             .Produces<IReadOnlyList<ParkDto>>()
             .RequireAuthorization(PermissionPolicies.For(Permissions.ParksRead));
@@ -37,19 +36,20 @@ public static class TenancyEndpoints
             .WithSummary("Seznam areálů provozovatele")
             .WithDescription(
                 "Vrací i politiku storna areálu — podle ní se řídí, kolik se vrátí při zrušení rezervace. "
-                + "Neznámý provozovatel není chyba, vrátí se prázdný seznam.")
+                + "Jen pro provozovatele přihlášeného uživatele; cizí i neznámý provozovatel vrátí "
+                + "prázdný seznam, aby z odpovědi nešlo poznat, že existuje.")
             .Produces<IReadOnlyList<ParkDto>>()
             .RequireAuthorization(PermissionPolicies.For(Permissions.ParksRead));
 
         return endpoints;
     }
 
-    private static async Task<IResult> GetAllParksAsync(
-        IQueryHandler<GetAllParksQuery, IReadOnlyList<ParkDto>> handler,
+    private static async Task<IResult> GetTenantParksAsync(
+        IQueryHandler<GetTenantParksQuery, IReadOnlyList<ParkDto>> handler,
         CancellationToken cancellationToken)
     {
         IReadOnlyList<ParkDto> parks = await handler
-            .HandleAsync(new GetAllParksQuery(), cancellationToken)
+            .HandleAsync(new GetTenantParksQuery(), cancellationToken)
             .ConfigureAwait(false);
 
         return Results.Ok(parks);

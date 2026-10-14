@@ -7,4 +7,7 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="WakePark.Modules.Tenancy.UnitTests" />
+  </ItemGroup>
 </Project>

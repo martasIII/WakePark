@@ -133,7 +133,7 @@ odpovědí jsou v metadatech u `Map*Endpoints` v každém modulu.
 | `POST` | `/api/v1/identity/login` | přihlášení, vystaví cookie |
 | `POST` | `/api/v1/identity/logout` | odhlášení |
 | `GET` | `/api/v1/identity/me` | kdo je přihlášený a co smí |
-| `GET` | `/api/v1/tenancy/parks` | všechny areály |
+| `GET` | `/api/v1/tenancy/parks` | areály provozovatele přihlášeného uživatele |
 | `GET` | `/api/v1/tenancy/enterprises/{id}/parks` | areály provozovatele |
 | `GET` | `/api/v1/operations/cables/{id}/schedule?date=` | rozvrh vleku pro den |
 | `GET` | `/api/v1/reservations/availability?cableId=&date=` | volná kapacita |

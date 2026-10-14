@@ -3,8 +3,11 @@ using WakePark.Modules.Tenancy.Contracts;
 
 namespace WakePark.Modules.Tenancy.Application.Parks.GetParks;
 
-/// <summary>Seznam areálů jednoho provozovatele.</summary>
+/// <summary>
+/// Areály zadaného provozovatele. Cizí provozovatel vrátí prázdný seznam —
+/// stejně jako neexistující, aby z odpovědi nešlo poznat, že existuje.
+/// </summary>
 public sealed record GetParksQuery(Guid EnterpriseId) : IQuery<IReadOnlyList<ParkDto>>;
 
-/// <summary>Seznam všech areálů bez ohledu na provozovatele.</summary>
-public sealed record GetAllParksQuery : IQuery<IReadOnlyList<ParkDto>>;
+/// <summary>Areály provozovatele, pod kterého spadá přihlášený uživatel.</summary>
+public sealed record GetTenantParksQuery : IQuery<IReadOnlyList<ParkDto>>;

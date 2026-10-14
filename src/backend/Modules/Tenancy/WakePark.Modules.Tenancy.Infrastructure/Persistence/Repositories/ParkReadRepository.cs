@@ -29,14 +29,6 @@ internal sealed class ParkReadRepository(TenancyDbContext dbContext) : IParkRead
             park.CancellationPolicy.LateCancellationRefundPercent,
             park.CancellationPolicy.NoShowRefundPercent));
 
-    public async Task<IReadOnlyList<ParkDto>> GetAllAsync(CancellationToken cancellationToken = default) =>
-        await dbContext.Parks
-            .AsNoTracking()
-            .OrderBy(park => park.Name)
-            .Select(ToDto)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
-
     public async Task<IReadOnlyList<ParkDto>> GetByEnterpriseAsync(
         Guid enterpriseId,
         CancellationToken cancellationToken = default) =>
