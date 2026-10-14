@@ -1,0 +1,15 @@
+{
+  "week": {
+    "mon": "10:00–20:00",
+    "tue": "10:00–20:00",
+    "wed": "10:00–20:00",
+    "thu": "10:00–20:00",
+    "fri": "10:00–20:00",
+    "sat": "10:00–20:00",
+    "sun": "10:00–20:00"
+  },
+  "exceptions": [
+    {"date": "2026-10-28", "hours": {"cs": "Zavřeno"}, "note": {"cs": "Státní svátek"}}
+  ],
+  "note": {"cs": "Doporučujeme si před každou návštěvou zkontrolovat rezervace a případně si zarezervovat vhodný termín."}
+}

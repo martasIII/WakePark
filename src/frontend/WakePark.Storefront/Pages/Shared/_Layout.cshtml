@@ -1,0 +1,43 @@
+@{
+    string? currentPage = ViewContext.RouteData.Values["page"] as string;
+}
+<!DOCTYPE html>
+<html lang="@SiteView.Language">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <meta name="description" content="@ViewData["Description"]">
+    <meta name="theme-color" content="#e50051">
+    @if (Site.IsMultilingual && currentPage is not null)
+    {
+        foreach (string language in Site.Options.SiteLanguages)
+        {
+            <link rel="alternate" hreflang="@language" href="@Url.Page(currentPage, null, new { lang = Site.RouteFor(language) }, Context.Request.Scheme)">
+        }
+    }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@("@")500;700&display=swap">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+</head>
+<body class="@ViewData["BodyClass"]">
+    @RenderBody()
+    <footer>
+        <p>Jižní břeh vodní nádrže Džbán, Praha 6-Vokovice
+            <span class="sep">·</span> <a href="tel:+420737562516">+420 737 562 516</a>
+            <span class="sep">·</span> <a href="mailto:info@("@")wake-dzban.cz">info@("@")wake-dzban.cz</a></p>
+        <p class="small">Správce areálu Wake Park s.r.o., IČ 06633633</p>
+        @if (Site.IsMultilingual && currentPage is not null)
+        {
+            <p class="languages">
+                @foreach (string language in Site.Options.SiteLanguages)
+                {
+                    <a asp-page="@currentPage" asp-route-lang="@Site.RouteFor(language)" hreflang="@language"
+                       aria-current="@(language == SiteView.Language ? "true" : null)">@language.ToUpperInvariant()</a>
+                }
+            </p>
+        }
+    </footer>
+</body>
+</html>

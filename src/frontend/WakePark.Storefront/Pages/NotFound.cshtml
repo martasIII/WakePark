@@ -1,0 +1,15 @@
+@page
+@{
+    ViewData["Title"] = "Stránka nenalezena — Wake Park Džbán";
+    ViewData["BodyClass"] = "page";
+    ViewData["Heading"] = "Tady nic není";
+    ViewData["Subtitle"] = "Stránku jsme po přestavbě webu nejspíš přesunuli.";
+}
+<partial name="_PageHeader" />
+<main class="page-body">
+    <section class="card">
+        <p>Zkuste <a asp-page="/Index" asp-route-lang="@Site.LanguageRoute">úvodní stránku</a>,
+            <a asp-page="/Cenik" asp-route-lang="@Site.LanguageRoute">ceník</a> nebo
+            <a asp-page="/Kontakt" asp-route-lang="@Site.LanguageRoute">kontakt</a>.</p>
+    </section>
+</main>

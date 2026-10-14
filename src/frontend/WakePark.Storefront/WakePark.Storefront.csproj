@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <!--
+    Veřejný web (úvod, ceník, kontakt, později e-shop). Stránky se skládají na serveru,
+    s backendem bude mluvit jen přes HTTP API — na moduly WakeParku neodkazuje.
+    Viz docs/adr/0006-eshop-poukazy.md.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Obsah (ceník, otevírací doba) se nasazuje s aplikací. -->
+    <Content Update="data\**\*.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

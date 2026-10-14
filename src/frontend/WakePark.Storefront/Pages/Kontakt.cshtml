@@ -1,0 +1,91 @@
+@page
+@model KontaktModel
+@{
+    ViewData["Title"] = "Kontakt — Wake Park Džbán";
+    ViewData["Description"] = "Kontakt na Wake Park Džbán — Praha 6-Vokovice, jižní břeh vodní nádrže Džbán. Otevírací doba, telefon, e-mail a jak se k nám dostat.";
+    ViewData["BodyClass"] = "page";
+    ViewData["Heading"] = "Kontakt";
+    ViewData["Subtitle"] = "Jižní břeh vodní nádrže Džbán, Praha 6-Vokovice";
+}
+<partial name="_PageHeader" />
+<main class="page-body">
+
+  <section class="card">
+    <h2>Kde nás najdete</h2>
+    <div class="kv-grid">
+      <p class="kv"><b>Adresa</b><span>Jižní břeh vodní nádrže Džbán<br>Praha 6-Vokovice</span></p>
+      <p class="kv"><b>GPS</b><a href="https://mapy.com/en/zakladni?q=50.09538983277756%2C14.334289900588386&amp;source=firm&amp;id=13652879&amp;x=14.3335473&amp;y=50.0946580&amp;z=18.248">50.0954, 14.3343</a></p>
+      <p class="kv"><b>Telefon</b><a href="tel:+420737562516">+420 737 562 516</a></p>
+      <p class="kv"><b>E-mail</b><a href="mailto:info@@wake-dzban.cz">info@@wake-dzban.cz</a></p>
+    </div>
+    <a class="btn" href="https://mapy.com/en/zakladni?q=50.09538983277756%2C14.334289900588386&amp;source=firm&amp;id=13652879&amp;x=14.3335473&amp;y=50.0946580&amp;z=18.248">Otevřít v Mapy.cz</a>
+  </section>
+
+  <section class="card" id="doba">
+    <h2>Otevírací doba</h2>
+    @if (Model.Hours is null)
+    {
+        <p class="note">@T["LoadFailed"] <a href="tel:+420737562516">+420 737 562 516</a>.</p>
+    }
+    else
+    {
+        <table class="hours">
+            @foreach (OpeningHoursView.DayRow day in Model.Hours.Days)
+            {
+                <tr class="@(day.IsToday ? "today" : null)">
+                    <td>@day.Day @if (day.IsToday) { <span class="tag">@T["Today"]</span> }</td>
+                    <td>@day.Hours</td>
+                </tr>
+            }
+        </table>
+        @if (Model.Hours.Exceptions.Count > 0)
+        {
+            <h3>@T["Exceptions"]</h3>
+            <table class="hours">
+                @foreach (OpeningHoursView.ExceptionRow exception in Model.Hours.Exceptions)
+                {
+                    <tr>
+                        <td>@exception.Date @if (exception.Note is not null) { <span class="desc-inline">@exception.Note</span> }</td>
+                        <td>@exception.Hours</td>
+                    </tr>
+                }
+            </table>
+        }
+        @if (Model.Hours.Note is not null)
+        {
+            <p class="note">@Model.Hours.Note</p>
+        }
+    }
+    <a class="btn" href="@Site.Options.ReservationUrl">Rezervační systém</a>
+  </section>
+
+  <section class="card">
+    <h2>Kontaktní osoby</h2>
+    <div class="row"><div class="name"><b>Dan Beitl</b>
+      <span class="desc">Firemní akce, marketing, spolupráce</span>
+      <span class="desc"><a href="mailto:dan@@wake-dzban.cz">dan@@wake-dzban.cz</a></span></div></div>
+    <div class="row"><div class="name"><b>Kateřina Korejsová</b>
+      <span class="desc">Rezervace, firemní akce, spolupráce</span>
+      <span class="desc"><a href="mailto:info@@wake-dzban.cz">info@@wake-dzban.cz</a> · <a href="tel:+420737562516">+420 737 562 516</a></span></div></div>
+  </section>
+
+  <section class="card">
+    <h2>Jak se k nám dostat</h2>
+    <p class="note">Jednoduše — tramvají, metrem nebo autem, všechny cesty k nám vedou.</p>
+    <div class="row"><div class="name"><b>Tramvají</b>
+      <span class="desc">Zastávka „Nad Džbánem“ (linky 20 a 26), odtud asi 300 m po cestě lesíkem k hlavní bráně koupaliště Džbán.</span></div></div>
+    <div class="row"><div class="name"><b>Metrem</b>
+      <span class="desc">Stanice „Nádraží Veleslavín“ (linka A), odtud asi 12 minut pěšky lesíkem k hlavní bráně koupaliště Džbán.</span></div></div>
+    <div class="row"><div class="name"><b>Autem</b>
+      <span class="desc">Velké veřejné parkoviště na konci ulice Nad Lávkou, odtud pár minut pěšky podél vody.</span></div></div>
+  </section>
+
+  <section class="card">
+    <h2>Provozovatel</h2>
+    <div class="kv-grid">
+      <p class="kv"><b>Provozovatel areálu</b><span>WAKEMASTER s.r.o., IČ 02819082</span></p>
+      <p class="kv"><b>Správce areálu</b><span>Wake Park s.r.o., IČ 06633633</span></p>
+    </div>
+  </section>
+
+</main>

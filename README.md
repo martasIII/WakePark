@@ -41,7 +41,8 @@ src/backend/
   WakePark.Api/            host, který moduly skládá dohromady
   WakePark.Gateway/        YARP – jediný vstupní bod pro frontend
 src/frontend/
-  wakepark-web/            Angular aplikace
+  wakepark-web/            Angular aplikace (backoffice)
+  WakePark.Storefront/     veřejný web wake-dzban.cz (Razor Pages), obsah v data/*.json
 tests/
   WakePark.ArchitectureTests/        hlídá směr závislostí a izolaci modulů
   Modules/<Modul>/...UnitTests/      doména a případy užití, bez databáze
@@ -169,6 +170,31 @@ Stránky se načítají líně (`loadComponent`), stav dotazu drží `httpResour
 jsou signály, takže se v komponentách nedrží žádné ruční `isLoading`.
 
 Vyžaduje Node `^22.22.3` nebo `^24.15.0`.
+
+### Veřejný web (Storefront)
+
+```bash
+dotnet run --project src/frontend/WakePark.Storefront
+```
+
+Běží na `http://localhost:5200` (`https://localhost:7200`). Nepotřebuje databázi ani API —
+s backendem bude mluvit až e-shop, a to jen přes HTTP API (hlídá to `WakePark.ArchitectureTests`).
+
+**Ceník a otevírací doba** jsou v `src/frontend/WakePark.Storefront/data/`:
+
+| Soubor | Co v něm je |
+|---|---|
+| `cenik.json` | sekce a položky ceníku placeného na místě; `price` v korunách, `0` = „Zdarma“, `priceText` místo ceny |
+| `oteviraci-doba.json` | `week` (`mon` … `sun`), `exceptions` s datem `RRRR-MM-DD` (minulé se samy skryjí), `note` |
+
+Texty jsou buď řetězec (stejný ve všech jazycích), nebo `{"cs": "…", "en": "…"}`;
+chybějící překlad se zobrazí česky. Změna = úprava souboru a commit. Testy v
+`WakePark.Storefront.Tests` soubory zkontrolují (platný JSON, ceny, všech sedm dní), takže
+rozbitý ceník neprojde CI. Za běhu se změna projeví bez restartu.
+
+Jazyky se zapínají v `appsettings.json` (`Storefront:Languages`). Zatím je jen `cs`;
+další jazyk dostane adresy s prefixem (`/en/cenik`) a `hreflang` — viz
+[ADR 0006](docs/adr/0006-eshop-poukazy.md), část Jazyky.
 
 #### Vývoj frontendu ve VS Code
 

@@ -1,0 +1,58 @@
+@page
+@model CenikModel
+@{
+    ViewData["Title"] = "Ceník — Wake Park Džbán";
+    ViewData["Description"] = "Ceník Wake Parku Džbán — jízdné, permanentky, půjčovna vybavení, instruktor a dárkové vouchery.";
+    ViewData["BodyClass"] = "page";
+    ViewData["Heading"] = "Ceník";
+    ViewData["Subtitle"] = Model.PriceList?.Season?.Resolve(SiteView.Language);
+    string lang = SiteView.Language;
+}
+<partial name="_PageHeader" />
+<main class="page-body">
+    @if (Model.PriceList is null)
+    {
+        <section class="card"><p>@T["LoadFailed"] <a href="tel:+420737562516">+420 737 562 516</a>.</p></section>
+    }
+    else
+    {
+        foreach (PriceSection group in Model.PriceList.Sections)
+        {
+            <section class="card" id="@group.Id">
+                <h2>@group.Name.Resolve(lang)</h2>
+                @if (group.Note is not null)
+                {
+                    <p class="note">@SiteView.Linkify(group.Note.Resolve(lang))</p>
+                }
+                @foreach (PriceItem item in group.Items ?? [])
+                {
+                    <div class="row">
+                        <div class="name">
+                            <b>@item.Name.Resolve(lang)</b>
+                            @if (item.Tag is not null)
+                            {
+                                <span class="tag">@item.Tag.Resolve(lang)</span>
+                            }
+                            @if (item.Desc is not null)
+                            {
+                                <span class="desc">@item.Desc.Resolve(lang)</span>
+                            }
+                        </div>
+                        @if (item.PriceText is not null)
+                        {
+                            <div class="price">@item.PriceText.Resolve(lang)</div>
+                        }
+                        else if (item.Price == 0)
+                        {
+                            <div class="price free">@T["Free"]</div>
+                        }
+                        else
+                        {
+                            <div class="price">@SiteView.Price(item.Price!.Value)</div>
+                        }
+                    </div>
+                }
+            </section>
+        }
+    }
+</main>

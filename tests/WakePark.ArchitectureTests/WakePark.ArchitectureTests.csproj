@@ -9,6 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\backend\WakePark.Api\WakePark.Api.csproj" />
+    <ProjectReference Include="..\..\src\frontend\WakePark.Storefront\WakePark.Storefront.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NetArchTest.Rules" />

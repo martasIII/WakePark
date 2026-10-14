@@ -1,0 +1,65 @@
+{
+  "season": {"cs": "Sezóna 2025"},
+  "sections": [
+    {
+      "id": "jizdne",
+      "name": {"cs": "Jízdné"},
+      "items": [
+        {"name": {"cs": "20 minut"}, "desc": {"cs": "Pro jednu osobu"}, "price": 500},
+        {"name": {"cs": "20 minut včetně vybavení"}, "desc": {"cs": "Pro jednu osobu, včetně vybavení (wakeboard, wakeskate nebo lyže)"}, "price": 570},
+        {"name": {"cs": "60 minut (celý vlek)"}, "desc": {"cs": "Pro max. 4 osoby"}, "price": 1200}
+      ]
+    },
+    {
+      "id": "pujcovna",
+      "name": {"cs": "Půjčovna"},
+      "note": {"cs": "Po dobu jízdného."},
+      "items": [
+        {"name": {"cs": "Helma"}, "price": 0},
+        {"name": {"cs": "Vesta"}, "price": 0},
+        {"name": {"cs": "Wakeboard"}, "price": 150},
+        {"name": {"cs": "Wakeskate"}, "price": 100},
+        {"name": {"cs": "Vodní lyže"}, "price": 150},
+        {"name": {"cs": "Neoprén"}, "price": 100}
+      ]
+    },
+    {
+      "id": "permanentky",
+      "name": {"cs": "Permanentky"},
+      "items": [
+        {"name": {"cs": "10 × 20 minut"}, "desc": {"cs": "Přenosná na jiné osoby"}, "price": 4200},
+        {"name": {"cs": "10 × 20 minut — včetně vybavení"}, "desc": {"cs": "Přenosná na jiné osoby"}, "price": 5200},
+        {"name": {"cs": "20 × 20 minut"}, "desc": {"cs": "Přenosná na jiné osoby"}, "price": 6900},
+        {"name": {"cs": "20 × 20 minut — včetně vybavení"}, "desc": {"cs": "Včetně neoprenu, přenosná na jiné osoby"}, "price": 9200},
+        {"name": {"cs": "10 × 60 minut"}, "desc": {"cs": "Přenosná na jiné osoby"}, "price": 9900},
+        {"name": {"cs": "10 × 60 minut — včetně vybavení"}, "desc": {"cs": "Včetně neoprenu, přenosná na jiné osoby"}, "price": 12500},
+        {"name": {"cs": "20 × 60 minut"}, "desc": {"cs": "Přenosná na jiné osoby"}, "price": 17500},
+        {"name": {"cs": "20 × 60 minut — včetně vybavení"}, "desc": {"cs": "Včetně neoprenu, přenosná na jiné osoby"}, "price": 21000}
+      ]
+    },
+    {
+      "id": "instruktor",
+      "name": {"cs": "Instruktor"},
+      "items": [
+        {"name": {"cs": "20 minut"}, "desc": {"cs": "Individuálně, pro začátečníky i pokročilé"}, "price": 250},
+        {"name": {"cs": "60 minut"}, "desc": {"cs": "Individuálně, pro začátečníky i pokročilé"}, "price": 450}
+      ]
+    },
+    {
+      "id": "vouchery",
+      "name": {"cs": "Dárkové vouchery"},
+      "note": {"cs": "Zasíláme v PDF. Objednávky přijímáme e-mailem na info@wake-dzban.cz — napište, který voucher a kolik kusů chcete."},
+      "items": [
+        {"name": {"cs": "Voucher pro jednu osobu"}, "desc": {"cs": "Včetně vybavení a instruktora"}, "price": 970},
+        {"name": {"cs": "Voucher pro dvě osoby"}, "desc": {"cs": "Včetně vybavení a instruktora"}, "price": 1840},
+        {"name": {"cs": "Voucher pro tři osoby"}, "desc": {"cs": "Včetně vybavení a instruktora"}, "price": 2690},
+        {"name": {"cs": "Voucher pro až šest osob"}, "desc": {"cs": "Včetně vybavení a instruktora"}, "price": 4000, "tag": {"cs": "Nejvýhodnější"}}
+      ]
+    },
+    {
+      "id": "firemni-akce",
+      "name": {"cs": "Firemní akce"},
+      "note": {"cs": "Cenovou kalkulaci na skupinové a firemní akce vám rádi připravíme individuálně. Napište nám na dan@wake-dzban.cz."}
+    }
+  ]
+}
