@@ -110,7 +110,7 @@ app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
-    // Jeden OpenAPI dokument, dvě �?te�?ky. Swagger UI je zvyk, Scalar je �?itelnější;
+    // Jeden OpenAPI dokument, dvě čtečky. Swagger UI je zvyk, Scalar je čitelnější;
     // ať si každý vybere. Mimo vývoj se nepublikuje ani jedno.
     app.MapOpenApi();
     app.MapScalarApiReference();
@@ -136,5 +136,5 @@ app.MapReservationsEndpoints();
 
 await app.RunAsync().ConfigureAwait(false);
 
-/// <summary>Vstupní bod API. Veřejný kvůli integra�?ním testům přes <c>WebApplicationFactory</c>.</summary>
+/// <summary>Vstupní bod API. Veřejný kvůli integračním testům přes <c>WebApplicationFactory</c>.</summary>
 public partial class Program;
