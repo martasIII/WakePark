@@ -8,8 +8,27 @@ internet ─► nginx (80/443, certifikáty Let's Encrypt)
               └─ novy.wake-dzban.cz     ─► 127.0.0.1:5081  Storefront (Docker)
 ```
 
-Nasazení: `.\deploy\storefront\deploy.ps1` (postaví obraz lokálně a přenese ho přes SSH).
-Později ho převezme GitHub Actions.
+## Jak se nasazuje
+
+Samo, po každém pushi do `main`, když projdou testy (`.github/workflows/ci.yml`):
+
+```
+push → CI: testy ✔ + obraz ghcr.io/martasiii/wakepark-storefront:<commit>
+     → značka latest → ssh deploy@VPS "<commit>" → deploy.sh: pull, up, kontrola /health
+```
+
+Uživatel `deploy` na serveru nemá heslo ani shell. Jeho klíč (v GitHub Secrets) je
+v `authorized_keys` svázaný s jediným skriptem `/opt/wakepark/storefront/deploy.sh`
+(`restrict,command="…"`) — nespustí nic jiného, neotevře tunel a jako argument přijme jen
+hash commitu nebo `latest`. Skript i compose patří rootovi, `deploy` je nepřepíše.
+
+**Návrat ke starší verzi** (jako root na serveru): `/opt/wakepark/storefront/deploy.sh <hash commitu>`.
+
+**Záloha, když nejde GitHub:** `.\deploy\storefront\deploy.ps1` postaví obraz lokálně
+a nasadí ho se značkou `manual`.
+
+**Změna `docker-compose.yml`** se na server nenasazuje sama (klíč pro CI smí jen spustit
+skript) — po úpravě ho zkopíruj ručně: `scp deploy/storefront/docker-compose.yml dochazka:/opt/wakepark/storefront/`.
 
 ## Jednorázové nastavení serveru
 
@@ -71,9 +90,37 @@ certbot --nginx -d novy.wake-dzban.cz --redirect
 Certbot doplní HTTPS a přesměrování z HTTP. Obnovu certifikátu už řeší `certbot.timer`,
 který běží kvůli Docházce.
 
-### 5. První nasazení
+### 5. Uživatel pro nasazení z GitHubu
 
-Z vývojového počítače: `.\deploy\storefront\deploy.ps1`, pak ověřit https://novy.wake-dzban.cz.
+Klíčový pár se generuje na vývojovém počítači (`ssh-keygen -t ed25519 -N "" -f deploy_key`),
+**soukromý klíč jde jen do GitHub Secrets**, na disku nezůstává.
+
+```bash
+useradd --create-home --shell /bin/sh --groups docker deploy
+passwd -l deploy
+install -o root -g root -m 755 deploy-on-server.sh /opt/wakepark/storefront/deploy.sh
+install -o deploy -g deploy -m 700 -d /home/deploy/.ssh
+echo 'restrict,command="/opt/wakepark/storefront/deploy.sh" ssh-ed25519 AAAA… github-actions-deploy@wakepark' \
+  > /home/deploy/.ssh/authorized_keys
+chown deploy:deploy /home/deploy/.ssh/authorized_keys && chmod 600 /home/deploy/.ssh/authorized_keys
+```
+
+Členství ve skupině `docker` je fakticky ekvivalent roota — proto je klíč svázaný
+se skriptem a nikdy se nepoužívá k ničemu jinému.
+
+GitHub → Settings → Secrets and variables → Actions:
+
+| Secret | Obsah |
+|---|---|
+| `VPS_DEPLOY_SSH_KEY` | soukromý klíč `deploy_key` (celý, včetně řádků BEGIN/END) |
+| `VPS_KNOWN_HOSTS` | výstup `ssh-keyscan 31.31.73.220`, ověřený proti známému otisku serveru |
+
+Obraz v ghcr.io musí být **veřejný** (GitHub → Packages → wakepark-storefront → Package
+settings → Change visibility), jinak by si ho server nestáhl bez přihlášení.
+
+### 6. První nasazení
+
+Push do `main` → v GitHubu záložka Actions → úloha „Storefront — nasazení na VPS“.
 
 ## Údržba
 

@@ -24,3 +24,5 @@
 *.pdf binary
 *.docx binary
 *.xlsx binary
+# Skripty pro Linux (server, CI) musí mít LF — s CRLF by je bash nespustil.
+*.sh text eol=lf

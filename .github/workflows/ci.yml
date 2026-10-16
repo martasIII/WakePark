@@ -1,5 +1,6 @@
 # Build a testy při každém pushi do main a u každého pull requestu.
-# Nasazení na VPS přijde jako samostatný workflow, až bude na serveru deploy uživatel.
+# Na main navíc: obraz webu do GitHub Container Registry a nasazení na VPS —
+# ale jen když prošlo všechno ostatní.
 
 name: CI
 
@@ -65,10 +66,75 @@ jobs:
     name: Storefront — Docker obraz
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    env:
+      PUBLISH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v4
 
-      # Jen ověření, že se obraz postaví. Do registru se zatím nic neposílá.
-      - name: Build obrazu
-        run: docker build -f src/frontend/WakePark.Storefront/Dockerfile -t wakepark-storefront:ci .
+      # Název obrazu v registru musí být malými písmeny, vlastník repa je martasIII.
+      - name: Název obrazu
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/wakepark-storefront" >> "$GITHUB_ENV"
+
+      - uses: docker/login-action@v4
+        if: env.PUBLISH == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # U pull requestu jen ověří, že se obraz postaví. Na main ho uloží s hashem commitu;
+      # značku latest dostane až po zelených testech (úloha deploy-storefront).
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: src/frontend/WakePark.Storefront/Dockerfile
+          push: ${{ env.PUBLISH == 'true' }}
+          tags: ${{ env.IMAGE }}:${{ github.sha }}
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-storefront:
+    name: Storefront — nasazení na VPS
+    needs: [backend, frontend, storefront-image]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Prostředí „production“ dává v GitHubu přehled nasazení a místo pro případné schvalování.
+    environment:
+      name: production
+      url: https://novy.wake-dzban.cz
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Název obrazu
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/wakepark-storefront" >> "$GITHUB_ENV"
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Obraz, který prošel testy, dostane značku latest — bez nového buildu.
+      - name: Značka latest
+        run: docker buildx imagetools create --tag "$IMAGE:latest" "$IMAGE:$GITHUB_SHA"
+
+      # Klíč na serveru smí spustit jen deploy.sh; argumentem je commit, který se nasadí.
+      # Otisk serveru je v secretu, takže se SSH nepřipojí k podvrženému stroji.
+      - name: Nasazení
+        env:
+          SSH_KEY: ${{ secrets.VPS_DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            deploy@31.31.73.220 "$GITHUB_SHA"

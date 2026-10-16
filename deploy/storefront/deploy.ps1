@@ -1,13 +1,13 @@
 ﻿<#
 .SYNOPSIS
-    Postaví obraz veřejného webu lokálně a nasadí ho na VPS.
+    Ruční nasazení veřejného webu z vývojového počítače — záloha pro případ, že nejde GitHub.
 
 .DESCRIPTION
-    Dočasné řešení, dokud nasazení nepřevezme GitHub Actions. Obraz se staví na vývojovém
-    počítači (VPS má jen 1 jádro a 2 GB RAM sdílené s Docházkou) a na server se přenese
-    jako archiv — bez registru obrazů.
+    Běžně nasazuje GitHub Actions po zeleném CI (obraz z ghcr.io, deploy.sh na serveru).
+    Tenhle skript postaví obraz lokálně, přenese ho jako archiv a spustí ho se značkou
+    „manual“. Další nasazení z CI ho zase nahradí verzí z registru.
 
-    Předpoklady: běžící Docker Desktop, SSH alias `dochazka` (klíč, bez hesla) a jednorázové
+    Předpoklady: běžící Docker Desktop, SSH alias `dochazka` (root, klíč) a jednorázové
     nastavení serveru podle deploy/storefront/README.md.
 
 .EXAMPLE
@@ -23,7 +23,7 @@ $ErrorActionPreference = 'Stop'
 # Výstup ze ssh (UTF-8) by se v konzoli Windows PowerShellu zobrazil rozbitě.
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
-$image = 'wakepark-storefront:latest'
+$image = 'ghcr.io/martasiii/wakepark-storefront:manual'
 $archive = Join-Path ([IO.Path]::GetTempPath()) 'wakepark-storefront.tar'
 
 function Invoke-Checked([scriptblock]$Command, [string]$What) {
@@ -41,7 +41,6 @@ Invoke-Checked { docker build --platform linux/amd64 -f (Join-Path $repoRoot 'sr
 Write-Host '=== přenos na server ===' -ForegroundColor Cyan
 Invoke-Checked { docker save --output $archive $image } 'Export obrazu'
 Invoke-Checked { scp $archive "${SshHost}:/tmp/wakepark-storefront.tar" } 'Přenos obrazu'
-Invoke-Checked { scp (Join-Path $PSScriptRoot 'docker-compose.yml') "${SshHost}:$RemoteDir/docker-compose.yml" } 'Přenos compose'
 Remove-Item $archive
 
 Write-Host '=== spuštění ===' -ForegroundColor Cyan
@@ -50,7 +49,7 @@ set -e
 docker load --input /tmp/wakepark-storefront.tar
 rm /tmp/wakepark-storefront.tar
 cd $RemoteDir
-docker compose up -d
+STOREFRONT_TAG=manual docker compose up -d
 docker image prune -f > /dev/null
 for i in `$(seq 1 20); do
   if curl -fsS http://127.0.0.1:5081/health > /dev/null; then echo 'web odpovídá'; exit 0; fi

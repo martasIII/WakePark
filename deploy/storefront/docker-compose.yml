@@ -1,12 +1,14 @@
-# Veřejný web na VPS. Leží v /opt/wakepark/storefront/, spouští se:
-#   docker compose up -d
+# Veřejný web na VPS. Leží v /opt/wakepark/storefront/ a nasazuje ho deploy.sh:
+#   ./deploy.sh <commit>      (to dělá GitHub Actions po zeleném CI)
 #
 # Kontejner poslouchá jen na loopbacku hostitele — zvenku je dostupný výhradně
 # přes nginx, který drží certifikát a porty 80/443 (sdílí je s Docházkou).
 
 services:
   storefront:
-    image: wakepark-storefront:latest
+    # Obraz staví CI a ukládá do GitHub Container Registry, označený hashem commitu.
+    # Bez STOREFRONT_TAG se použije latest = poslední verze, která prošla testy.
+    image: ghcr.io/martasiii/wakepark-storefront:${STOREFRONT_TAG:-latest}
     container_name: wakepark-storefront
     restart: unless-stopped
     ports:
