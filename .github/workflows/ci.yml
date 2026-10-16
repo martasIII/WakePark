@@ -1,0 +1,74 @@
+# Build a testy při každém pushi do main a u každého pull requestu.
+# Nasazení na VPS přijde jako samostatný workflow, až bude na serveru deploy uživatel.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Nový push do stejné větve zruší rozběhnutý běh — výsledek starého commitu nikoho nezajímá.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  backend:
+    name: Backend — build a testy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      # Build s TreatWarningsAsErrors; ContinuousIntegrationBuild zapne Directory.Build.props podle CI=true.
+      - name: Build
+        run: dotnet build WakePark.sln --configuration Release
+
+      # Integrační testy si přes Testcontainers zvednou PostgreSQL — Docker na runneru je.
+      # Skript místo `dotnet test` kvůli chybě SDK 10.0.400 s xunit.v3 (viz scripts/test.ps1).
+      - name: Testy (unit, architektura, web, integrační)
+        shell: pwsh
+        run: ./scripts/test.ps1 -Configuration Release
+
+  frontend:
+    name: Frontend — build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src/frontend/wakepark-web
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/frontend/wakepark-web/package-lock.json
+
+      - run: npm ci
+      - run: npm run build
+
+  storefront-image:
+    name: Storefront — Docker obraz
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+
+      # Jen ověření, že se obraz postaví. Do registru se zatím nic neposílá.
+      - name: Build obrazu
+        run: docker build -f src/frontend/WakePark.Storefront/Dockerfile -t wakepark-storefront:ci .

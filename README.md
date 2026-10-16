@@ -1,5 +1,7 @@
 # WakePark
 
+[![CI](https://github.com/martasIII/WakePark/actions/workflows/ci.yml/badge.svg)](https://github.com/martasIII/WakePark/actions/workflows/ci.yml)
+
 Rezervační, billingový a informační systém pro wakeboardingové parky, primárně dvousloupé.
 
 Stav: **jádro rezervací hotové**. Stojí architektura, sdílené stavební bloky a tři moduly:
