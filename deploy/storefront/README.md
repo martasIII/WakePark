@@ -12,7 +12,7 @@ internet ─► nginx (80/443, certifikáty Let's Encrypt)
 ```
 
 API ani databáze nemají publikovaný port, z internetu ani z hostitele na ně nejde sáhnout.
-Heslo k databázi je jen v `/opt/wakepark/storefront/.env` (root, 600).
+Heslo k databázi je jen v `/opt/wakepark/storefront/.env` (root:deploy, 640 — `deploy.sh` ho potřebuje číst).
 
 ## Jak se nasazuje
 
@@ -151,6 +151,8 @@ Heslo k databázi (vygeneruje se jednou, nikam jinam se nepíše):
 ```bash
 umask 077
 printf 'POSTGRES_PASSWORD=%s\n' "$(openssl rand -hex 24)" > /opt/wakepark/storefront/.env
+# deploy.sh běží jako uživatel deploy a compose si z .env heslo čte
+chown root:deploy /opt/wakepark/storefront/.env && chmod 640 /opt/wakepark/storefront/.env
 ```
 
 Denní záloha databáze (`pg_dump`, 14 dní zpětně) do `/var/backups/wakepark/`:

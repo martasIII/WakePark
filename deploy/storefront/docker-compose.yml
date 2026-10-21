@@ -5,7 +5,7 @@
 # který drží certifikát a porty 80/443 (sdílí je s Docházkou). API a databáze nemají
 # publikovaný žádný port; dostane se k nim jen kontejner ze stejné sítě Dockeru.
 #
-# Heslo k databázi je v .env vedle tohoto souboru (vlastník root, 600), v gitu není:
+# Heslo k databázi je v .env vedle tohoto souboru (root:deploy, 640), v gitu není:
 #   POSTGRES_PASSWORD=…
 
 x-logging: &logging
