@@ -49,4 +49,6 @@
   <data name="SaveQr" xml:space="preserve"><value>Uložit QR kód do telefonu</value></data>
   <data name="PayingFromPhone" xml:space="preserve"><value>Platíte z mobilu?</value></data>
   <data name="PayingFromPhoneText" xml:space="preserve"><value>Uložte si QR kód do telefonu a v aplikaci své banky ho načtěte z obrázku (u QR platby bývá volba „z galerie“). Nebo si údaje zkopírujte tlačítky výše.</value></data>
+  <data name="Less" xml:space="preserve"><value>O kus méně</value></data>
+  <data name="More" xml:space="preserve"><value>O kus více</value></data>
 </root>

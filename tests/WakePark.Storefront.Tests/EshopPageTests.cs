@@ -47,6 +47,9 @@ public sealed class EshopPageTests(WebApplicationFactory<Program> factory)
         // Cena se píše s nezlomitelnými mezerami (tisíce i před „Kč“), aby se nezalomila.
         html.ShouldContain("1 290 Kč");
         html.ShouldContain("src=\"/img/katalog/voucher-2.svg\"");
+        // Cena pro průběžný součet ve skriptu — strojově, s tečkou, ne v českém formátu.
+        html.ShouldContain("data-price=\"1290\"");
+        html.ShouldMatch("""<script src="/js/eshop[^"]*\.js""");
         api.RequestedUris.Single().AbsolutePath
             .ShouldBe("/api/v1/catalog/enterprises/01990000-0000-7000-8000-000000000001");
     }

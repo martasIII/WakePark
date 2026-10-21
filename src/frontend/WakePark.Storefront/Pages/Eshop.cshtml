@@ -49,8 +49,12 @@
                                 <p class="desc">@product.Description.Resolve(lang)</p>
                                 <p class="price">@SiteView.Price(product.UnitPrice) <span>@T["InclVat"]</span></p>
                                 <label class="qty" for="@inputId">@T["Quantity"]
-                                    <input id="@inputId" type="number" name="Quantities[@product.Id]"
-                                           value="@Model.QuantityOf(product)" min="0" max="20" inputmode="numeric">
+                                    <span class="stepper">
+                                        <input id="@inputId" type="number" name="Quantities[@product.Id]"
+                                               value="@Model.QuantityOf(product)" min="0" max="20" inputmode="numeric"
+                                               data-price="@product.UnitPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                               data-less="@T["Less"]" data-more="@T["More"]">
+                                    </span>
                                 </label>
                             </li>
                         }
@@ -82,8 +86,10 @@
                     <span>@T["TermsAgree"] <a asp-page="/Obchodni-podminky" asp-route-lang="@Site.LanguageRoute" target="_blank">@T["Terms"]</a>.</span>
                 </label>
                 <p class="pay-note">@T["PayNote"]</p>
+                <p class="order-total" hidden>@T["Total"] <b data-amount></b></p>
                 <button type="submit" class="order-button">@T["PlaceOrder"]</button>
             </section>
         </form>
+        <script src="~/js/eshop.js" asp-append-version="true" defer></script>
     }
 </main>
