@@ -11,6 +11,7 @@ using Serilog;
 
 using WakePark.Storefront;
 using WakePark.Storefront.Content;
+using WakePark.Storefront.Eshop;
 using WakePark.Storefront.Infrastructure;
 using WakePark.Storefront.Localization;
 
@@ -38,6 +39,10 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<SiteContent>();
 builder.Services.AddScoped<SiteView>();
 builder.Services.AddSingleton(TimeProvider.System);
+
+// Nabídku e-shopu čte web z API. Krátký timeout: když API vázne, má stránka raději rychle
+// ukázat telefon, než nechat návštěvníka čekat.
+builder.Services.AddHttpClient<CatalogClient>(client => client.Timeout = TimeSpan.FromSeconds(5));
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {

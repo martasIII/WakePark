@@ -1,14 +1,63 @@
-# Veřejný web na VPS. Leží v /opt/wakepark/storefront/ a nasazuje ho deploy.sh:
+# Veřejný web a e-shop na VPS. Leží v /opt/wakepark/storefront/ a nasazuje ho deploy.sh:
 #   ./deploy.sh <commit>      (to dělá GitHub Actions po zeleném CI)
 #
-# Kontejner poslouchá jen na loopbacku hostitele — zvenku je dostupný výhradně
-# přes nginx, který drží certifikát a porty 80/443 (sdílí je s Docházkou).
+# Ven je vidět jen Storefront, a to jen na loopbacku hostitele — zvenku výhradně přes nginx,
+# který drží certifikát a porty 80/443 (sdílí je s Docházkou). API a databáze nemají
+# publikovaný žádný port; dostane se k nim jen kontejner ze stejné sítě Dockeru.
+#
+# Heslo k databázi je v .env vedle tohoto souboru (vlastník root, 600), v gitu není:
+#   POSTGRES_PASSWORD=…
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
 
 services:
+  db:
+    image: postgres:17-alpine
+    container_name: wakepark-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wakepark
+      POSTGRES_USER: wakepark
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Chybí POSTGRES_PASSWORD v .env}
+    # Výchozí nastavení Postgresu počítá s víc pamětí; tady se dělí 2 GB s Docházkou a webem.
+    command: >
+      postgres
+      -c shared_buffers=64MB
+      -c effective_cache_size=192MB
+      -c work_mem=4MB
+      -c max_connections=30
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wakepark -d wakepark"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    mem_limit: 256m
+    logging: *logging
+
+  api:
+    # Obrazy staví CI a ukládá do GitHub Container Registry, označené hashem commitu.
+    # Bez WAKEPARK_TAG se použije latest = poslední verze, která prošla testy.
+    image: ghcr.io/martasiii/wakepark-api:${WAKEPARK_TAG:-latest}
+    container_name: wakepark-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__WakeParkDb: "Host=db;Database=wakepark;Username=wakepark;Password=${POSTGRES_PASSWORD}"
+      # Wake Park s.r.o. — provozovatel, jehož nabídku e-shop prodává. Stejné Id má web níž.
+      Catalog__EnterpriseId: "01a15f92-3547-75ae-a047-65a2a9ecbeaf"
+    mem_limit: 256m
+    logging: *logging
+
   storefront:
-    # Obraz staví CI a ukládá do GitHub Container Registry, označený hashem commitu.
-    # Bez STOREFRONT_TAG se použije latest = poslední verze, která prošla testy.
-    image: ghcr.io/martasiii/wakepark-storefront:${STOREFRONT_TAG:-latest}
+    image: ghcr.io/martasiii/wakepark-storefront:${WAKEPARK_TAG:-latest}
     container_name: wakepark-storefront
     restart: unless-stopped
     ports:
@@ -17,11 +66,12 @@ services:
       # Požadavky přicházejí od nginxu přes bridge síť Dockeru; jen odtud se věří
       # hlavičkám X-Forwarded-*, jinak by si klient mohl podvrhnout IP i https.
       Storefront__TrustedProxyNetworks__0: "172.16.0.0/12"
-    # 2 GB RAM sdílí web s Docházkou. Strop drží .NET v mezích (GC se mu přizpůsobí)
-    # a chybou v aplikaci se nepoloží celý server.
+      Storefront__ApiBaseUrl: "http://api:8080"
+      Storefront__EnterpriseId: "01a15f92-3547-75ae-a047-65a2a9ecbeaf"
+    # Strop drží .NET v mezích (GC se mu přizpůsobí) a chybou v aplikaci se nepoloží celý server.
     mem_limit: 256m
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *logging
+
+volumes:
+  # Data databáze přežijí nové verze i restart. Zálohuje je cron (pg_dump), viz README.
+  pgdata:

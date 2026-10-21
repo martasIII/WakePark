@@ -34,7 +34,7 @@ public sealed class StorefrontPagesTests(WebApplicationFactory<Program> factory)
         string html = await _client.GetStringAsync(new Uri("/", UriKind.Relative), TestContext.Current.CancellationToken);
 
         (CountOccurrences(html, "class=\"tile\"") + CountOccurrences(html, "class=\"tile soon\"")).ShouldBe(8);
-        html.ShouldContain("href=\"/cenik#vouchery\"");
+        html.ShouldContain("href=\"/eshop\"");
     }
 
     [Theory]

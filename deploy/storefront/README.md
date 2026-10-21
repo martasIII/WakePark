@@ -1,4 +1,4 @@
-# Nasazení veřejného webu na VPS
+# Nasazení webu a e-shopu na VPS
 
 Web běží na Wedos VPS (Debian 12, 1 jádro, 2 GB RAM) vedle Docházky:
 
@@ -6,15 +6,23 @@ Web běží na Wedos VPS (Debian 12, 1 jádro, 2 GB RAM) vedle Docházky:
 internet ─► nginx (80/443, certifikáty Let's Encrypt)
               ├─ dochazka.wake-dzban.cz ─► 127.0.0.1:5080  Docházka (systemd)
               └─ novy.wake-dzban.cz     ─► 127.0.0.1:5081  Storefront (Docker)
+                                                          │ http://api:8080 (síť Dockeru)
+                                                          ▼
+                                                        API ─► PostgreSQL (svazek pgdata)
 ```
+
+API ani databáze nemají publikovaný port, z internetu ani z hostitele na ně nejde sáhnout.
+Heslo k databázi je jen v `/opt/wakepark/storefront/.env` (root, 600).
 
 ## Jak se nasazuje
 
 Samo, po každém pushi do `main`, když projdou testy (`.github/workflows/ci.yml`):
 
 ```
-push → CI: testy ✔ + obraz ghcr.io/martasiii/wakepark-storefront:<commit>
-     → značka latest → ssh deploy@VPS "<commit>" → deploy.sh: pull, up, kontrola /health
+push → CI: testy ✔ + obrazy ghcr.io/martasiii/wakepark-{storefront,api}:<commit>
+     → značka latest → ssh deploy@VPS "<commit>"
+     → deploy.sh: pull → databáze → migrace → import katalogu → nové kontejnery
+                  → kontrola, že /eshop ukazuje nabídku (web → API → databáze)
 ```
 
 Uživatel `deploy` na serveru nemá heslo ani shell. Jeho klíč (v GitHub Secrets) je
@@ -24,11 +32,20 @@ hash commitu nebo `latest`. Skript i compose patří rootovi, `deploy` je nepře
 
 **Návrat ke starší verzi** (jako root na serveru): `/opt/wakepark/storefront/deploy.sh <hash commitu>`.
 
-**Záloha, když nejde GitHub:** `.\deploy\storefront\deploy.ps1` postaví obraz lokálně
-a nasadí ho se značkou `manual`.
+Když selže migrace nebo import katalogu, skript skončí dřív, než spustí nové kontejnery —
+dál běží stará verze. Migrace proto musí být zpětně kompatibilní (stará verze chvíli
+běží proti novému schématu).
 
-**Změna `docker-compose.yml`** se na server nenasazuje sama (klíč pro CI smí jen spustit
-skript) — po úpravě ho zkopíruj ručně: `scp deploy/storefront/docker-compose.yml dochazka:/opt/wakepark/storefront/`.
+**Záloha, když nejde GitHub:** `.\deploy\storefront\deploy.ps1` postaví oba obrazy lokálně
+a nasadí je se značkou `manual`.
+
+**Změna `docker-compose.yml` nebo `deploy-on-server.sh`** se na server nenasazuje sama
+(klíč pro CI smí jen spustit skript) — po úpravě je zkopíruj ručně:
+
+```bash
+scp deploy/storefront/docker-compose.yml dochazka:/opt/wakepark/storefront/
+scp deploy/storefront/deploy-on-server.sh dochazka:/opt/wakepark/storefront/deploy.sh
+```
 
 ## Jednorázové nastavení serveru
 
@@ -118,7 +135,44 @@ GitHub → Settings → Secrets and variables → Actions:
 Obraz v ghcr.io musí být **veřejný** (GitHub → Packages → wakepark-storefront → Package
 settings → Change visibility), jinak by si ho server nestáhl bez přihlášení.
 
-### 6. První nasazení
+### 6. Swap, heslo k databázi, zálohy
+
+Server nemá swap; když dojde paměť, kernel zabíjí procesy — klidně i Docházku. 1 GB swapu
+je pojistka, ne místo pro běžný provoz.
+
+```bash
+fallocate -l 1G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab
+echo 'vm.swappiness=10' > /etc/sysctl.d/90-swappiness.conf && sysctl --system
+```
+
+Heslo k databázi (vygeneruje se jednou, nikam jinam se nepíše):
+
+```bash
+umask 077
+printf 'POSTGRES_PASSWORD=%s\n' "$(openssl rand -hex 24)" > /opt/wakepark/storefront/.env
+```
+
+Denní záloha databáze (`pg_dump`, 14 dní zpětně) do `/var/backups/wakepark/`:
+
+```bash
+install -m 700 -d /var/backups/wakepark
+install -o root -g root -m 755 backup-db.sh /opt/wakepark/storefront/backup-db.sh
+echo '30 3 * * * root /opt/wakepark/storefront/backup-db.sh' > /etc/cron.d/wakepark-backup
+```
+
+**Záloha leží na stejném serveru** — pomůže při chybě aplikace nebo omylem smazaných datech,
+ne když umře server. Kopie mimo server se musí vyřešit **před spuštěním plateb**
+(ADR 0006): od první objednávky jsou v databázi účetní doklady.
+
+Obnova (přepíše současná data!):
+
+```bash
+gunzip -c /var/backups/wakepark/wakepark-<datum>.sql.gz \
+  | docker exec -i wakepark-db psql -U wakepark -d wakepark
+```
+
+### 7. První nasazení
 
 Push do `main` → v GitHubu záložka Actions → úloha „Storefront — nasazení na VPS“.
 
@@ -130,3 +184,6 @@ Push do `main` → v GitHubu záložka Actions → úloha „Storefront — nasa
 | Logy | `docker compose logs --tail 100 -f` |
 | Restart | `docker compose restart` |
 | Spotřeba paměti | `docker stats --no-stream` |
+| Databáze (psql) | `docker exec -it wakepark-db psql -U wakepark -d wakepark` |
+| Ruční záloha | `/opt/wakepark/storefront/backup-db.sh` |
+| Znovu načíst katalog | `docker compose run --rm api import-catalog` |

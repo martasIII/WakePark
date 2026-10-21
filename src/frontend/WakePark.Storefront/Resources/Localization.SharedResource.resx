@@ -8,4 +8,7 @@
   <data name="Today" xml:space="preserve"><value>Dnes</value></data>
   <data name="Exceptions" xml:space="preserve"><value>Výjimky</value></data>
   <data name="LoadFailed" xml:space="preserve"><value>Údaje se teď nepodařilo načíst. Rádi vám vše sdělíme na</value></data>
+  <data name="EshopSubtitle" xml:space="preserve"><value>Dárkové vouchery a permanentky</value></data>
+  <data name="InclVat" xml:space="preserve"><value>vč. DPH</value></data>
+  <data name="OrderSoon" xml:space="preserve"><value>Objednávku přes web právě dokončujeme. Do té doby vám voucher rádi připravíme na</value></data>
 </root>

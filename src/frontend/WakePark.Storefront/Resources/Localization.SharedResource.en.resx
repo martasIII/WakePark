@@ -8,4 +8,7 @@
   <data name="Today" xml:space="preserve"><value>Today</value></data>
   <data name="Exceptions" xml:space="preserve"><value>Exceptions</value></data>
   <data name="LoadFailed" xml:space="preserve"><value>We couldn't load this right now. Call us at</value></data>
+  <data name="EshopSubtitle" xml:space="preserve"><value>Gift vouchers and season passes</value></data>
+  <data name="InclVat" xml:space="preserve"><value>incl. VAT</value></data>
+  <data name="OrderSoon" xml:space="preserve"><value>Online ordering is coming soon. Until then, we will gladly prepare a voucher for you at</value></data>
 </root>

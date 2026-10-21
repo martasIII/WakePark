@@ -59,7 +59,7 @@ public sealed class LanguageTests : IClassFixture<WebApplicationFactory<Program>
         string html = await _client.GetStringAsync(new Uri("/en", UriKind.Relative), TestContext.Current.CancellationToken);
 
         html.ShouldContain("href=\"/en/kontakt\"");
-        html.ShouldContain("href=\"/en/cenik#vouchery\"");
+        html.ShouldContain("href=\"/en/eshop\"");
     }
 
     [Fact]

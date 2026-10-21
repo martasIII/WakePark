@@ -1,0 +1,42 @@
+@page
+@model EshopModel
+@using WakePark.Storefront.Eshop
+@{
+    ViewData["Title"] = "E-shop — Wake Park Džbán";
+    ViewData["Description"] = "Dárkové vouchery a permanentky Wake Parku Džbán.";
+    ViewData["BodyClass"] = "page";
+    ViewData["Heading"] = "E-shop";
+    ViewData["Subtitle"] = T["EshopSubtitle"].Value;
+    string lang = SiteView.Language;
+}
+<partial name="_PageHeader" />
+<main class="page-body">
+    @if (Model.Catalog is null || Model.Catalog.Products.Count == 0)
+    {
+        <section class="card"><p>@T["LoadFailed"] <a href="tel:+420737562516">+420 737 562 516</a>.</p></section>
+    }
+    else
+    {
+        foreach (EshopCategory category in Model.Catalog.Categories)
+        {
+            <section class="card" id="@category.Code">
+                <h2>@category.Name.Resolve(lang)</h2>
+                <ul class="products">
+                    @foreach (EshopProduct product in Model.ProductsIn(category))
+                    {
+                        <li class="product" id="@product.Code">
+                            @if (product.ImagePath is not null)
+                            {
+                                <img src="@product.ImagePath" alt="" width="400" height="250" loading="lazy">
+                            }
+                            <h3>@product.Name.Resolve(lang)</h3>
+                            <p class="desc">@product.Description.Resolve(lang)</p>
+                            <p class="price">@SiteView.Price(product.UnitPrice) <span>@T["InclVat"]</span></p>
+                        </li>
+                    }
+                </ul>
+            </section>
+        }
+        <p class="eshop-note">@T["OrderSoon"] <a href="tel:+420737562516">+420 737 562 516</a>.</p>
+    }
+</main>

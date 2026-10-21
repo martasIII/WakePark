@@ -103,7 +103,13 @@ builder.Services.AddOpenApi(options => options.AddDocumentTransformer<ApiDocumen
 
 WebApplication app = builder.Build();
 
-// Krok nasazení: naimportuje katalog a skončí, server se nespouští.
+// Kroky nasazení: provedou se a proces skončí, server se nespouští.
+if (args.Contains(MigrationExtensions.CommandName, StringComparer.Ordinal))
+{
+    await app.MigrateAllModulesAsync().ConfigureAwait(false);
+    return 0;
+}
+
 if (args.Contains(CatalogImportExtensions.CommandName, StringComparer.Ordinal))
 {
     bool imported = await app.ImportCatalogAsync().ConfigureAwait(false);

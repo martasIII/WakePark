@@ -30,6 +30,17 @@ public sealed class StorefrontOptions
     /// </summary>
     public IReadOnlyList<string> TrustedProxyNetworks { get; init; } = [];
 
+    /// <summary>
+    /// Adresa backendového API, ze kterého e-shop čte nabídku. Na VPS interní adresa v síti
+    /// Dockeru (<c>http://api:8080</c>). Bez ní je e-shop vypnutý a stránka to slušně řekne.
+    /// </summary>
+    public Uri? ApiBaseUrl { get; init; }
+
+    /// <summary>Provozovatel, jehož nabídku web prodává.</summary>
+    public Guid? EnterpriseId { get; init; }
+
+    public bool IsEshopConfigured => ApiBaseUrl is not null && EnterpriseId is not null;
+
     /// <summary>Jazyky bez duplicit; bez konfigurace jen čeština.</summary>
     public IReadOnlyList<string> SiteLanguages => Languages.Count == 0 ? ["cs"] : [.. Languages.Distinct(StringComparer.Ordinal)];
 
