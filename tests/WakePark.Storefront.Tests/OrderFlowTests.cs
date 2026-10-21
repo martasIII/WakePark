@@ -113,6 +113,7 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
         // 25. 10. 2026 končí letní čas: 18:00 UTC je v Praze 19:00 (UTC+1), ne 20:00.
         html.ShouldContain("25. 10. 2026 19:00");
         html.ShouldContain("<meta name=\"robots\" content=\"noindex\">");
+        html.ShouldContain("Zkušební provoz — nic neplaťte.");
     }
 
     [Fact]

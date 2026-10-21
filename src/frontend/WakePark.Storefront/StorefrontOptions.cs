@@ -41,6 +41,12 @@ public sealed class StorefrontOptions
 
     public bool IsEshopConfigured => ApiBaseUrl is not null && EnterpriseId is not null;
 
+    /// <summary>
+    /// Zkušební provoz e-shopu: na nabídce i objednávce svítí „nic neplaťte“. Vypnout až
+    /// s hotovými obchodními podmínkami a párováním plateb (ADR 0006).
+    /// </summary>
+    public bool EshopTrialMode { get; init; }
+
     /// <summary>Jazyky bez duplicit; bez konfigurace jen čeština.</summary>
     public IReadOnlyList<string> SiteLanguages => Languages.Count == 0 ? ["cs"] : [.. Languages.Distinct(StringComparer.Ordinal)];
 

@@ -11,6 +11,7 @@
 }
 <partial name="_PageHeader" />
 <main class="page-body">
+    <partial name="_TrialBanner" />
     @if (Model.Catalog is null || Model.Catalog.Products.Count == 0)
     {
         <section class="card"><p>@T["LoadFailed"] <a href="tel:+420737562516">+420 737 562 516</a>.</p></section>

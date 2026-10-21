@@ -42,4 +42,6 @@
   <data name="Total" xml:space="preserve"><value>Total</value></data>
   <data name="VatIncluded" xml:space="preserve"><value>incl. VAT</value></data>
   <data name="SaveThisPage" xml:space="preserve"><value>Keep the link to this page, it shows the status of your order. Questions? Call</value></data>
+  <data name="TrialTitle" xml:space="preserve"><value>Trial run — please do not pay.</value></data>
+  <data name="TrialText" xml:space="preserve"><value>We are still testing the shop. Orders are not processed and payments are not matched; please buy vouchers by phone.</value></data>
 </root>

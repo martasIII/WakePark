@@ -79,6 +79,9 @@ footer .small{font-size:12px; opacity:.8}
 .eshop-note{text-align:center; font-size:14px; line-height:1.55; padding:0 16px 24px}
 .eshop-note a{color:inherit; font-weight:700}
 
+.trial-banner{margin:0 0 18px; padding:14px 18px; border-radius:6px; background:#ffd600; color:#1d1d1f; font-size:15px; line-height:1.5; text-align:center}
+.trial-banner b{display:block; font-size:18px; text-transform:uppercase; letter-spacing:.04em}
+
 /* ---- objednávka ---- */
 .product .qty{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; font-size:13px; font-weight:700; color:#6b6b72}
 .product .qty input{width:72px; padding:8px; font:inherit; font-size:16px; color:#1d1d1f; border:1px solid #ccc; border-radius:4px; text-align:center}

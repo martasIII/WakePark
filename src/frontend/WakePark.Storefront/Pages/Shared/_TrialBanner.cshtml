@@ -1,0 +1,5 @@
+@* Zkušební provoz e-shopu (Storefront:EshopTrialMode). Zmizí, až budou podmínky a párování plateb. *@
+@if (Site.Options.EshopTrialMode)
+{
+    <p class="trial-banner" role="note"><b>@T["TrialTitle"]</b> @T["TrialText"]</p>
+}

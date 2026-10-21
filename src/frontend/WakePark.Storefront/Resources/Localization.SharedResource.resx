@@ -42,4 +42,6 @@
   <data name="Total" xml:space="preserve"><value>Celkem</value></data>
   <data name="VatIncluded" xml:space="preserve"><value>z toho DPH</value></data>
   <data name="SaveThisPage" xml:space="preserve"><value>Odkaz na tuto stránku si uložte, najdete na ní stav objednávky. S dotazy volejte</value></data>
+  <data name="TrialTitle" xml:space="preserve"><value>Zkušební provoz — nic neplaťte.</value></data>
+  <data name="TrialText" xml:space="preserve"><value>E-shop teprve testujeme. Objednávky nevyřizujeme a platby nepárujeme; voucher kupte prosím telefonicky.</value></data>
 </root>
