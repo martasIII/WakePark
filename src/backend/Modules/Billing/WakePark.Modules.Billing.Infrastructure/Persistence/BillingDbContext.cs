@@ -6,6 +6,7 @@ using WakePark.BuildingBlocks.Infrastructure.Outbox;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
 using WakePark.Modules.Billing.Application.Abstractions;
 using WakePark.Modules.Billing.Contracts;
+using WakePark.Modules.Billing.Domain.Invoices;
 using WakePark.Modules.Billing.Domain.Orders;
 using WakePark.Modules.Billing.Domain.Payments;
 
@@ -21,6 +22,10 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options)
 
     public DbSet<BankTransaction> BankTransactions => Set<BankTransaction>();
 
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+
+    internal DbSet<InvoiceNumberSeries> InvoiceNumberSeries => Set<InvoiceNumberSeries>();
+
     internal DbSet<OrderNumberSeries> OrderNumberSeries => Set<OrderNumberSeries>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,6 +40,18 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options)
         base.OnModelCreating(modelBuilder);
     }
 
+    public async Task ExecuteInTransactionAsync(Func<CancellationToken, Task> work, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(work);
+
+        await using Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction =
+            await Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+
+        await work(cancellationToken).ConfigureAwait(false);
+        await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     /// <summary>
     /// Události objednávek jdou do outboxu ve stejné transakci jako objednávka samotná.
     /// </summary>
@@ -47,8 +64,8 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options)
     /// <summary>Které doménové události Billing zveřejňuje ostatním modulům.</summary>
     private static IIntegrationEvent? ToIntegrationEvent(IDomainEvent domainEvent) => domainEvent switch
     {
-        OrderPlaced e => new OrderPlacedIntegrationEvent(e.EventId, e.OccurredAtUtc, e.OrderId, e.AccessToken),
-        OrderPaid e => new OrderPaidIntegrationEvent(e.EventId, e.OccurredAtUtc, e.OrderId, e.AccessToken),
+        OrderPlaced e => new OrderPlacedIntegrationEvent(e.EventId, e.OccurredAtUtc, e.EnterpriseId, e.OrderId, e.AccessToken),
+        OrderPaid e => new OrderPaidIntegrationEvent(e.EventId, e.OccurredAtUtc, e.EnterpriseId, e.OrderId, e.AccessToken),
         _ => null,
     };
 }
@@ -64,5 +81,15 @@ internal sealed class OrderNumberSeries
     public int Year { get; set; }
 
     /// <summary>Poslední přidělené pořadí.</summary>
+    public long LastSequence { get; set; }
+}
+
+/// <summary>Čítač řady daňových dokladů — jeden řádek na provozovatele a rok.</summary>
+internal sealed class InvoiceNumberSeries
+{
+    public Guid EnterpriseId { get; set; }
+
+    public int Year { get; set; }
+
     public long LastSequence { get; set; }
 }

@@ -23,4 +23,11 @@ public interface IOrderNumberAllocator
 
 /// <inheritdoc cref="IUnitOfWork" />
 /// <remarks>Vlastní rozhraní pro každý modul — sdílené by v jednom DI kontejneru přepsal poslední modul.</remarks>
-public interface IBillingUnitOfWork : IUnitOfWork;
+public interface IBillingUnitOfWork : IUnitOfWork
+{
+    /// <summary>
+    /// Provede práci a uloží změny v jedné databázové transakci. Potřeba tam, kde se kromě
+    /// <c>SaveChanges</c> zamyká i čítač (číslo daňového dokladu).
+    /// </summary>
+    Task ExecuteInTransactionAsync(Func<CancellationToken, Task> work, CancellationToken cancellationToken = default);
+}

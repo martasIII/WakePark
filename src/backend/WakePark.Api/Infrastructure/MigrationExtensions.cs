@@ -7,6 +7,7 @@ using WakePark.Modules.Notifications.Infrastructure.Persistence;
 using WakePark.Modules.Operations.Infrastructure.Persistence;
 using WakePark.Modules.Reservations.Infrastructure.Persistence;
 using WakePark.Modules.Tenancy.Infrastructure.Persistence;
+using WakePark.Modules.Vouchers.Infrastructure.Persistence;
 
 namespace WakePark.Api.Infrastructure;
 
@@ -38,6 +39,7 @@ internal static partial class MigrationExtensions
             services.GetRequiredService<ReservationsDbContext>(),
             services.GetRequiredService<CatalogDbContext>(),
             services.GetRequiredService<BillingDbContext>(),
+            services.GetRequiredService<VouchersDbContext>(),
             services.GetRequiredService<NotificationsDbContext>(),
         ];
 

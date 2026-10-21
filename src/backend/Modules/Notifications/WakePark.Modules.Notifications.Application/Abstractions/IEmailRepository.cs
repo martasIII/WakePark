@@ -26,5 +26,16 @@ public interface IQrCodeImage
     byte[] Png(string content);
 }
 
+/// <summary>
+/// PDF dokumenty do příloh. Za rozhraním kvůli licenci knihovny (ADR 0006) — výměna
+/// knihovny znamená přepsat jednu třídu v infrastruktuře.
+/// </summary>
+public interface IDocumentRenderer
+{
+    byte[] VoucherPdf(Vouchers.Contracts.VoucherDto voucher);
+
+    byte[] InvoicePdf(Billing.Contracts.InvoiceDto invoice);
+}
+
 /// <inheritdoc cref="IUnitOfWork" />
 public interface INotificationsUnitOfWork : IUnitOfWork;

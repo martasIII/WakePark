@@ -279,6 +279,22 @@ vlastní ochranu (klíč webu, rate limit).
   Odesílání se na serveru zapne (`Notifications:Enabled`), až budou na doméně SPF, DKIM a DMARC.
 - Lokálně Mailpit (`deploy/docker-compose.dev.yml`), v testech Mailpit v Testcontainers.
 
+## Vouchery a daňový doklad (22. 10. 2026)
+
+- **Daňový doklad** vzniká při spárování platby **ve stejné transakci** jako zaplacení
+  objednávky. Číslo `FV{rok}-{pořadí:00000}` z čítače, který se zamyká uvnitř transakce —
+  při chybě se vrátí i číslo, řada je **bez mezer**. DUZP = den zaúčtování platby, doklad je
+  neměnný (prodávající, kupující i řádky zamrazené). Údaje prodávajícího zatím z konfigurace.
+- **Modul Vouchers** konzumuje `OrderPaid` z outboxu Billingu a vystaví **jeden poukaz na
+  kus** (kód `WD-XXXX-XXXX` z 31 nezaměnitelných znaků), platnost z konfigurace
+  (1. 5. – 30. 9. 2027). Vystavení i událost `VouchersIssued` jdou do vlastního outboxu
+  v jedné transakci; idempotence přes UNIQUE (objednávka, produkt, kus).
+- **Notifications** na `VouchersIssued` pošle e-mail s PDF poukazů a dokladu.
+- **PDF: QuestPDF** pod community licencí (Wake Park má obrat pod 1 mil. USD). Při prodeji
+  WakeParku dalším parkům by licenci řešil každý zvlášť — knihovna je proto za rozhraním
+  `IDocumentRenderer`. Vzhled je provizorní, finální navrhne grafik.
+- Poznámku o jednoúčelovém poukazu na dokladu (přesné znění, případně paragraf) potvrdí účetní.
+
 ## Otevřené otázky
 
 1. ~~Potvrdit s účetní režim jednoúčelového poukazu~~ — potvrzeno 21. 10. 2026, 12 %.

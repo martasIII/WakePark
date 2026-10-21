@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
 using WakePark.Modules.Notifications.Application;
 using WakePark.Modules.Notifications.Application.Abstractions;
+using WakePark.Modules.Notifications.Infrastructure.Documents;
 using WakePark.Modules.Notifications.Infrastructure.Email;
 using WakePark.Modules.Notifications.Infrastructure.Persistence;
 using WakePark.Modules.Notifications.Infrastructure.Persistence.Repositories;
@@ -38,6 +39,7 @@ public static class NotificationsModule
         services.AddScoped<IEmailRepository, EmailRepository>();
         services.AddScoped<IEmailSender, MailKitEmailSender>();
         services.AddSingleton<IQrCodeImage, QrCodeImage>();
+        services.AddSingleton<IDocumentRenderer, QuestPdfDocumentRenderer>();
         services.AddNotificationsApplication();
 
         // E-maily se připravují vždy; odesílají se, jen když je to výslovně zapnuté.

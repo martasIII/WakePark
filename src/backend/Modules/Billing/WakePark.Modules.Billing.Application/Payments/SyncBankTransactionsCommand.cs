@@ -1,6 +1,7 @@
 using WakePark.BuildingBlocks.Application.Abstractions;
 using WakePark.BuildingBlocks.Application.Messaging;
 using WakePark.Modules.Billing.Application.Abstractions;
+using WakePark.Modules.Billing.Domain.Invoices;
 using WakePark.Modules.Billing.Domain.Orders;
 using WakePark.Modules.Billing.Domain.Payments;
 
@@ -23,8 +24,11 @@ internal sealed class SyncBankTransactionsCommandHandler(
     IBankStatementSource bank,
     IBankTransactionRepository transactions,
     IOrderRepository orders,
+    IInvoiceRepository invoices,
+    IInvoiceNumberAllocator invoiceNumbers,
     IBillingUnitOfWork unitOfWork,
-    IClock clock)
+    IClock clock,
+    BillingOptions options)
     : ICommandHandler<SyncBankTransactionsCommand, BankSyncResult>
 {
     public async Task<BankSyncResult> HandleAsync(SyncBankTransactionsCommand command, CancellationToken cancellationToken = default)
@@ -52,13 +56,20 @@ internal sealed class SyncBankTransactionsCommandHandler(
         int matched = 0, unmatched = 0, ignored = 0;
         DateTimeOffset now = clock.UtcNow;
         int year = command.LastDay.Year;
+        DateOnly today = DateOnly.FromDateTime(
+            TimeZoneInfo.ConvertTime(now, TimeZoneInfo.FindSystemTimeZoneById(options.TimeZoneId)).DateTime);
 
+        // Zaplacení objednávky, spárování pohybu i vystavení daňového dokladu v jedné transakci:
+        // zaplacená objednávka bez dokladu (nebo doklad bez platby) nevznikne, a číslo dokladu
+        // se při chybě vrátí do řady — řada zůstane bez mezer.
+        await unitOfWork.ExecuteInTransactionAsync(async ct =>
+        {
         foreach (BankTransaction transaction in await transactions
-                     .GetReceivedAsync(command.EnterpriseId, cancellationToken)
+                     .GetReceivedAsync(command.EnterpriseId, ct)
                      .ConfigureAwait(false))
         {
             Order? order = PaymentMatching.OrderNumberFrom(transaction.VariableSymbol, year) is { } number
-                ? await orders.GetByNumberAsync(command.EnterpriseId, number, cancellationToken).ConfigureAwait(false)
+                ? await orders.GetByNumberAsync(command.EnterpriseId, number, ct).ConfigureAwait(false)
                 : null;
 
             PaymentMatching.Decision decision = PaymentMatching.Evaluate(transaction, order, year);
@@ -68,6 +79,14 @@ internal sealed class SyncBankTransactionsCommandHandler(
                 case PaymentMatching.Outcome.Matched:
                     order!.MarkPaid(now, transaction.Id);
                     transaction.MarkMatched(order.Id, now);
+                    invoices.Add(Invoice.Issue(
+                        order,
+                        Seller(options.Seller),
+                        today.Year,
+                        await invoiceNumbers.NextSequenceAsync(command.EnterpriseId, today.Year, ct).ConfigureAwait(false),
+                        // Kolem půlnoci může banka zaúčtovat „zítra“ — doklad nesmí být vystaven před DUZP.
+                        issuedOn: transaction.BookedOn > today ? transaction.BookedOn : today,
+                        taxableSupplyOn: transaction.BookedOn));
                     matched++;
                     break;
                 case PaymentMatching.Outcome.Unmatched:
@@ -80,11 +99,11 @@ internal sealed class SyncBankTransactionsCommandHandler(
                     break;
             }
         }
-
-        // Objednávka i pohyb v jedné transakci — zaplacená objednávka bez spárovaného pohybu
-        // (nebo naopak) nevznikne.
-        await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
 
         return new BankSyncResult(downloaded.Count, added, matched, unmatched, ignored);
     }
+
+    private static InvoiceParty Seller(SellerOptions seller) =>
+        new(seller.Name, seller.CompanyId, seller.VatId, seller.Address, seller.Registration);
 }

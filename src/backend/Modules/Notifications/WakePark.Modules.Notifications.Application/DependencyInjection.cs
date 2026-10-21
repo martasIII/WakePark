@@ -4,6 +4,7 @@ using WakePark.BuildingBlocks.Application.Messaging;
 using WakePark.Modules.Billing.Contracts;
 using WakePark.Modules.Notifications.Application.Emails;
 using WakePark.Modules.Notifications.Application.Orders;
+using WakePark.Modules.Vouchers.Contracts;
 
 namespace WakePark.Modules.Notifications.Application;
 
@@ -15,6 +16,7 @@ public static class DependencyInjection
         ArgumentNullException.ThrowIfNull(services);
 
         services.AddScoped<IIntegrationEventConsumer<OrderPlacedIntegrationEvent>, OrderPlacedConsumer>();
+        services.AddScoped<IIntegrationEventConsumer<VouchersIssuedIntegrationEvent>, VouchersIssuedConsumer>();
         services.AddScoped<ICommandHandler<SendPendingEmailsCommand, EmailBatchResult>, SendPendingEmailsCommandHandler>();
 
         return services;

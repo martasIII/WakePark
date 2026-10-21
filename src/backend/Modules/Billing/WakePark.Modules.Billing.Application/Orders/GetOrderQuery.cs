@@ -41,7 +41,7 @@ internal sealed class GetOrderQueryHandler(IOrderRepository orders, BillingOptio
         order.Customer.Email,
         order.Customer.CompanyName,
         [.. order.Lines.Select(l => new OrderLineDto(
-            l.ProductCode, l.DisplayName, l.Quantity, l.UnitPrice, l.VatRate, l.LineGross))],
+            l.ProductCode, l.DisplayName, l.Quantity, l.UnitPrice, l.VatRate, l.LineGross, l.ProductId))],
         order.TotalGross,
         order.TotalVat,
         order.TotalNet,

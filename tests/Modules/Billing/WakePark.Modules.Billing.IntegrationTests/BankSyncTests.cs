@@ -8,9 +8,11 @@ using Testcontainers.PostgreSql;
 
 using WakePark.BuildingBlocks.Application.Abstractions;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
+using WakePark.Modules.Billing.Application;
 using WakePark.Modules.Billing.Application.Abstractions;
 using WakePark.Modules.Billing.Application.Payments;
 using WakePark.Modules.Billing.Domain.Customers;
+using WakePark.Modules.Billing.Domain.Invoices;
 using WakePark.Modules.Billing.Domain.Orders;
 using WakePark.Modules.Billing.Domain.Payments;
 using WakePark.Modules.Billing.Infrastructure.Persistence;
@@ -34,6 +36,18 @@ public sealed class BankSyncTests : IAsyncLifetime
         .Build();
 
     private readonly List<BankTransactionData> _statement = [];
+
+    private static readonly BillingOptions Options = new()
+    {
+        Seller = new SellerOptions
+        {
+            Name = "Wake Park s.r.o.",
+            CompanyId = "06633633",
+            VatId = "CZ06633633",
+            Address = "Pavlovská 585/1, 162 00 Praha 6",
+            Registration = "C 285893 vedená u Městského soudu v Praze",
+        },
+    };
 
     public async ValueTask InitializeAsync()
     {
@@ -60,6 +74,52 @@ public sealed class BankSyncTests : IAsyncLifetime
         Order order = await LoadOrderAsync(token);
         order.Status.ShouldBe(OrderStatus.Paid);
         order.PaidByBankTransactionId.ShouldNotBeNull();
+
+        // Doklad vznikl spolu se zaplacením — a jen jeden, i když se výpis stáhl dvakrát.
+        await using BillingDbContext dbContext = CreateDbContext();
+        Invoice invoice = await dbContext.Invoices.SingleAsync(TestContext.Current.CancellationToken);
+        invoice.OrderId.ShouldBe(order.Id);
+        invoice.Number.ShouldBe("FV2026-00001");
+        invoice.TaxableSupplyOn.ShouldBe(Today, "DUZP = den připsání platby");
+        invoice.VariableSymbol.ShouldBe("261000");
+        invoice.Seller.CompanyId.ShouldBe("06633633");
+        invoice.Buyer.Name.ShouldBe("Jana");
+        invoice.TotalGross.ShouldBe(2580m);
+        (invoice.TotalNet + invoice.TotalVat).ShouldBe(invoice.TotalGross);
+    }
+
+    [Fact]
+    public async Task Rada_dokladu_je_bez_mezer_i_kdyz_se_vystaveni_nepovede()
+    {
+        await PlaceOrderAsync(261000, 100m);
+        await PlaceOrderAsync(261001, 200m);
+
+        // Vystavení, které spadne uprostřed transakce, číslo nespotřebuje.
+        await using (BillingDbContext dbContext = CreateDbContext())
+        {
+            await Should.ThrowAsync<InvalidOperationException>(() => dbContext.ExecuteInTransactionAsync(async ct =>
+            {
+                (await new InvoiceNumberAllocator(dbContext).NextSequenceAsync(EnterpriseId, 2026, ct)).ShouldBe(1);
+                throw new InvalidOperationException("simulovaná chyba");
+            }, TestContext.Current.CancellationToken));
+        }
+
+        _statement.Add(Payment("5001", "261000", 100m));
+        _statement.Add(Payment("5002", "261001", 200m));
+        await SyncAsync();
+
+        await using BillingDbContext readContext = CreateDbContext();
+        (await readContext.Invoices.OrderBy(i => i.Sequence).Select(i => i.Number).ToListAsync(TestContext.Current.CancellationToken))
+            .ShouldBe(["FV2026-00001", "FV2026-00002"]);
+    }
+
+    [Fact]
+    public async Task Cislo_dokladu_mimo_transakci_nejde_pridelit()
+    {
+        await using BillingDbContext dbContext = CreateDbContext();
+
+        await Should.ThrowAsync<InvalidOperationException>(() =>
+            new InvoiceNumberAllocator(dbContext).NextSequenceAsync(EnterpriseId, 2026, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -121,7 +181,14 @@ public sealed class BankSyncTests : IAsyncLifetime
 
         await using BillingDbContext dbContext = CreateDbContext();
         return await new SyncBankTransactionsCommandHandler(
-                bank, new BankTransactionRepository(dbContext), new OrderRepository(dbContext), dbContext, clock)
+                bank,
+                new BankTransactionRepository(dbContext),
+                new OrderRepository(dbContext),
+                new InvoiceRepository(dbContext),
+                new InvoiceNumberAllocator(dbContext),
+                dbContext,
+                clock,
+                Options)
             .HandleAsync(new SyncBankTransactionsCommand(EnterpriseId, Today.AddDays(-7), Today), TestContext.Current.CancellationToken);
     }
 

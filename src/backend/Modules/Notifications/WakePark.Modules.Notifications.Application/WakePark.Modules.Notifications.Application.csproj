@@ -5,6 +5,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Application\WakePark.BuildingBlocks.Application.csproj" />
     <!-- Události a čtení objednávek. Jen kontrakt, nikdy vnitřek modulu Billing. -->
     <ProjectReference Include="..\..\Billing\WakePark.Modules.Billing.Contracts\WakePark.Modules.Billing.Contracts.csproj" />
+    <ProjectReference Include="..\..\Vouchers\WakePark.Modules.Vouchers.Contracts\WakePark.Modules.Vouchers.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="WakePark.Modules.Notifications.UnitTests" />

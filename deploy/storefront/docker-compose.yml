@@ -56,10 +56,12 @@ services:
       # Párování plateb z Fio. Token (jen „Sledovat účet“) je v .env, do gitu nepatří.
       Billing__Fio__Token: ${FIO_API_TOKEN:-}
       Billing__Fio__EnterpriseId: "01a15f92-3547-75ae-a047-65a2a9ecbeaf"
-      # E-maily: heslo ke schránce noreply@ je v .env. Odesílání se zapne, až bude na doméně
-      # odesílatele SPF/DKIM/DMARC — do té doby se e-maily jen připravují.
+      # Fio dovoluje nejvýš 1 dotaz za 30 s na token (jinak HTTP 409). Minuta drží rezervu.
+      Billing__Fio__Interval: "00:01:00"
+      # E-maily: heslo ke schránce noreply@ je v .env. SPF a DMARC na wakeparksro.cz jsou
+      # nastavené (22. 10. 2026), DKIM podepisuje Wedos sdíleným klíčem.
       Notifications__Smtp__Password: ${SMTP_PASSWORD:-}
-      Notifications__Enabled: "false"
+      Notifications__Enabled: "true"
     mem_limit: 256m
     logging: *logging
 

@@ -16,6 +16,25 @@ public sealed class BillingOptions
     /// provozovatelů v produkci ještě není (ADR 0006).
     /// </summary>
     public PaymentAccountOptions PaymentAccount { get; init; } = new();
+
+    /// <summary>Prodávající na daňovém dokladu. Zatím z konfigurace, později z <c>Enterprise</c>.</summary>
+    public SellerOptions Seller { get; init; } = new();
+}
+
+public sealed class SellerOptions
+{
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>IČO.</summary>
+    public string CompanyId { get; init; } = string.Empty;
+
+    /// <summary>DIČ.</summary>
+    public string? VatId { get; init; }
+
+    public string Address { get; init; } = string.Empty;
+
+    /// <summary>Zápis v obchodním rejstříku.</summary>
+    public string? Registration { get; init; }
 }
 
 public sealed class PaymentAccountOptions

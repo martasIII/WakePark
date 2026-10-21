@@ -71,6 +71,100 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
                     b.ToTable("outbox_messages", "billing");
                 });
 
+            modelBuilder.Entity("WakePark.Modules.Billing.Domain.Invoices.Invoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("currency")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("EnterpriseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("enterprise_id");
+
+                    b.Property<DateOnly>("IssuedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("issued_on");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("number");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
+
+                    b.Property<long>("Sequence")
+                        .HasColumnType("bigint")
+                        .HasColumnName("sequence");
+
+                    b.Property<DateOnly>("TaxableSupplyOn")
+                        .HasColumnType("date")
+                        .HasColumnName("taxable_supply_on");
+
+                    b.Property<decimal>("TotalGross")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total_gross");
+
+                    b.Property<decimal>("TotalNet")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total_net");
+
+                    b.Property<decimal>("TotalVat")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total_vat");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("VariableSymbol")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("variable_symbol");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoices");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoices_order_id");
+
+                    b.HasIndex("EnterpriseId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoices_enterprise_id_number");
+
+                    b.ToTable("invoices", "billing");
+                });
+
             modelBuilder.Entity("WakePark.Modules.Billing.Domain.Orders.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -368,6 +462,26 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
                     b.ToTable("bank_transactions", "billing");
                 });
 
+            modelBuilder.Entity("WakePark.Modules.Billing.Infrastructure.Persistence.InvoiceNumberSeries", b =>
+                {
+                    b.Property<Guid>("EnterpriseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("enterprise_id");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.Property<long>("LastSequence")
+                        .HasColumnType("bigint")
+                        .HasColumnName("last_sequence");
+
+                    b.HasKey("EnterpriseId", "Year")
+                        .HasName("pk_invoice_number_series");
+
+                    b.ToTable("invoice_number_series", "billing");
+                });
+
             modelBuilder.Entity("WakePark.Modules.Billing.Infrastructure.Persistence.OrderNumberSeries", b =>
                 {
                     b.Property<Guid>("EnterpriseId")
@@ -386,6 +500,180 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
                         .HasName("pk_order_number_series");
 
                     b.ToTable("order_number_series", "billing");
+                });
+
+            modelBuilder.Entity("WakePark.Modules.Billing.Domain.Invoices.Invoice", b =>
+                {
+                    b.OwnsOne("WakePark.Modules.Billing.Domain.Invoices.InvoiceParty", "Buyer", b1 =>
+                        {
+                            b1.Property<Guid>("InvoiceId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Address")
+                                .HasMaxLength(300)
+                                .HasColumnType("character varying(300)")
+                                .HasColumnName("buyer_address");
+
+                            b1.Property<string>("CompanyId")
+                                .HasMaxLength(8)
+                                .HasColumnType("character varying(8)")
+                                .HasColumnName("buyer_company_id");
+
+                            b1.Property<string>("ContactName")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("buyer_contact_name");
+
+                            b1.Property<string>("Email")
+                                .HasMaxLength(254)
+                                .HasColumnType("character varying(254)")
+                                .HasColumnName("buyer_email");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("buyer_name");
+
+                            b1.Property<string>("Registration")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("buyer_registration");
+
+                            b1.Property<string>("VatId")
+                                .HasMaxLength(12)
+                                .HasColumnType("character varying(12)")
+                                .HasColumnName("buyer_vat_id");
+
+                            b1.HasKey("InvoiceId");
+
+                            b1.ToTable("invoices", "billing");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoiceId")
+                                .HasConstraintName("fk_invoices_invoices_id");
+                        });
+
+                    b.OwnsOne("WakePark.Modules.Billing.Domain.Invoices.InvoiceParty", "Seller", b1 =>
+                        {
+                            b1.Property<Guid>("InvoiceId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Address")
+                                .HasMaxLength(300)
+                                .HasColumnType("character varying(300)")
+                                .HasColumnName("seller_address");
+
+                            b1.Property<string>("CompanyId")
+                                .HasMaxLength(8)
+                                .HasColumnType("character varying(8)")
+                                .HasColumnName("seller_company_id");
+
+                            b1.Property<string>("ContactName")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("seller_contact_name");
+
+                            b1.Property<string>("Email")
+                                .HasMaxLength(254)
+                                .HasColumnType("character varying(254)")
+                                .HasColumnName("seller_email");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("seller_name");
+
+                            b1.Property<string>("Registration")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("seller_registration");
+
+                            b1.Property<string>("VatId")
+                                .HasMaxLength(12)
+                                .HasColumnType("character varying(12)")
+                                .HasColumnName("seller_vat_id");
+
+                            b1.HasKey("InvoiceId");
+
+                            b1.ToTable("invoices", "billing");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoiceId")
+                                .HasConstraintName("fk_invoices_invoices_id");
+                        });
+
+                    b.OwnsMany("WakePark.Modules.Billing.Domain.Invoices.InvoiceLine", "Lines", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Description")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("description");
+
+                            b1.Property<decimal>("Gross")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("gross");
+
+                            b1.Property<Guid>("InvoiceId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("invoice_id");
+
+                            b1.Property<decimal>("Net")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("net");
+
+                            b1.Property<int>("Quantity")
+                                .HasColumnType("integer")
+                                .HasColumnName("quantity");
+
+                            b1.Property<decimal>("UnitPrice")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("unit_price");
+
+                            b1.Property<decimal>("Vat")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("vat");
+
+                            b1.Property<decimal>("VatRate")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("vat_rate");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_invoice_lines");
+
+                            b1.HasIndex("InvoiceId")
+                                .HasDatabaseName("ix_invoice_lines_invoice_id");
+
+                            b1.ToTable("invoice_lines", "billing");
+
+                            b1.WithOwner()
+                                .HasForeignKey("InvoiceId")
+                                .HasConstraintName("fk_invoice_lines_invoices_invoice_id");
+                        });
+
+                    b.Navigation("Buyer")
+                        .IsRequired();
+
+                    b.Navigation("Lines");
+
+                    b.Navigation("Seller")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WakePark.Modules.Billing.Domain.Orders.Order", b =>

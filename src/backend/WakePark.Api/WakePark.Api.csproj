@@ -8,6 +8,7 @@
     <ProjectReference Include="..\Modules\Catalog\WakePark.Modules.Catalog.Infrastructure\WakePark.Modules.Catalog.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Billing\WakePark.Modules.Billing.Infrastructure\WakePark.Modules.Billing.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Notifications\WakePark.Modules.Notifications.Infrastructure\WakePark.Modules.Notifications.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Vouchers\WakePark.Modules.Vouchers.Infrastructure\WakePark.Modules.Vouchers.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <!-- Nabídka e-shopu, dokud není backoffice (ADR 0006). Import: dotnet WakePark.Api.dll import-catalog -->

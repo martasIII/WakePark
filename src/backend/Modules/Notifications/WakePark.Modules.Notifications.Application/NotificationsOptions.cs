@@ -27,6 +27,15 @@ public sealed class NotificationsOptions
     public TimeSpan MaxAge { get; init; } = TimeSpan.FromHours(24);
 
     public SmtpOptions Smtp { get; init; } = new();
+
+    /// <summary>Barva pruhu na PDF poukazu podle kódu produktu (1/2/3 na první pohled).</summary>
+    public IReadOnlyDictionary<string, string> VoucherColors { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["voucher-1-slot"] = "#e50051",
+        ["voucher-2-sloty"] = "#0077c8",
+        ["voucher-3-sloty"] = "#00a651",
+        ["permanentka-10x20"] = "#222222",
+    };
 }
 
 public sealed class SmtpOptions

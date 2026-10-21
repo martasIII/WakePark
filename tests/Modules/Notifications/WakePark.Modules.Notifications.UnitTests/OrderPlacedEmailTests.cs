@@ -62,7 +62,7 @@ public sealed class OrderPlacedEmailTests
         IQrCodeImage qr = Substitute.For<IQrCodeImage>();
         qr.Png(Arg.Any<string>()).Returns([1, 2, 3]);
 
-        OrderPlacedIntegrationEvent placed = new(Guid.CreateVersion7(), DateTimeOffset.UtcNow, Guid.CreateVersion7(), Token);
+        OrderPlacedIntegrationEvent placed = new(Guid.CreateVersion7(), DateTimeOffset.UtcNow, Guid.CreateVersion7(), Guid.CreateVersion7(), Token);
         OrderPlacedConsumer consumer = new(orders, emails, Substitute.For<INotificationsUnitOfWork>(), qr, new NotificationsOptions());
 
         await consumer.HandleAsync(placed, TestContext.Current.CancellationToken);
@@ -100,7 +100,7 @@ public sealed class OrderPlacedEmailTests
         "Jana",
         "jana@example.cz",
         null,
-        [new OrderLineDto("voucher-2-sloty", "Voucher pro dva", 1, 1290m, 12m, 1290m)],
+        [new OrderLineDto("voucher-2-sloty", "Voucher pro dva", 1, 1290m, 12m, 1290m, Guid.CreateVersion7())],
         1290m,
         138.21m,
         1151.79m,

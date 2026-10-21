@@ -36,6 +36,8 @@ public static class BillingModule
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IOrderNumberAllocator, OrderNumberAllocator>();
         services.AddScoped<IBankTransactionRepository, BankTransactionRepository>();
+        services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+        services.AddScoped<IInvoiceNumberAllocator, InvoiceNumberAllocator>();
 
         // Fio: token je v adrese dotazu, proto HttpClient bez logování (jinak by ho vypsal do logu).
         IConfigurationSection fio = configuration.GetSection(FioOptions.SectionName);

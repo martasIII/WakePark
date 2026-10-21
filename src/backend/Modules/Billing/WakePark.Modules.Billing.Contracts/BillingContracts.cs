@@ -42,7 +42,37 @@ public sealed record OrderLineDto(
     int Quantity,
     decimal UnitPrice,
     decimal VatRate,
-    decimal LineGross);
+    decimal LineGross,
+    Guid ProductId);
+
+/// <summary>Daňový doklad — pro PDF v e-mailu a později pro backoffice.</summary>
+public sealed record InvoiceDto(
+    string Number,
+    DateOnly IssuedOn,
+    DateOnly TaxableSupplyOn,
+    string VariableSymbol,
+    string Currency,
+    InvoicePartyDto Seller,
+    InvoicePartyDto Buyer,
+    IReadOnlyList<InvoiceLineDto> Lines,
+    IReadOnlyList<InvoiceVatDto> VatRecap,
+    decimal TotalNet,
+    decimal TotalVat,
+    decimal TotalGross);
+
+public sealed record InvoicePartyDto(
+    string Name,
+    string? CompanyId,
+    string? VatId,
+    string? Address,
+    string? Registration,
+    string? ContactName,
+    string? Email);
+
+public sealed record InvoiceLineDto(string Description, int Quantity, decimal UnitPrice, decimal VatRate, decimal Net, decimal Vat, decimal Gross);
+
+/// <summary>Rekapitulace DPH podle sazeb.</summary>
+public sealed record InvoiceVatDto(decimal VatRate, decimal Net, decimal Vat, decimal Gross);
 
 /// <summary>
 /// Jak zaplatit. Jen u objednávky, která na platbu čeká. <see cref="Spayd"/> je obsah
