@@ -5,7 +5,7 @@ using WakePark.Modules.Catalog.Contracts;
 
 namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Repositories;
 
-internal sealed class CatalogReadRepository(CatalogDbContext dbContext) : ICatalogReadRepository
+internal sealed class CatalogReadRepository(CatalogDbContext dbContext) : ICatalogReadRepository, ICatalogReader
 {
     public async Task<CatalogDto> GetPublishedCatalogAsync(
         Guid enterpriseId,

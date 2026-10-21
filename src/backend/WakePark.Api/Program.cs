@@ -13,6 +13,8 @@ using WakePark.Api.Infrastructure.Auth;
 using WakePark.Api.OpenApi;
 using WakePark.BuildingBlocks.Application.Abstractions;
 using WakePark.BuildingBlocks.Infrastructure;
+using WakePark.Modules.Billing.Infrastructure;
+using WakePark.Modules.Billing.Infrastructure.Endpoints;
 using WakePark.Modules.Catalog.Infrastructure;
 using WakePark.Modules.Catalog.Infrastructure.Endpoints;
 using WakePark.Modules.Identity.Infrastructure;
@@ -42,6 +44,7 @@ builder.Services.AddTenancyModule(builder.Configuration);
 builder.Services.AddOperationsModule(builder.Configuration);
 builder.Services.AddReservationsModule(builder.Configuration);
 builder.Services.AddCatalogModule(builder.Configuration);
+builder.Services.AddBillingModule(builder.Configuration);
 
 // --- Autentizace ---
 // Session drží HttpOnly cookie. Odpovědí na neautentizovaný požadavek je stavový kód,
@@ -93,6 +96,7 @@ builder.Services.AddAntiforgery(options =>
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 
 // Enumy jdou po drátě jako text. Čísla by v JSON API znamenala, že klient musí znát pořadí
 // hodnot a že vložení nové hodnoty doprostřed tiše změní význam dat.
@@ -151,6 +155,7 @@ app.MapTenancyEndpoints();
 app.MapOperationsEndpoints();
 app.MapReservationsEndpoints();
 app.MapCatalogEndpoints();
+app.MapBillingEndpoints();
 
 await app.RunAsync().ConfigureAwait(false);
 return 0;

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\WakePark.Modules.Billing.Domain\WakePark.Modules.Billing.Domain.csproj" />
+    <ProjectReference Include="..\WakePark.Modules.Billing.Contracts\WakePark.Modules.Billing.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Application\WakePark.BuildingBlocks.Application.csproj" />
+    <!-- Ceny a názvy produktů. Jen kontrakt, nikdy vnitřek modulu Catalog. -->
+    <ProjectReference Include="..\..\Catalog\WakePark.Modules.Catalog.Contracts\WakePark.Modules.Catalog.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="WakePark.Modules.Billing.UnitTests" />
+    <InternalsVisibleTo Include="WakePark.Modules.Billing.IntegrationTests" />
+  </ItemGroup>
+</Project>

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
 using WakePark.Modules.Catalog.Application;
 using WakePark.Modules.Catalog.Application.Abstractions;
+using WakePark.Modules.Catalog.Contracts;
 using WakePark.Modules.Catalog.Infrastructure.Persistence;
 using WakePark.Modules.Catalog.Infrastructure.Persistence.Repositories;
 
@@ -32,6 +33,7 @@ public static class CatalogModule
         services.AddScoped<ICatalogUnitOfWork>(sp => sp.GetRequiredService<CatalogDbContext>());
         services.AddScoped<ICatalogRepository, CatalogRepository>();
         services.AddScoped<ICatalogReadRepository, CatalogReadRepository>();
+        services.AddScoped<ICatalogReader, CatalogReadRepository>();
         services.AddCatalogApplication();
 
         return services;
