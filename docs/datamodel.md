@@ -296,6 +296,23 @@ nezneplatní už přijaté rezervace.
 
 `Id`, `EnterpriseId`, `Code` (UNIQUE), `Name`, `Type` (enum: `SingleRide`, `RideCreditPack`, `SeasonPass`, `Other`), `RideCount?`
 
+### Implementace pro e-shop (21. 10. 2026, ADR 0006)
+
+Modul je implementovaný v rozsahu, který potřebuje e-shop. Odchylky od specifikace výše:
+
+- **`Product`**: `Id`, `EnterpriseId`, `Code` (UNIQUE s `EnterpriseId`, stabilní — páruje se podle něj
+  import), `CategoryId`, `Name` a `Description` (vícejazyčné, `jsonb` `{"cs": …}`), `ImagePath?`,
+  `SortOrder`, `IsActive`. Produkt se nemaže, jen skryje. **`Type` a `RideCount` zatím nejsou** —
+  co produkt znamená na místě, se doplní s backoffice.
+- **`ProductCategory`** (nová): `Id`, `EnterpriseId`, `Code`, `Name` (vícejazyčný), `SortOrder`.
+  Jen pro zobrazení, chování produktu na ní nezávisí.
+- **`PriceList`**: `EnterpriseId` místo `WakeParkId` (e-shop prodává za provozovatele, ne za areál),
+  `Currency` na ceníku místo na položce, nejvýš jeden aktivní ceník na provozovatele.
+- **`PriceItem`**: `UnitPrice` je **včetně DPH**, `VatRate` v procentech. `CustomerSegment` a `DayType`
+  zatím nejsou — přibudou jako nullable sloupce, až je bude něco potřebovat.
+- Dokud není backoffice, nabídka se načítá ze souboru `src/backend/WakePark.Api/data/katalog.json`
+  (`dotnet WakePark.Api.dll import-catalog`; ve vývoji při startu).
+
 ---
 
 ## Modul `Billing`

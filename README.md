@@ -87,7 +87,7 @@ dotnet dotnet-ef database update --project src/backend/Modules/Tenancy/WakePark.
 ```
 
 Každý modul má **vlastní schéma a vlastní historii migrací** (`<schema>.__ef_migrations_history`),
-takže se aktualizuje samostatně — `TenancyDbContext`, `OperationsDbContext`, `ReservationsDbContext`.
+takže se aktualizuje samostatně — `TenancyDbContext`, `OperationsDbContext`, `ReservationsDbContext`, `CatalogDbContext`.
 
 Design-time factory každého modulu míří na tuhle lokální databázi, takže `dotnet ef` funguje
 bez další konfigurace. Pro jiný cíl nastav `WAKEPARK_DESIGNTIME_CONNECTION`.

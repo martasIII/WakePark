@@ -13,6 +13,8 @@ using WakePark.Api.Infrastructure.Auth;
 using WakePark.Api.OpenApi;
 using WakePark.BuildingBlocks.Application.Abstractions;
 using WakePark.BuildingBlocks.Infrastructure;
+using WakePark.Modules.Catalog.Infrastructure;
+using WakePark.Modules.Catalog.Infrastructure.Endpoints;
 using WakePark.Modules.Identity.Infrastructure;
 using WakePark.Modules.Identity.Infrastructure.Endpoints;
 using WakePark.Modules.Operations.Infrastructure;
@@ -39,6 +41,7 @@ builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddTenancyModule(builder.Configuration);
 builder.Services.AddOperationsModule(builder.Configuration);
 builder.Services.AddReservationsModule(builder.Configuration);
+builder.Services.AddCatalogModule(builder.Configuration);
 
 // --- Autentizace ---
 // Session drží HttpOnly cookie. Odpovědí na neautentizovaný požadavek je stavový kód,
@@ -100,6 +103,13 @@ builder.Services.AddOpenApi(options => options.AddDocumentTransformer<ApiDocumen
 
 WebApplication app = builder.Build();
 
+// Krok nasazení: naimportuje katalog a skončí, server se nespouští.
+if (args.Contains(CatalogImportExtensions.CommandName, StringComparer.Ordinal))
+{
+    bool imported = await app.ImportCatalogAsync().ConfigureAwait(false);
+    return imported ? 0 : 1;
+}
+
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
@@ -122,6 +132,7 @@ if (app.Environment.IsDevelopment())
     });
 
     await app.SeedIdentityAsync().ConfigureAwait(false);
+    await app.ImportCatalogAsync().ConfigureAwait(false);
 }
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }))
@@ -133,8 +144,10 @@ app.MapIdentityEndpoints();
 app.MapTenancyEndpoints();
 app.MapOperationsEndpoints();
 app.MapReservationsEndpoints();
+app.MapCatalogEndpoints();
 
 await app.RunAsync().ConfigureAwait(false);
+return 0;
 
 /// <summary>Vstupní bod API. Veřejný kvůli integračním testům přes <c>WebApplicationFactory</c>.</summary>
 public partial class Program;

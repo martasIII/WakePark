@@ -38,6 +38,11 @@ public sealed class ModuleIsolationTests
             typeof(Modules.Reservations.Domain.Slots.Slot).Assembly,
             typeof(Modules.Reservations.Contracts.ReservationDto).Assembly
         ),
+        (
+            "WakePark.Modules.Catalog",
+            typeof(Modules.Catalog.Domain.Products.Product).Assembly,
+            typeof(Modules.Catalog.Contracts.CatalogDto).Assembly
+        ),
     ];
 
     [Fact]

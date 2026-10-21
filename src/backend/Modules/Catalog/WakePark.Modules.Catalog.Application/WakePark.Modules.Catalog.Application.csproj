@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\WakePark.Modules.Catalog.Domain\WakePark.Modules.Catalog.Domain.csproj" />
+    <ProjectReference Include="..\WakePark.Modules.Catalog.Contracts\WakePark.Modules.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Application\WakePark.BuildingBlocks.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="WakePark.Modules.Catalog.UnitTests" />
+    <InternalsVisibleTo Include="WakePark.Modules.Catalog.IntegrationTests" />
+  </ItemGroup>
+</Project>

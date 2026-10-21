@@ -1,0 +1,64 @@
+// Nabídka e-shopu (ADR 0006). Dokud není backoffice, mění se tady: úprava → commit → nasazení.
+// Pořadí v souboru = pořadí na webu. Kód produktu se nemění — podle něj se páruje s databází;
+// produkt, který ze souboru zmizí, se na webu skryje (nesmaže se, odkazují na něj prodané poukazy).
+// Cena je včetně DPH. Obrázky jsou ve Storefrontu ve wwwroot.
+//
+// POZOR: zatím TESTOVACÍ data — ceny, sazby DPH i texty jsou vymyšlené. Finální katalog
+// připravuje Martin s Danem; sazbu DPH potvrdí účetní.
+{
+  "currency": "CZK",
+  "categories": [
+    { "code": "vouchery", "name": { "cs": "Vouchery", "en": "Vouchers" } },
+    { "code": "permanentky", "name": { "cs": "Permanentky", "en": "Season passes" } }
+  ],
+  "products": [
+    {
+      "code": "voucher-1-slot",
+      "category": "vouchery",
+      "name": { "cs": "Voucher pro jednoho", "en": "Voucher for one" },
+      "description": {
+        "cs": "20 minut na laně pro jednu osobu včetně vybavení a instruktora. Platí v sezóně 2027.",
+        "en": "20 minutes on the cable for one person, equipment and instructor included. Valid in the 2027 season."
+      },
+      "image": "/img/katalog/voucher-1.svg",
+      "price": 690,
+      "vatRate": 21
+    },
+    {
+      "code": "voucher-2-sloty",
+      "category": "vouchery",
+      "name": { "cs": "Voucher pro dva", "en": "Voucher for two" },
+      "description": {
+        "cs": "2 × 20 minut na laně — pro dvě osoby, nebo dvakrát pro jednu. Včetně vybavení a instruktora. Platí v sezóně 2027.",
+        "en": "2 × 20 minutes on the cable — for two people, or twice for one. Equipment and instructor included. Valid in the 2027 season."
+      },
+      "image": "/img/katalog/voucher-2.svg",
+      "price": 1290,
+      "vatRate": 21
+    },
+    {
+      "code": "voucher-3-sloty",
+      "category": "vouchery",
+      "name": { "cs": "Voucher pro tři", "en": "Voucher for three" },
+      "description": {
+        "cs": "3 × 20 minut na laně — pro tři osoby, nebo rozdělit podle chuti. Včetně vybavení a instruktora. Platí v sezóně 2027.",
+        "en": "3 × 20 minutes on the cable — for three people, or split as you like. Equipment and instructor included. Valid in the 2027 season."
+      },
+      "image": "/img/katalog/voucher-3.svg",
+      "price": 1890,
+      "vatRate": 21
+    },
+    {
+      "code": "permanentka-10x20",
+      "category": "permanentky",
+      "name": { "cs": "Permanentka 10 × 20 minut", "en": "Pass 10 × 20 minutes" },
+      "description": {
+        "cs": "Deset jízd po 20 minutách, přenosná na jiné osoby. Platí v sezóně 2027.",
+        "en": "Ten 20-minute rides, transferable to other people. Valid in the 2027 season."
+      },
+      "image": "/img/katalog/permanentka.svg",
+      "price": 4200,
+      "vatRate": 21
+    }
+  ]
+}
