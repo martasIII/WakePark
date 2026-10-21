@@ -1,6 +1,6 @@
 # 0006 — E-shop s poukazy: moduly, platba QR převodem, veřejný web
 
-**Stav:** Navrženo · 6. 10. 2026 — čeká na rozhodnutí otevřených otázek
+**Stav:** Navrženo · 6. 10. 2026, upřesněno 21. 10. 2026 — čeká na rozhodnutí otevřených otázek
 
 ## Kontext
 
@@ -173,6 +173,56 @@ zůstává jen česky, vícejazyčnost přijde se Storefrontem.
   stránky s odkazem na anglickou verzi podmínek.
 - Rezervační systém r2.wakearealy.cz má jen češtinu; cizojazyčné stránky na to upozorní.
 
+## Upřesnění z 21. 10. 2026
+
+Mění část upřesnění z 6. 10. (splatnost, číselná řada objednávky, e-mail).
+
+**Sortiment** — pro e-shop je produkt jen **název, popis, obrázek, cena, sazba DPH a kategorie**
+(„Vouchery“, „Permanentky“). Žádné druhy, sloty ani počty jízd — co produkt na místě znamená
+(1/2/3 sloty, kolik jízd má permanentka), se doplní s backoffice. Pro e-shop je i permanentka
+poukaz: zaplatí se, vystaví se PDF s kódem.
+
+**Poukaz** — kód, platnost a **zamrazený produkt** (odkaz na produkt + název, popis, cena a DPH
+k datu nákupu). Až backoffice doplní k produktům sloty a jízdy, prodané poukazy se k nim
+přiřadí přes produkt, i když se mezitím změní název nebo cena.
+
+**Platnost** — prozatím pevné období z konfigurace areálu, pro poukazy prodané teď
+**1. 5. 2027 – 30. 9. 2027**. Sezóna může být delší, ale neslibuje se kvůli vodě a počasí.
+Do poukazu se zamrazí při vystavení. Nahrazuje pravidlo „do konce první sezóny po nákupu“
+z 6. 10. — k tomu se vrátí, až bude `Operations.Season`.
+
+**Podoba PDF** — navrhne grafik (Dan), poukazy 1/2/3 budou barevně odlišené. Do té doby
+obecná šablona; barva a podklad patří k produktu, ne do kódu. Obsah (číslo dokladu, kód, …)
+se dořeší při proklikávání.
+
+**Hodnotový poukaz (na částku) se neprodává.** Byl by to víceúčelový poukaz — DPH až při
+uplatnění, při prodeji jen potvrzení o platbě, ne daňový doklad. Druhý daňový režim v `Billing`
+za „nice to have“ nestojí. Kdyby se vrátil, je to nový druh produktu a nový režim, ne úprava
+stávajícího.
+
+**Backoffice do Vánoc není.** E-shop poukazy a permanentky jen prodá a vystaví. Ověření kódu,
+uplatnění poukazu a strhávání jízd z permanentky musí být hotové **před začátkem sezóny 2027** —
+do té doby se nic neuplatňuje. Do té doby musí být poukazy a permanentky dohledatelné aspoň
+přímým dotazem do databáze.
+
+**Splatnost** — `Billing:PaymentDueDays`, výchozí **4 dny**, upomínka s QR kódem po 2 dnech.
+**Pozdní platba** se správným VS a přesnou částkou se přijme automaticky (objednávka se obnoví,
+vystaví se doklad i poukaz) — poukazů není omezený počet, takže zrušení nic nechrání, a přijatou
+úplatu by stejně bylo nutné vyfakturovat nebo vrátit. Do fronty k ručnímu vyřízení jde jen
+nesoulad VS nebo částky.
+
+**Číslo objednávky** — prozatím dvojčíslí roku + pořadové číslo od 1000 (`261000`), roční reset.
+Definitivní formát zůstává otevřený. Čísla jdou po sobě, proto stránka objednávky (QR, stav)
+je dostupná jen přes náhodný token v adrese, nikdy jen přes číslo.
+
+**E-mail** — odesílá `noreply@wake-dzban.cz` s `Reply-To: info@wake-dzban.cz`; heslo v
+konfiguraci aplikace tak není heslo k pracovní schránce. Ve vývoji Mailpit, schránku na Wedosu
+zřídí vlastník před ostrým provozem. Heslo k info@ změnit (mohlo ležet v napadené DB WordPressu).
+
 ## Otevřené otázky
 
-1. Potvrdit s účetní režim jednoúčelového poukazu.
+1. Potvrdit s účetní režim jednoúčelového poukazu — u slotového poukazu (jízda, vybavení
+   a instruktor v jedné ceně) i u permanentky.
+2. Až s backoffice: co produkty znamenají na místě (sloty, počet jízd permanentky, na jméno,
+   nebo přenosná).
+3. Definitivní formát čísla objednávky a daňového dokladu.
