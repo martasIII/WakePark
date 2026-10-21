@@ -117,6 +117,29 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
     }
 
     [Fact]
+    public async Task Z_mobilu_jde_QR_stahnout_jako_obrazek_a_udaje_zkopirovat()
+    {
+        HttpClient client = CreateClient(new FakeApi());
+
+        string html = WebUtility.HtmlDecode(await client.GetStringAsync(
+            new Uri($"/objednavka/{Token}", UriKind.Relative), TestContext.Current.CancellationToken));
+        html.ShouldContain($"href=\"/objednavka/{Token}?handler=Qr\"");
+        html.ShouldContain("data-copy=\"261000\"");
+        html.ShouldContain("data-copy=\"2580\"", Case.Sensitive, "částka bez měny a mezer, ať ji banka vezme");
+        html.ShouldMatch("""<script src="/js/copy[^"]*\.js"""); // název nese otisk verze
+
+        HttpResponseMessage png = await client.GetAsync(
+            new Uri($"/objednavka/{Token}?handler=Qr", UriKind.Relative), TestContext.Current.CancellationToken);
+
+        png.StatusCode.ShouldBe(HttpStatusCode.OK);
+        png.Content.Headers.ContentType!.MediaType.ShouldBe("image/png");
+        png.Content.Headers.ContentDisposition!.FileName.ShouldBe("qr-platba-261000.png");
+        png.Headers.CacheControl!.NoStore.ShouldBeTrue();
+        byte[] bytes = await png.Content.ReadAsByteArrayAsync(TestContext.Current.CancellationToken);
+        bytes[..4].ShouldBe(new byte[] { 0x89, (byte)'P', (byte)'N', (byte)'G' });
+    }
+
+    [Fact]
     public async Task Neznamy_token_je_404()
     {
         HttpResponseMessage response = await CreateClient(new FakeApi())

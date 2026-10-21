@@ -19,4 +19,19 @@ public static class PaymentQrCode
 
         return qr.GetGraphic(new System.Drawing.Size(240, 240), "#000000", "#ffffff", drawQuietZones: true);
     }
+
+    /// <summary>
+    /// Totéž jako PNG ke stažení. Kdo objednává z mobilu, nemá čím QR na displeji naskenovat —
+    /// uloží si obrázek a bankovní aplikace ho načte z galerie.
+    /// </summary>
+    public static byte[] Png(string spayd)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(spayd);
+
+        using QRCodeGenerator generator = new();
+        using QRCodeData data = generator.CreateQrCode(spayd, QRCodeGenerator.ECCLevel.M);
+        using PngByteQRCode qr = new(data);
+
+        return qr.GetGraphic(12);
+    }
 }

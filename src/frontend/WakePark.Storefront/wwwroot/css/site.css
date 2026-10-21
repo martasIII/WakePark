@@ -106,6 +106,11 @@ footer .small{font-size:12px; opacity:.8}
 .pay-details dd{margin:0; font-weight:700; word-break:break-all}
 .pay-details .amount{font-size:22px; color:var(--brand)}
 .card .row.total{border-top:2px solid #1d1d1f}
+.pay-details .copy{margin-left:8px; padding:3px 9px; border:1px solid #ccc; border-radius:999px; background:#fff; color:#1d1d1f; font:inherit; font-size:12px; font-weight:700; cursor:pointer; vertical-align:2px}
+.pay-details .amount .copy{font-size:12px}
+.mobile-pay{margin-top:14px; padding:14px 16px; border-radius:6px; background:#f5f5f7; font-size:14px; line-height:1.55}
+.mobile-pay p{margin:0 0 10px}
+.save-qr{display:inline-block; padding:10px 16px; border-radius:6px; background:var(--brand); color:#fff !important; font-weight:700; text-decoration:none}
 
 /* ---- kontakt ---- */
 .card h3{margin:16px 0 4px; font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:#6b6b72}

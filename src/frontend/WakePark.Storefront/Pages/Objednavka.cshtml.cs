@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 
 using WakePark.Storefront.Eshop;
+using WakePark.Storefront.Infrastructure;
 
 namespace WakePark.Storefront.Pages;
 
@@ -29,6 +30,23 @@ public sealed class ObjednavkaModel(OrderClient orderClient, IOptions<Storefront
         QrSvg = order.Payment is { } payment ? PaymentQrCode.Svg(payment.Spayd) : null;
         return Page();
     }
+
+    /// <summary>QR kód platby jako PNG ke stažení (<c>?handler=qr</c>).</summary>
+    public async Task<IActionResult> OnGetQrAsync(string token, CancellationToken cancellationToken)
+    {
+        OrderView? order = await orderClient.GetAsync(token, cancellationToken).ConfigureAwait(false);
+        if (order?.Payment is not { } payment)
+        {
+            return NotFound();
+        }
+
+        // Obrázek patří k soukromé objednávce — žádné ukládání v cache po cestě.
+        Response.Headers.CacheControl = "no-store";
+        return File(PaymentQrCode.Png(payment.Spayd), "image/png", $"qr-platba-{order.Number}.png");
+    }
+
+    /// <summary>Částka pro vložení do bankovní aplikace — bez měny a mezer, s desetinnou čárkou.</summary>
+    public static string AmountForCopy(decimal amount) => amount.ToString("0.##", SiteView.Culture);
 
     /// <summary>Okamžik v čase areálu — zákazník čte „do 25. 10. 18:00“, ne UTC.</summary>
     public DateTime Local(DateTimeOffset instant) =>
