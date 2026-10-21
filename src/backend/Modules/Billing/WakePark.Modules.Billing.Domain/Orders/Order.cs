@@ -15,7 +15,8 @@ public sealed class Order : AggregateRoot, ITenantOwned, IAuditable
 
     public const int MaxLines = 20;
 
-    public const int AccessTokenLength = 43;
+    /// <summary>256 bitů náhody jako 64 malých hex znaků — adresa se nerozbije ani převodem na malá písmena.</summary>
+    public const int AccessTokenLength = 64;
 
     private readonly List<OrderLine> _lines = [];
 

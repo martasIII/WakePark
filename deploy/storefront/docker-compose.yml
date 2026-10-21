@@ -68,10 +68,15 @@ services:
       Storefront__TrustedProxyNetworks__0: "172.16.0.0/12"
       Storefront__ApiBaseUrl: "http://api:8080"
       Storefront__EnterpriseId: "01a15f92-3547-75ae-a047-65a2a9ecbeaf"
+    volumes:
+      # Klíče pro podepisování formulářů přežijí nové nasazení — rozpracovaná objednávka
+      # po deployi nespadne na neplatném antiforgery tokenu.
+      - storefront-keys:/home/app/.aspnet/DataProtection-Keys
     # Strop drží .NET v mezích (GC se mu přizpůsobí) a chybou v aplikaci se nepoloží celý server.
     mem_limit: 256m
     logging: *logging
 
 volumes:
+  storefront-keys:
   # Data databáze přežijí nové verze i restart. Zálohuje je cron (pg_dump), viz README.
   pgdata:

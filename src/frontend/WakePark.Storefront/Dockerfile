@@ -24,6 +24,11 @@ ENV ASPNETCORE_HTTP_PORTS=8080 \
 
 COPY --from=build /app .
 
+# Klíče, kterými web podepisuje formuláře (antiforgery). Na serveru je tu svazek, aby
+# po novém nasazení platily formuláře otevřené před ním. Složku musí vlastnit uživatel app,
+# jinak by ji Docker založil rootovi a web by do ní nezapsal.
+RUN mkdir -p /home/app/.aspnet/DataProtection-Keys && chown -R $APP_UID /home/app/.aspnet
+
 # Obraz má připraveného uživatele bez práv roota. Když se aplikace někdy nechá
 # zneužít, útočník v kontejneru není root.
 USER $APP_UID

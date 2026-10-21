@@ -17,26 +17,72 @@
     }
     else
     {
-        foreach (EshopCategory category in Model.Catalog.Categories)
-        {
-            <section class="card" id="@category.Code">
-                <h2>@category.Name.Resolve(lang)</h2>
-                <ul class="products">
-                    @foreach (EshopProduct product in Model.ProductsIn(category))
-                    {
-                        <li class="product" id="@product.Code">
-                            @if (product.ImagePath is not null)
-                            {
-                                <img src="@product.ImagePath" alt="" width="400" height="250" loading="lazy">
-                            }
-                            <h3>@product.Name.Resolve(lang)</h3>
-                            <p class="desc">@product.Description.Resolve(lang)</p>
-                            <p class="price">@SiteView.Price(product.UnitPrice) <span>@T["InclVat"]</span></p>
-                        </li>
-                    }
-                </ul>
+        <form method="post" class="order-form" novalidate>
+            @if (Model.Errors.Count > 0)
+            {
+                <section class="card errors" role="alert">
+                    <h2>@T["OrderErrors"]</h2>
+                    <ul>
+                        @foreach (string error in Model.Errors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </section>
+            }
+
+            @foreach (EshopCategory category in Model.Catalog.Categories)
+            {
+                <section class="card" id="@category.Code">
+                    <h2>@category.Name.Resolve(lang)</h2>
+                    <ul class="products">
+                        @foreach (EshopProduct product in Model.ProductsIn(category))
+                        {
+                            string inputId = $"q-{product.Code}";
+                            <li class="product" id="@product.Code">
+                                @if (product.ImagePath is not null)
+                                {
+                                    <img src="@product.ImagePath" alt="" width="400" height="250" loading="lazy">
+                                }
+                                <h3>@product.Name.Resolve(lang)</h3>
+                                <p class="desc">@product.Description.Resolve(lang)</p>
+                                <p class="price">@SiteView.Price(product.UnitPrice) <span>@T["InclVat"]</span></p>
+                                <label class="qty" for="@inputId">@T["Quantity"]
+                                    <input id="@inputId" type="number" name="Quantities[@product.Id]"
+                                           value="@Model.QuantityOf(product)" min="0" max="20" inputmode="numeric">
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                </section>
+            }
+
+            <section class="card contact">
+                <h2>@T["Contact"]</h2>
+                <div class="fields">
+                    <label>@T["Name"] <input asp-for="Form.Name" autocomplete="name" required></label>
+                    <label>@T["Email"] <input asp-for="Form.Email" type="email" autocomplete="email" required></label>
+                    <label>@T["Phone"] <span class="opt">@T["Optional"]</span> <input asp-for="Form.Phone" type="tel" autocomplete="tel"></label>
+                </div>
+                <details class="company" open="@(Model.Form.CompanyName is not null || Model.Form.CompanyId is not null ? "open" : null)">
+                    <summary>@T["BuyingAsCompany"]</summary>
+                    <div class="fields">
+                        <label>@T["CompanyName"] <input asp-for="Form.CompanyName" autocomplete="organization"></label>
+                        <label>@T["CompanyId"] <input asp-for="Form.CompanyId" inputmode="numeric"></label>
+                        <label>@T["VatId"] <input asp-for="Form.VatId"></label>
+                    </div>
+                </details>
+                @* Past na roboty — člověk pole nevidí ani do něj nedojde tabulátorem. *@
+                <div class="hp" aria-hidden="true">
+                    <label>Web <input asp-for="Form.Website" tabindex="-1" autocomplete="off"></label>
+                </div>
+                <label class="terms">
+                    <input asp-for="Form.TermsAccepted">
+                    <span>@T["TermsAgree"] <a asp-page="/Obchodni-podminky" asp-route-lang="@Site.LanguageRoute" target="_blank">@T["Terms"]</a>.</span>
+                </label>
+                <p class="pay-note">@T["PayNote"]</p>
+                <button type="submit" class="order-button">@T["PlaceOrder"]</button>
             </section>
-        }
-        <p class="eshop-note">@T["OrderSoon"] <a href="tel:+420737562516">+420 737 562 516</a>.</p>
+        </form>
     }
 </main>

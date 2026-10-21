@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using System.Threading.RateLimiting;
 
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
@@ -43,6 +44,27 @@ builder.Services.AddSingleton(TimeProvider.System);
 // Nabídku e-shopu čte web z API. Krátký timeout: když API vázne, má stránka raději rychle
 // ukázat telefon, než nechat návštěvníka čekat.
 builder.Services.AddHttpClient<CatalogClient>(client => client.Timeout = TimeSpan.FromSeconds(5));
+builder.Services.AddHttpClient<OrderClient>(client => client.Timeout = TimeSpan.FromSeconds(15));
+
+// Objednávky z jedné IP: 5 za 10 minut. Člověku to stačí i s opravami překlepů; robot,
+// který by zakládal objednávky (a později rozesílal e-maily), narazí. Čtení stránek se neomezuje.
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        HttpMethods.IsPost(context.Request.Method)
+            ? RateLimitPartition.GetFixedWindowLimiter(
+                context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(10) })
+            : RateLimitPartition.GetNoLimiter("read"));
+    options.OnRejected = (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.ContentType = "text/plain; charset=utf-8";
+        return new ValueTask(context.HttpContext.Response.WriteAsync(
+            "Příliš mnoho objednávek za krátkou dobu. Zkuste to prosím za pár minut, nebo zavolejte +420 737 562 516.",
+            cancellationToken));
+    };
+});
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
@@ -71,6 +93,9 @@ app.UseRewriter(LegacyRedirects.Create(storefront.ReservationUrl));
 app.UseStatusCodePagesWithReExecute("/notfound");
 
 app.UseRouting();
+
+// Za UseForwardedHeaders — limit se počítá podle skutečné IP návštěvníka, ne nginxu.
+app.UseRateLimiter();
 
 CultureInfo[] cultures = [.. storefront.SiteLanguages.Select(CultureInfo.GetCultureInfo)];
 app.UseRequestLocalization(new RequestLocalizationOptions

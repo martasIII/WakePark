@@ -33,7 +33,10 @@ public static class BillingEndpoints
                 """)
             .Produces<PlacedOrderDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
-            .AllowAnonymous();
+            .AllowAnonymous()
+            // CSRF hrozí jen tam, kde prohlížeč sám přiloží přihlašovací cookie. Objednávka
+            // přihlášení nepoužívá a volá ji server webu, ne prohlížeč — token nemá co chránit.
+            .DisableAntiforgery();
 
         group.MapGet("/orders/{accessToken}", GetOrderAsync)
             .WithName("GetOrder")

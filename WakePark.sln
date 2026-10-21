@@ -123,6 +123,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakePark.Modules.Billing.Un
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakePark.Modules.Billing.IntegrationTests", "tests\Modules\Billing\WakePark.Modules.Billing.IntegrationTests\WakePark.Modules.Billing.IntegrationTests.csproj", "{105DA645-0E7D-4432-83CD-A8A0391830BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakePark.Api.IntegrationTests", "tests\WakePark.Api.IntegrationTests\WakePark.Api.IntegrationTests.csproj", "{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -625,6 +627,18 @@ Global
 		{105DA645-0E7D-4432-83CD-A8A0391830BC}.Release|x64.Build.0 = Release|Any CPU
 		{105DA645-0E7D-4432-83CD-A8A0391830BC}.Release|x86.ActiveCfg = Release|Any CPU
 		{105DA645-0E7D-4432-83CD-A8A0391830BC}.Release|x86.Build.0 = Release|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Debug|x64.Build.0 = Debug|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Debug|x86.Build.0 = Debug|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Release|x64.ActiveCfg = Release|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Release|x64.Build.0 = Release|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Release|x86.ActiveCfg = Release|Any CPU
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -688,5 +702,6 @@ Global
 		{88C6DF84-471F-118A-D8FC-7543AE312C02} = {D7DC9B74-6BC4-2470-2038-1E57C2DCB73B}
 		{68E95EEC-40C4-470B-BAA2-8BA2380EDA0E} = {88C6DF84-471F-118A-D8FC-7543AE312C02}
 		{105DA645-0E7D-4432-83CD-A8A0391830BC} = {88C6DF84-471F-118A-D8FC-7543AE312C02}
+		{3CB7621C-5D4D-43D1-BFCB-7F7C2E5C512F} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

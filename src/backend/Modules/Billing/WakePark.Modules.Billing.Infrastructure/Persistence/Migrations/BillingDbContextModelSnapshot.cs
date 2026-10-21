@@ -31,8 +31,8 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("AccessToken")
                         .IsRequired()
-                        .HasMaxLength(43)
-                        .HasColumnType("character(43)")
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
                         .HasColumnName("access_token")
                         .IsFixedLength();
 

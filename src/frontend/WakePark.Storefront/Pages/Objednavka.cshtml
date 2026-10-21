@@ -1,0 +1,55 @@
+@page "{token}"
+@model ObjednavkaModel
+@using WakePark.Storefront.Eshop
+@{
+    OrderView order = Model.Order;
+    ViewData["Title"] = $"Objednávka {order.Number} — Wake Park Džbán";
+    ViewData["BodyClass"] = "page";
+    ViewData["Heading"] = $"{T["Order"]} {order.Number}";
+    ViewData["Subtitle"] = order.IsAwaitingPayment ? T["OrderAwaitingPayment"].Value : T["OrderStatus" + order.Status].Value;
+    // Stránka s osobními údaji a soukromým odkazem nemá co dělat ve vyhledávači.
+    ViewData["NoIndex"] = true;
+}
+<partial name="_PageHeader" />
+<main class="page-body">
+    @if (order.Payment is { } payment)
+    {
+        <section class="card payment">
+            <h2>@T["HowToPay"]</h2>
+            <div class="pay-grid">
+                <div class="qr" role="img" aria-label="@T["QrLabel"]">@Html.Raw(Model.QrSvg)</div>
+                <dl class="pay-details">
+                    <dt>@T["Amount"]</dt><dd class="amount">@SiteView.Price(payment.Amount)</dd>
+                    <dt>@T["Account"]</dt><dd>@payment.AccountNumber</dd>
+                    <dt>@T["VariableSymbol"]</dt><dd>@payment.VariableSymbol</dd>
+                    <dt>IBAN</dt><dd>@payment.Iban</dd>
+                    @if (payment.Bic is not null)
+                    {
+                        <dt>BIC</dt><dd>@payment.Bic</dd>
+                    }
+                    <dt>@T["PayBy"]</dt><dd>@Model.Local(order.PaymentDueAtUtc).ToString("d. M. yyyy H:mm", SiteView.Culture)</dd>
+                </dl>
+            </div>
+            <p class="note">@T["PaymentInfo"]</p>
+        </section>
+    }
+
+    <section class="card">
+        <h2>@T["OrderSummary"]</h2>
+        @foreach (OrderViewLine line in order.Lines)
+        {
+            <div class="row">
+                <div class="name"><b>@line.Quantity × @line.Name</b>
+                    <span class="desc">@SiteView.Price(line.UnitPrice) @T["PerPiece"]</span></div>
+                <div class="price">@SiteView.Price(line.LineGross)</div>
+            </div>
+        }
+        <div class="row total">
+            <div class="name"><b>@T["Total"]</b> <span class="desc">@T["VatIncluded"] @SiteView.Price(order.TotalVat)</span></div>
+            <div class="price">@SiteView.Price(order.TotalGross)</div>
+        </div>
+        <p class="note">@order.CustomerName · @order.CustomerEmail@(order.CompanyName is null ? "" : $" · {order.CompanyName}")</p>
+    </section>
+
+    <p class="eshop-note">@T["SaveThisPage"] <a href="tel:+420737562516">+420 737 562 516</a>.</p>
+</main>

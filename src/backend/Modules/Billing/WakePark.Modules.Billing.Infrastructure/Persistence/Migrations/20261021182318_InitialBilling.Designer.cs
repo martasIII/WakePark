@@ -12,7 +12,7 @@ using WakePark.Modules.Billing.Infrastructure.Persistence;
 namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(BillingDbContext))]
-    [Migration("20261021181707_InitialBilling")]
+    [Migration("20261021182318_InitialBilling")]
     partial class InitialBilling
     {
         /// <inheritdoc />
@@ -34,8 +34,8 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("AccessToken")
                         .IsRequired()
-                        .HasMaxLength(43)
-                        .HasColumnType("character(43)")
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
                         .HasColumnName("access_token")
                         .IsFixedLength();
 

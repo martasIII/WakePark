@@ -113,12 +113,11 @@ internal sealed class PlaceOrderCommandHandler(
         return new PlacedOrderDto(order.Number, order.AccessToken);
     }
 
-    /// <summary>256 bitů náhody v base64url — 43 znaků, bezpečné do adresy.</summary>
-    private static string NewAccessToken() =>
-        Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
-            .TrimEnd('=')
-            .Replace('+', '-')
-            .Replace('/', '_');
+    /// <summary>
+    /// 256 bitů náhody jako malé hex znaky. Ne base64: web generuje adresy malými písmeny
+    /// (LowercaseUrls) a token s velkými písmeny by se cestou rozbil.
+    /// </summary>
+    private static string NewAccessToken() => Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));
 
     private static string Text(IReadOnlyDictionary<string, string> translations, string language) =>
         translations.TryGetValue(language, out string? text) ? text : translations[DocumentLanguage];

@@ -19,6 +19,10 @@ namespace WakePark.Api.Infrastructure.Auth;
 /// Cizí stránka obě cookie k požadavku přiloží, ale přečíst je a zkopírovat do hlavičky nemůže —
 /// brání jí v tom pravidlo stejného původu. Angular tenhle postup podporuje zabudovaně
 /// a hlavičku doplňuje sám.
+///
+/// Endpoint, který přihlášení nepoužívá (objednávka z webu, volaná serverem webu), se může
+/// odhlásit standardním <c>.DisableAntiforgery()</c>. Výjimka je výslovná u endpointu, ne
+/// odvozená z požadavku — jinak by se dala zneužít i tam, kde ochrana být má.
 /// </remarks>
 internal sealed class AntiforgeryMiddleware(RequestDelegate next)
 {
@@ -28,6 +32,12 @@ internal sealed class AntiforgeryMiddleware(RequestDelegate next)
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(antiforgery);
+
+        if (context.GetEndpoint()?.Metadata.GetMetadata<IAntiforgeryMetadata>() is { RequiresValidation: false })
+        {
+            await next(context).ConfigureAwait(false);
+            return;
+        }
 
         if (SafeMethods.Contains(context.Request.Method, StringComparer.OrdinalIgnoreCase))
         {

@@ -11,4 +11,35 @@
   <data name="EshopSubtitle" xml:space="preserve"><value>Dárkové vouchery a permanentky</value></data>
   <data name="InclVat" xml:space="preserve"><value>vč. DPH</value></data>
   <data name="OrderSoon" xml:space="preserve"><value>Objednávku přes web právě dokončujeme. Do té doby vám voucher rádi připravíme na</value></data>
+  <data name="OrderErrors" xml:space="preserve"><value>Objednávku zatím nejde odeslat</value></data>
+  <data name="Quantity" xml:space="preserve"><value>Počet kusů</value></data>
+  <data name="Contact" xml:space="preserve"><value>Kontaktní údaje</value></data>
+  <data name="Name" xml:space="preserve"><value>Jméno a příjmení</value></data>
+  <data name="Email" xml:space="preserve"><value>E-mail</value></data>
+  <data name="Phone" xml:space="preserve"><value>Telefon</value></data>
+  <data name="Optional" xml:space="preserve"><value>(nepovinné)</value></data>
+  <data name="BuyingAsCompany" xml:space="preserve"><value>Nakupuji na firmu</value></data>
+  <data name="CompanyName" xml:space="preserve"><value>Název firmy</value></data>
+  <data name="CompanyId" xml:space="preserve"><value>IČO</value></data>
+  <data name="VatId" xml:space="preserve"><value>DIČ</value></data>
+  <data name="TermsAgree" xml:space="preserve"><value>Souhlasím s</value></data>
+  <data name="Terms" xml:space="preserve"><value>obchodními podmínkami</value></data>
+  <data name="PayNote" xml:space="preserve"><value>Po odeslání ukážeme QR kód pro platbu převodem. Voucher pošleme e-mailem, jakmile platba dorazí.</value></data>
+  <data name="PlaceOrder" xml:space="preserve"><value>Objednat a zaplatit převodem</value></data>
+  <data name="Order" xml:space="preserve"><value>Objednávka</value></data>
+  <data name="OrderAwaitingPayment" xml:space="preserve"><value>Čeká na platbu</value></data>
+  <data name="OrderStatusPaid" xml:space="preserve"><value>Zaplaceno — děkujeme</value></data>
+  <data name="OrderStatusCancelled" xml:space="preserve"><value>Zrušena</value></data>
+  <data name="HowToPay" xml:space="preserve"><value>Zaplaťte převodem</value></data>
+  <data name="QrLabel" xml:space="preserve"><value>QR kód pro platbu — naskenujte ho v aplikaci své banky</value></data>
+  <data name="Amount" xml:space="preserve"><value>Částka</value></data>
+  <data name="Account" xml:space="preserve"><value>Číslo účtu</value></data>
+  <data name="VariableSymbol" xml:space="preserve"><value>Variabilní symbol</value></data>
+  <data name="PayBy" xml:space="preserve"><value>Zaplaťte do</value></data>
+  <data name="PaymentInfo" xml:space="preserve"><value>QR kód naskenujte v aplikaci své banky, údaje se vyplní samy. Podle variabilního symbolu platbu spárujeme a voucher pošleme e-mailem. Z jiné banky než Fio může platba trvat do dalšího pracovního dne.</value></data>
+  <data name="OrderSummary" xml:space="preserve"><value>Co jste objednali</value></data>
+  <data name="PerPiece" xml:space="preserve"><value>za kus</value></data>
+  <data name="Total" xml:space="preserve"><value>Celkem</value></data>
+  <data name="VatIncluded" xml:space="preserve"><value>z toho DPH</value></data>
+  <data name="SaveThisPage" xml:space="preserve"><value>Odkaz na tuto stránku si uložte, najdete na ní stav objednávky. S dotazy volejte</value></data>
 </root>

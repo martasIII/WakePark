@@ -36,7 +36,7 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     enterprise_id = table.Column<Guid>(type: "uuid", nullable: false),
                     number = table.Column<long>(type: "bigint", nullable: false),
-                    access_token = table.Column<string>(type: "character(43)", fixedLength: true, maxLength: 43, nullable: false),
+                    access_token = table.Column<string>(type: "character(64)", fixedLength: true, maxLength: 64, nullable: false),
                     status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     customer_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     customer_email = table.Column<string>(type: "character varying(254)", maxLength: 254, nullable: false),

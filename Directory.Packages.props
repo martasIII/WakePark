@@ -32,6 +32,11 @@
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
   </ItemGroup>
 
+  <ItemGroup Label="Veřejný web">
+    <!-- QR kód pro platbu (SPAYD) jako SVG, bez JavaScriptu. MIT licence. -->
+    <PackageVersion Include="QRCoder" Version="1.6.0" />
+  </ItemGroup>
+
   <ItemGroup Label="Logování">
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
   </ItemGroup>

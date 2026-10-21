@@ -7,6 +7,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"]</title>
+    @if (ViewData["NoIndex"] is true)
+    {
+        <meta name="robots" content="noindex">
+    }
     <meta name="description" content="@ViewData["Description"]">
     <meta name="theme-color" content="#e50051">
     @if (Site.IsMultilingual && currentPage is not null)
