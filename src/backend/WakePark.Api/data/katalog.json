@@ -3,8 +3,9 @@
 // produkt, který ze souboru zmizí, se na webu skryje (nesmaže se, odkazují na něj prodané poukazy).
 // Cena je včetně DPH. Obrázky jsou ve Storefrontu ve wwwroot.
 //
-// POZOR: zatím TESTOVACÍ data — ceny, sazby DPH i texty jsou vymyšlené. Finální katalog
-// připravuje Martin s Danem; sazbu DPH potvrdí účetní.
+// POZOR: zatím TESTOVACÍ data — ceny a texty jsou vymyšlené. Finální katalog připravuje
+// Martin s Danem. DPH 12 % potvrdila účetní (21. 10. 2026): vstup, čas na vleku, vybavení
+// a trenér jako vedlejší plnění; platí i pro permanentky.
 {
   "currency": "CZK",
   "categories": [
@@ -22,7 +23,7 @@
       },
       "image": "/img/katalog/voucher-1.svg",
       "price": 690,
-      "vatRate": 21
+      "vatRate": 12
     },
     {
       "code": "voucher-2-sloty",
@@ -34,7 +35,7 @@
       },
       "image": "/img/katalog/voucher-2.svg",
       "price": 1290,
-      "vatRate": 21
+      "vatRate": 12
     },
     {
       "code": "voucher-3-sloty",
@@ -46,7 +47,7 @@
       },
       "image": "/img/katalog/voucher-3.svg",
       "price": 1890,
-      "vatRate": 21
+      "vatRate": 12
     },
     {
       "code": "permanentka-10x20",
@@ -58,7 +59,7 @@
       },
       "image": "/img/katalog/permanentka.svg",
       "price": 4200,
-      "vatRate": 21
+      "vatRate": 12
     }
   ]
 }

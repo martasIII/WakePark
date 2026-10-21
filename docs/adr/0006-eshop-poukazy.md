@@ -219,10 +219,34 @@ je dostupná jen přes náhodný token v adrese, nikdy jen přes číslo.
 konfiguraci aplikace tak není heslo k pracovní schránce. Ve vývoji Mailpit, schránku na Wedosu
 zřídí vlastník před ostrým provozem. Heslo k info@ změnit (mohlo ležet v napadené DB WordPressu).
 
+## Objednávka a DPH (21. 10. 2026)
+
+**DPH** — účetní potvrdila: voucher obsahující vstup do areálu, čas na vleku, vybavení
+a trenéra (jako vedlejší plnění, ne hlavní) je **jednoúčelový poukaz se sazbou 12 %**.
+Totéž platí pro permanentky. Daňový doklad se tedy vystavuje při zaplacení.
+
+**Objednávka bez košíku.** Na stránce e-shopu je u každého produktu počet kusů, pod nimi
+kontakt a tlačítko „Objednat“ — jeden formulář, bez JavaScriptu a bez cookie. Při 4–10
+produktech by košík byl zbytečná složitost. Cenu počítá vždy server z katalogu.
+
+**Zákazník** — jméno a e-mail povinné, telefon nepovinný; volitelně firma, IČO a DIČ
+(daňový doklad na firmu). Později: dohledání a ověření subjektu v ARES podle IČO.
+
+**Souhlas s obchodními podmínkami** je povinný. Podmínky a zásady ochrany osobních údajů
+se píšou znovu a zreviduje je advokátka — **bez nich se ostrý prodej nespouští**.
+
+**Platební účet** — Fio 2601338268/2010 (IBAN CZ95 2010 0000 0026 0133 8268) zatím
+v konfiguraci, ne v `Enterprise`: tabulka provozovatelů v produkci ještě není a bez backoffice
+by nešla upravit. Přesune se s backoffice.
+
+**Objednávkový endpoint API je anonymní.** Dnes to nevadí — API nemá publikovaný port
+a objednávku umí založit jen web (ten hlídá počet objednávek z IP, skryté pole proti
+robotům a strop na kusy). **Než se API otevře ven přes gateway**, musí endpoint dostat
+vlastní ochranu (klíč webu, rate limit).
+
 ## Otevřené otázky
 
-1. Potvrdit s účetní režim jednoúčelového poukazu — u slotového poukazu (jízda, vybavení
-   a instruktor v jedné ceně) i u permanentky.
+1. ~~Potvrdit s účetní režim jednoúčelového poukazu~~ — potvrzeno 21. 10. 2026, 12 %.
 2. Až s backoffice: co produkty znamenají na místě (sloty, počet jízd permanentky, na jméno,
    nebo přenosná).
 3. Definitivní formát čísla objednávky a daňového dokladu.
