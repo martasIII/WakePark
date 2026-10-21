@@ -51,4 +51,7 @@
   <data name="PayingFromPhoneText" xml:space="preserve"><value>Uložte si QR kód do telefonu a v aplikaci své banky ho načtěte z obrázku (u QR platby bývá volba „z galerie“). Nebo si údaje zkopírujte tlačítky výše.</value></data>
   <data name="Less" xml:space="preserve"><value>O kus méně</value></data>
   <data name="More" xml:space="preserve"><value>O kus více</value></data>
+  <data name="PaidTitle" xml:space="preserve"><value>Zaplaceno — děkujeme</value></data>
+  <data name="PaidText" xml:space="preserve"><value>Platba dorazila a objednávka je zaplacená. Voucher vám pošleme e-mailem.</value></data>
+  <data name="AutoRefresh" xml:space="preserve"><value>Jakmile platbu spárujeme (obvykle do 5 minut od připsání na účet), stránka se sama obnoví.</value></data>
 </root>

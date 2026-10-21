@@ -13,6 +13,13 @@
 <partial name="_PageHeader" />
 <main class="page-body">
     <partial name="_TrialBanner" />
+    @if (order.Status == "Paid")
+    {
+        <section class="card paid" role="status">
+            <h2>✓ @T["PaidTitle"]</h2>
+            <p>@T["PaidText"]</p>
+        </section>
+    }
     @if (order.Payment is { } payment)
     {
         <section class="card payment">
@@ -32,12 +39,14 @@
                 </dl>
             </div>
             <p class="note">@T["PaymentInfo"]</p>
+            <p class="note watching" data-status-url="@Url.Page("/Objednavka", "Status", new { token = ViewContext.RouteData.Values["token"], lang = Site.LanguageRoute })">@T["AutoRefresh"]</p>
             <div class="mobile-pay">
                 <p><b>@T["PayingFromPhone"]</b> @T["PayingFromPhoneText"]</p>
                 <a class="save-qr" asp-page-handler="Qr" asp-route-token="@ViewContext.RouteData.Values["token"]" asp-route-lang="@Site.LanguageRoute" download>@T["SaveQr"]</a>
             </div>
         </section>
         <script src="~/js/copy.js" asp-append-version="true" defer></script>
+        <script src="~/js/order-status.js" asp-append-version="true" defer></script>
     }
 
     <section class="card">

@@ -45,6 +45,19 @@ public sealed class ObjednavkaModel(OrderClient orderClient, IOptions<Storefront
         return File(PaymentQrCode.Png(payment.Spayd), "image/png", $"qr-platba-{order.Number}.png");
     }
 
+    /// <summary>Jen stav objednávky (<c>?handler=status</c>) — pro automatické obnovení stránky po zaplacení.</summary>
+    public async Task<IActionResult> OnGetStatusAsync(string token, CancellationToken cancellationToken)
+    {
+        OrderView? order = await orderClient.GetAsync(token, cancellationToken).ConfigureAwait(false);
+        if (order is null)
+        {
+            return NotFound();
+        }
+
+        Response.Headers.CacheControl = "no-store";
+        return new JsonResult(new { status = order.Status });
+    }
+
     /// <summary>Částka pro vložení do bankovní aplikace — bez měny a mezer, s desetinnou čárkou.</summary>
     public static string AmountForCopy(decimal amount) => amount.ToString("0.##", SiteView.Culture);
 

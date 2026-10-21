@@ -51,4 +51,7 @@
   <data name="PayingFromPhoneText" xml:space="preserve"><value>Save the QR code to your phone and load it from the gallery in your banking app. Or copy the details with the buttons above.</value></data>
   <data name="Less" xml:space="preserve"><value>One less</value></data>
   <data name="More" xml:space="preserve"><value>One more</value></data>
+  <data name="PaidTitle" xml:space="preserve"><value>Paid — thank you</value></data>
+  <data name="PaidText" xml:space="preserve"><value>Your payment has arrived and the order is paid. We will e-mail you the voucher.</value></data>
+  <data name="AutoRefresh" xml:space="preserve"><value>Once we match your payment (usually within 5 minutes of it arriving), this page refreshes by itself.</value></data>
 </root>

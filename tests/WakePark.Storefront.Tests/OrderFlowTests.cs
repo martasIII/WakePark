@@ -25,6 +25,17 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
             "unitPrice": 1290, "currency": "CZK", "vatRate": 12 } ] }
         """;
 
+    private const string PaidToken = "1f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0";
+
+    private const string PaidOrderJson = """
+        { "number": 261001, "status": "Paid", "language": "cs",
+          "customerName": "Jana Nováková", "customerEmail": "jana@example.cz", "companyName": null,
+          "lines": [ { "productCode": "voucher-1-slot", "name": "Voucher pro jednoho", "quantity": 1,
+                       "unitPrice": 1, "vatRate": 12, "lineGross": 1 } ],
+          "totalGross": 1, "totalVat": 0.11, "totalNet": 0.89, "currency": "CZK",
+          "placedAtUtc": "2026-10-21T18:00:00Z", "paymentDueAtUtc": "2026-10-25T18:00:00Z", "payment": null }
+        """;
+
     private const string OrderJson = """
         { "number": 261000, "status": "AwaitingPayment", "language": "cs",
           "customerName": "Jana Nováková", "customerEmail": "jana@example.cz", "companyName": null,
@@ -140,6 +151,34 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
     }
 
     [Fact]
+    public async Task Cekajici_objednavka_se_sama_hlida_a_stav_jde_zjistit_samostatne()
+    {
+        HttpClient client = CreateClient(new FakeApi());
+
+        string html = WebUtility.HtmlDecode(await client.GetStringAsync(
+            new Uri($"/objednavka/{Token}", UriKind.Relative), TestContext.Current.CancellationToken));
+        html.ShouldContain($"data-status-url=\"/objednavka/{Token}?handler=Status\"");
+        html.ShouldMatch("""<script src="/js/order-status[^"]*\.js""");
+
+        HttpResponseMessage status = await client.GetAsync(
+            new Uri($"/objednavka/{Token}?handler=Status", UriKind.Relative), TestContext.Current.CancellationToken);
+        status.Headers.CacheControl!.NoStore.ShouldBeTrue();
+        (await status.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).ShouldBe("""{"status":"AwaitingPayment"}""");
+    }
+
+    [Fact]
+    public async Task Zaplacena_objednavka_zezelena_a_QR_uz_neukazuje()
+    {
+        string html = WebUtility.HtmlDecode(await CreateClient(new FakeApi()).GetStringAsync(
+            new Uri($"/objednavka/{PaidToken}", UriKind.Relative), TestContext.Current.CancellationToken));
+
+        html.ShouldContain("class=\"card paid\"");
+        html.ShouldContain("Zaplaceno — děkujeme");
+        html.ShouldNotContain("class=\"qr\"");
+        html.ShouldNotContain("data-status-url");
+    }
+
+    [Fact]
     public async Task Neznamy_token_je_404()
     {
         HttpResponseMessage response = await CreateClient(new FakeApi())
@@ -216,6 +255,7 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
                 _ when path.StartsWith("/api/v1/catalog/", StringComparison.Ordinal) => (HttpStatusCode.OK, CatalogJson),
                 _ when request.Method == HttpMethod.Post => PlaceResponse,
                 _ when path == $"/api/v1/billing/orders/{Token}" => (HttpStatusCode.OK, OrderJson),
+                _ when path == $"/api/v1/billing/orders/{PaidToken}" => (HttpStatusCode.OK, PaidOrderJson),
                 _ => (HttpStatusCode.NotFound, ""),
             };
 
