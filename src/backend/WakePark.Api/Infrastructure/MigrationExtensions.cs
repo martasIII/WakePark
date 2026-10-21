@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WakePark.Modules.Billing.Infrastructure.Persistence;
 using WakePark.Modules.Catalog.Infrastructure.Persistence;
 using WakePark.Modules.Identity.Infrastructure.Persistence;
+using WakePark.Modules.Notifications.Infrastructure.Persistence;
 using WakePark.Modules.Operations.Infrastructure.Persistence;
 using WakePark.Modules.Reservations.Infrastructure.Persistence;
 using WakePark.Modules.Tenancy.Infrastructure.Persistence;
@@ -37,6 +38,7 @@ internal static partial class MigrationExtensions
             services.GetRequiredService<ReservationsDbContext>(),
             services.GetRequiredService<CatalogDbContext>(),
             services.GetRequiredService<BillingDbContext>(),
+            services.GetRequiredService<NotificationsDbContext>(),
         ];
 
         foreach (DbContext context in contexts)

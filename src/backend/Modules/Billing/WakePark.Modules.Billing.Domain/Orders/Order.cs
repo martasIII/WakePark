@@ -111,6 +111,7 @@ public sealed class Order : AggregateRoot, ITenantOwned, IAuditable
         Status = OrderStatus.Paid;
         PaidAtUtc = paidAtUtc;
         PaidByBankTransactionId = bankTransactionId;
+        Raise(new OrderPaid(Guid.CreateVersion7(), paidAtUtc, Id, AccessToken));
     }
 
     public static Order Place(
@@ -196,6 +197,7 @@ public sealed class Order : AggregateRoot, ITenantOwned, IAuditable
         order.TotalVat = order._lines.Sum(l => l.LineVat);
         order.TotalNet = order._lines.Sum(l => l.LineNet);
 
+        order.Raise(new OrderPlaced(Guid.CreateVersion7(), placedAtUtc, order.Id, order.AccessToken));
         return order;
     }
 }

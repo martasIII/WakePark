@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using WakePark.BuildingBlocks.Infrastructure.Outbox;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
 using WakePark.Modules.Billing.Application;
 using WakePark.Modules.Billing.Application.Abstractions;
@@ -46,6 +47,10 @@ public static class BillingModule
         {
             services.AddHostedService<BankSyncWorker>();
         }
+
+        // Doručování událostí z outboxu Billingu ostatním modulům.
+        services.AddSingleton<OutboxDispatcher<BillingDbContext>>();
+        services.AddHostedService(sp => sp.GetRequiredService<OutboxDispatcher<BillingDbContext>>());
 
         services.AddBillingApplication();
 

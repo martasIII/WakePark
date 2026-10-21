@@ -16,6 +16,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICommandHandler<PlaceOrderCommand, PlacedOrderDto>, PlaceOrderCommandHandler>();
         services.AddScoped<IQueryHandler<GetOrderQuery, OrderDto?>, GetOrderQueryHandler>();
+        services.AddScoped<IOrderDirectory, OrderDirectory>();
         services.AddScoped<ICommandHandler<SyncBankTransactionsCommand, BankSyncResult>, SyncBankTransactionsCommandHandler>();
 
         return services;

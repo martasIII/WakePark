@@ -16,6 +16,7 @@ using WakePark.BuildingBlocks.Infrastructure;
 using WakePark.Modules.Billing.Infrastructure;
 using WakePark.Modules.Billing.Infrastructure.Endpoints;
 using WakePark.Modules.Catalog.Infrastructure;
+using WakePark.Modules.Notifications.Infrastructure;
 using WakePark.Modules.Catalog.Infrastructure.Endpoints;
 using WakePark.Modules.Identity.Infrastructure;
 using WakePark.Modules.Identity.Infrastructure.Endpoints;
@@ -45,6 +46,7 @@ builder.Services.AddOperationsModule(builder.Configuration);
 builder.Services.AddReservationsModule(builder.Configuration);
 builder.Services.AddCatalogModule(builder.Configuration);
 builder.Services.AddBillingModule(builder.Configuration);
+builder.Services.AddNotificationsModule(builder.Configuration);
 
 // --- Autentizace ---
 // Session drží HttpOnly cookie. Odpovědí na neautentizovaný požadavek je stavový kód,

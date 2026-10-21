@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\WakePark.Modules.Notifications.Domain\WakePark.Modules.Notifications.Domain.csproj" />
+    <ProjectReference Include="..\WakePark.Modules.Notifications.Contracts\WakePark.Modules.Notifications.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Application\WakePark.BuildingBlocks.Application.csproj" />
+    <!-- Události a čtení objednávek. Jen kontrakt, nikdy vnitřek modulu Billing. -->
+    <ProjectReference Include="..\..\Billing\WakePark.Modules.Billing.Contracts\WakePark.Modules.Billing.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="WakePark.Modules.Notifications.UnitTests" />
+    <InternalsVisibleTo Include="WakePark.Api.IntegrationTests" />
+  </ItemGroup>
+</Project>

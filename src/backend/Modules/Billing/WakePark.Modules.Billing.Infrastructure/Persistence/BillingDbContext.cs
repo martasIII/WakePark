@@ -1,7 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 
+using WakePark.BuildingBlocks.Application.Messaging;
+using WakePark.BuildingBlocks.Domain.Abstractions;
+using WakePark.BuildingBlocks.Infrastructure.Outbox;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
 using WakePark.Modules.Billing.Application.Abstractions;
+using WakePark.Modules.Billing.Contracts;
 using WakePark.Modules.Billing.Domain.Orders;
 using WakePark.Modules.Billing.Domain.Payments;
 
@@ -25,10 +29,28 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options)
 
         modelBuilder.HasDefaultSchema(Schema);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BillingDbContext).Assembly);
+        modelBuilder.AddOutbox();
         modelBuilder.ApplyWakeParkConventions();
 
         base.OnModelCreating(modelBuilder);
     }
+
+    /// <summary>
+    /// Události objednávek jdou do outboxu ve stejné transakci jako objednávka samotná.
+    /// </summary>
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        Outbox.Collect(this, ToIntegrationEvent);
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>Které doménové události Billing zveřejňuje ostatním modulům.</summary>
+    private static IIntegrationEvent? ToIntegrationEvent(IDomainEvent domainEvent) => domainEvent switch
+    {
+        OrderPlaced e => new OrderPlacedIntegrationEvent(e.EventId, e.OccurredAtUtc, e.OrderId, e.AccessToken),
+        OrderPaid e => new OrderPaidIntegrationEvent(e.EventId, e.OccurredAtUtc, e.OrderId, e.AccessToken),
+        _ => null,
+    };
 }
 
 /// <summary>

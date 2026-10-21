@@ -3,4 +3,8 @@
     Veřejný kontrakt modulu. Jediná assembly, na kterou smí odkazovat jiné moduly.
     Obsahuje DTO a integrační události, NIKDY doménové entity.
   -->
+  <ItemGroup>
+    <!-- Rozhraní IIntegrationEvent. -->
+    <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Application\WakePark.BuildingBlocks.Application.csproj" />
+  </ItemGroup>
 </Project>

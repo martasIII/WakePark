@@ -262,6 +262,23 @@ vlastní ochranu (klíč webu, rate limit).
 - **Token** (jen „Sledovat účet“) je pouze v `.env` na serveru. Je součástí adresy dotazu,
   proto HttpClient Fio nic neloguje a chyby se přebalují bez adresy.
 
+## Outbox a e-maily (22. 10. 2026)
+
+- **Outbox v Billingu:** doménové události objednávky (`OrderPlaced`, `OrderPaid`) se při
+  `SaveChanges` převedou na integrační události a zapíšou do `billing.outbox_messages` **ve
+  stejné transakci** jako objednávka. Obecné části (zpráva, mapování, dispatcher) jsou
+  v `BuildingBlocks`, další moduly je použijí stejně.
+- **Dispatcher** v procesu API doručuje každých 5 s „aspoň jednou“, s rostoucím odstupem
+  při chybě. Počítá s jednou instancí (pro víc instancí `FOR UPDATE SKIP LOCKED`).
+- **Události jsou tenké** (Id objednávky + přístupový klíč); podrobnosti si příjemce
+  přečte přes `IOrderDirectory` — v outboxu se neukládají osobní údaje navíc.
+- **Notifications** je idempotentní: e-mail daného druhu z jedné události vznikne nejvýš
+  jednou (UNIQUE `source_event_id` + `kind`). E-mail jde nejdřív do fronty, odesílá se
+  zvlášť (MailKit, SMTP Wedos 587 STARTTLS) s opakováním; po 24 h neodeslaný propadne.
+- **Odesílatel** `Wake Park Džbán <noreply@wakeparksro.cz>`, odpovědi na `info@wake-dzban.cz`.
+  Odesílání se na serveru zapne (`Notifications:Enabled`), až budou na doméně SPF, DKIM a DMARC.
+- Lokálně Mailpit (`deploy/docker-compose.dev.yml`), v testech Mailpit v Testcontainers.
+
 ## Otevřené otázky
 
 1. ~~Potvrdit s účetní režim jednoúčelového poukazu~~ — potvrzeno 21. 10. 2026, 12 %.

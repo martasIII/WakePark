@@ -48,6 +48,11 @@ public sealed class ModuleIsolationTests
             typeof(Modules.Billing.Domain.Orders.Order).Assembly,
             typeof(Modules.Billing.Contracts.OrderDto).Assembly
         ),
+        (
+            "WakePark.Modules.Notifications",
+            typeof(Modules.Notifications.Domain.Emails.EmailMessage).Assembly,
+            typeof(Modules.Notifications.Contracts.NotificationsContracts).Assembly
+        ),
     ];
 
     [Fact]

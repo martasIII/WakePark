@@ -1,4 +1,4 @@
-# Lokální vývojová databáze. Nic jiného tu není — aplikace se spouští z IDE
+# Lokální vývojová databáze a Mailpit na e-maily. Aplikace se spouští z IDE
 # a databáze se prohlíží z VS Code (rozšíření PostgreSQL od Microsoftu).
 services:
   postgres:
@@ -20,6 +20,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # Testovací poštovní server: zachytí každý e-mail, ven nepošle nic. UI: http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.27
+    container_name: wakepark-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
 volumes:
   wakepark-pgdata:
