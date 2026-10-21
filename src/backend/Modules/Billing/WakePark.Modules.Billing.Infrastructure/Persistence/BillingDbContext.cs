@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
 using WakePark.Modules.Billing.Application.Abstractions;
 using WakePark.Modules.Billing.Domain.Orders;
+using WakePark.Modules.Billing.Domain.Payments;
 
 namespace WakePark.Modules.Billing.Infrastructure.Persistence;
 
@@ -13,6 +14,8 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options)
     public const string Schema = "billing";
 
     public DbSet<Order> Orders => Set<Order>();
+
+    public DbSet<BankTransaction> BankTransactions => Set<BankTransaction>();
 
     internal DbSet<OrderNumberSeries> OrderNumberSeries => Set<OrderNumberSeries>();
 

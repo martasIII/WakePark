@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
 using WakePark.Modules.Billing.Application;
 using WakePark.Modules.Billing.Application.Abstractions;
+using WakePark.Modules.Billing.Infrastructure.Fio;
 using WakePark.Modules.Billing.Infrastructure.Persistence;
 using WakePark.Modules.Billing.Infrastructure.Persistence.Repositories;
 
@@ -33,6 +34,19 @@ public static class BillingModule
         services.AddScoped<IBillingUnitOfWork>(sp => sp.GetRequiredService<BillingDbContext>());
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IOrderNumberAllocator, OrderNumberAllocator>();
+        services.AddScoped<IBankTransactionRepository, BankTransactionRepository>();
+
+        // Fio: token je v adrese dotazu, proto HttpClient bez logování (jinak by ho vypsal do logu).
+        IConfigurationSection fio = configuration.GetSection(FioOptions.SectionName);
+        services.Configure<FioOptions>(fio);
+        services.AddHttpClient<IBankStatementSource, FioBankStatementSource>(client => client.Timeout = TimeSpan.FromSeconds(30))
+            .RemoveAllLoggers();
+
+        if (fio.Get<FioOptions>() is { IsEnabled: true })
+        {
+            services.AddHostedService<BankSyncWorker>();
+        }
+
         services.AddBillingApplication();
 
         return services;

@@ -244,6 +244,24 @@ a objednávku umí založit jen web (ten hlídá počet objednávek z IP, skryt�
 robotům a strop na kusy). **Než se API otevře ven přes gateway**, musí endpoint dostat
 vlastní ochranu (klíč webu, rate limit).
 
+## Párování plateb z Fio (22. 10. 2026)
+
+- **Stahování za 7 dní zpětně při každém běhu** (`/periods/…`), ne „od poslední zarážky“
+  (`/last/…`). Zarážka se v bance posune už stažením — pád mezi stažením a uložením by pohyby
+  ztratil. Opakované stažení je bezpečné díky inboxu (UNIQUE na ID pohybu); výpadek serveru
+  až na týden se srovná sám.
+- **Interval 5 minut**, worker v procesu API. Chyba jednoho běhu (Fio nedostupné) se zaloguje,
+  další běh to zkusí znovu.
+- **Nejdřív se uloží inbox, pak se páruje.** Zaplacení objednávky a označení pohybu jsou
+  v jedné transakci.
+- **Páruje se jen jistota:** VS = číslo objednávky a přesná částka. Nedoplatek, přeplatek,
+  neexistující objednávka a druhá platba za zaplacenou objednávku jdou k ručnímu vyřízení.
+- **Na účet chodí i jiné platby** — za číslo objednávky se považuje jen VS se 6–8 číslicemi,
+  který začíná letošním nebo loňským dvojčíslím roku. Ostatní pohyby jsou „mimo e-shop“
+  a **nenechávají se u nich osobní údaje** (jméno, účet, zpráva) — jen ID, datum, částka a VS.
+- **Token** (jen „Sledovat účet“) je pouze v `.env` na serveru. Je součástí adresy dotazu,
+  proto HttpClient Fio nic neloguje a chyby se přebalují bez adresy.
+
 ## Otevřené otázky
 
 1. ~~Potvrdit s účetní režim jednoúčelového poukazu~~ — potvrzeno 21. 10. 2026, 12 %.

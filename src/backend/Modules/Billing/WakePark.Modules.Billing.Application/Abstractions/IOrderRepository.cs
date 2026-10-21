@@ -8,6 +8,8 @@ public interface IOrderRepository
     void Add(Order order);
 
     Task<Order?> GetByAccessTokenAsync(string accessToken, CancellationToken cancellationToken = default);
+
+    Task<Order?> GetByNumberAsync(Guid enterpriseId, long number, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

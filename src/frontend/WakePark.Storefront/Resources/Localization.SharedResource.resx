@@ -43,7 +43,7 @@
   <data name="VatIncluded" xml:space="preserve"><value>z toho DPH</value></data>
   <data name="SaveThisPage" xml:space="preserve"><value>Odkaz na tuto stránku si uložte, najdete na ní stav objednávky. S dotazy volejte</value></data>
   <data name="TrialTitle" xml:space="preserve"><value>Zkušební provoz — nic neplaťte.</value></data>
-  <data name="TrialText" xml:space="preserve"><value>E-shop teprve testujeme. Objednávky nevyřizujeme a platby nepárujeme; voucher kupte prosím telefonicky.</value></data>
+  <data name="TrialText" xml:space="preserve"><value>E-shop teprve testujeme a objednávky z něj zatím nevyřizujeme. Voucher kupte prosím telefonicky.</value></data>
   <data name="Copy" xml:space="preserve"><value>Kopírovat</value></data>
   <data name="Copied" xml:space="preserve"><value>Zkopírováno ✓</value></data>
   <data name="SaveQr" xml:space="preserve"><value>Uložit QR kód do telefonu</value></data>

@@ -66,6 +66,14 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("number");
 
+                    b.Property<DateTimeOffset?>("PaidAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("paid_at_utc");
+
+                    b.Property<Guid?>("PaidByBankTransactionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("paid_by_bank_transaction_id");
+
                     b.Property<DateTimeOffset>("PaymentDueAtUtc")
                         .HasColumnType("timestamptz")
                         .HasColumnName("payment_due_at_utc");
@@ -201,6 +209,115 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_order_lines_product_id");
 
                     b.ToTable("order_lines", "billing");
+                });
+
+            modelBuilder.Entity("WakePark.Modules.Billing.Domain.Payments.BankTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateOnly>("BookedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("booked_on");
+
+                    b.Property<string>("CounterpartyAccount")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("counterparty_account");
+
+                    b.Property<string>("CounterpartyName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("counterparty_name");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("currency")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("EnterpriseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("enterprise_id");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("external_id");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("message");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("note");
+
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
+
+                    b.Property<DateTimeOffset?>("ProcessedAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("processed_at_utc");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("VariableSymbol")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("variable_symbol");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_bank_transactions");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_bank_transactions_order_id");
+
+                    b.HasIndex("EnterpriseId", "ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_bank_transactions_enterprise_id_external_id");
+
+                    b.HasIndex("EnterpriseId", "Status")
+                        .HasDatabaseName("ix_bank_transactions_enterprise_id_status");
+
+                    b.ToTable("bank_transactions", "billing");
                 });
 
             modelBuilder.Entity("WakePark.Modules.Billing.Infrastructure.Persistence.OrderNumberSeries", b =>

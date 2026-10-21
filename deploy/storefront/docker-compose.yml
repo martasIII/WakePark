@@ -53,6 +53,9 @@ services:
       ConnectionStrings__WakeParkDb: "Host=db;Database=wakepark;Username=wakepark;Password=${POSTGRES_PASSWORD}"
       # Wake Park s.r.o. — provozovatel, jehož nabídku e-shop prodává. Stejné Id má web níž.
       Catalog__EnterpriseId: "01a15f92-3547-75ae-a047-65a2a9ecbeaf"
+      # Párování plateb z Fio. Token (jen „Sledovat účet“) je v .env, do gitu nepatří.
+      Billing__Fio__Token: ${FIO_API_TOKEN:-}
+      Billing__Fio__EnterpriseId: "01a15f92-3547-75ae-a047-65a2a9ecbeaf"
     mem_limit: 256m
     logging: *logging
 

@@ -83,6 +83,12 @@ public sealed class Order : AggregateRoot, ITenantOwned, IAuditable
     /// <summary>Kdy zákazník odsouhlasil obchodní podmínky — bez souhlasu objednávka nevznikne.</summary>
     public DateTimeOffset TermsAcceptedAtUtc { get; private set; }
 
+    /// <summary>Kdy se platba spárovala. Datum zaúčtování v bance nese bankovní pohyb.</summary>
+    public DateTimeOffset? PaidAtUtc { get; private set; }
+
+    /// <summary>Bankovní pohyb, který objednávku zaplatil.</summary>
+    public Guid? PaidByBankTransactionId { get; private set; }
+
     public DateTimeOffset CreatedAtUtc { get; set; }
 
     public string? CreatedBy { get; set; }
@@ -90,6 +96,22 @@ public sealed class Order : AggregateRoot, ITenantOwned, IAuditable
     public DateTimeOffset? UpdatedAtUtc { get; set; }
 
     public string? UpdatedBy { get; set; }
+
+    /// <summary>
+    /// Platba dorazila. Přijme se i po splatnosti, dokonce i u zrušené objednávky — poukazů
+    /// není omezený počet a přijaté peníze by se stejně musely vyfakturovat nebo vrátit (ADR 0006).
+    /// </summary>
+    public void MarkPaid(DateTimeOffset paidAtUtc, Guid bankTransactionId)
+    {
+        if (Status == OrderStatus.Paid)
+        {
+            throw new DomainException("order.already_paid", $"Objednávka {Number} už je zaplacená.");
+        }
+
+        Status = OrderStatus.Paid;
+        PaidAtUtc = paidAtUtc;
+        PaidByBankTransactionId = bankTransactionId;
+    }
 
     public static Order Place(
         Guid enterpriseId,

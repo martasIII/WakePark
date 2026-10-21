@@ -13,6 +13,10 @@ internal sealed class OrderRepository(BillingDbContext dbContext) : IOrderReposi
         dbContext.Orders
             .Include(o => o.Lines)
             .FirstOrDefaultAsync(o => o.AccessToken == accessToken, cancellationToken);
+
+    public Task<Order?> GetByNumberAsync(Guid enterpriseId, long number, CancellationToken cancellationToken = default) =>
+        dbContext.Orders
+            .FirstOrDefaultAsync(o => o.EnterpriseId == enterpriseId && o.Number == number, cancellationToken);
 }
 
 /// <summary>

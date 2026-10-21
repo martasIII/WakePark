@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using WakePark.BuildingBlocks.Application.Messaging;
 using WakePark.Modules.Billing.Application.Orders;
+using WakePark.Modules.Billing.Application.Payments;
 using WakePark.Modules.Billing.Contracts;
 
 namespace WakePark.Modules.Billing.Application;
@@ -15,6 +16,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICommandHandler<PlaceOrderCommand, PlacedOrderDto>, PlaceOrderCommandHandler>();
         services.AddScoped<IQueryHandler<GetOrderQuery, OrderDto?>, GetOrderQueryHandler>();
+        services.AddScoped<ICommandHandler<SyncBankTransactionsCommand, BankSyncResult>, SyncBankTransactionsCommandHandler>();
 
         return services;
     }
