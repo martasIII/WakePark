@@ -8,6 +8,9 @@ public sealed class BillingOptions
     /// <summary>Za kolik dní objednávka bez platby propadne (ADR 0006).</summary>
     public int PaymentDueDays { get; init; } = 4;
 
+    /// <summary>Po kolika dnech bez platby se pošle upomínka (ADR 0006).</summary>
+    public int PaymentReminderDays { get; init; } = 2;
+
     /// <summary>Časová zóna provozovatele — podle ní se pozná rok v čísle objednávky.</summary>
     public string TimeZoneId { get; init; } = "Europe/Prague";
 

@@ -54,4 +54,6 @@
   <data name="PaidTitle" xml:space="preserve"><value>Paid — thank you</value></data>
   <data name="PaidText" xml:space="preserve"><value>Your payment has arrived and the order is paid. We will e-mail you the voucher.</value></data>
   <data name="AutoRefresh" xml:space="preserve"><value>Once we match your payment (usually within 5 minutes of it arriving), this page refreshes by itself.</value></data>
+  <data name="CancelledTitle" xml:space="preserve"><value>Order cancelled</value></data>
+  <data name="CancelledText" xml:space="preserve"><value>The payment did not arrive by the due date. If you have already sent it, don't worry — once it arrives with the right variable symbol, we will e-mail you the voucher.</value></data>
 </root>

@@ -15,34 +15,53 @@ internal sealed class OrderPlacedConsumer(
     INotificationsUnitOfWork unitOfWork,
     IQrCodeImage qrCodes,
     NotificationsOptions options)
-    : IIntegrationEventConsumer<OrderPlacedIntegrationEvent>
+    : IIntegrationEventConsumer<OrderPlacedIntegrationEvent>,
+      IIntegrationEventConsumer<OrderPaymentRemindedIntegrationEvent>
 {
-    public async Task HandleAsync(OrderPlacedIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
+    public Task HandleAsync(OrderPlacedIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(integrationEvent);
+        return QueueAsync(integrationEvent.EventId, integrationEvent.OrderId, integrationEvent.AccessToken, reminder: false, cancellationToken);
+    }
 
-        if (await emails.ExistsAsync(integrationEvent.EventId, OrderPlacedEmail.Kind, cancellationToken).ConfigureAwait(false))
+    /// <summary>Upomínka = stejný e-mail s QR a platebními údaji, jiný předmět a úvod.</summary>
+    public Task HandleAsync(OrderPaymentRemindedIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(integrationEvent);
+        return QueueAsync(integrationEvent.EventId, integrationEvent.OrderId, integrationEvent.AccessToken, reminder: true, cancellationToken);
+    }
+
+    private async Task QueueAsync(Guid eventId, Guid orderId, string accessToken, bool reminder, CancellationToken cancellationToken)
+    {
+        string kind = reminder ? OrderPlacedEmail.ReminderKind : OrderPlacedEmail.Kind;
+        if (await emails.ExistsAsync(eventId, kind, cancellationToken).ConfigureAwait(false))
         {
             return;
         }
 
         // Objednávka musí existovat — vznikla ve stejné transakci jako událost. Když ji nejde
         // přečíst, je to chyba a outbox to zkusí znovu.
-        OrderDto order = await orders.GetOrderAsync(integrationEvent.AccessToken, cancellationToken).ConfigureAwait(false)
-            ?? throw new InvalidOperationException($"Objednávka {integrationEvent.OrderId} z události neexistuje.");
+        OrderDto order = await orders.GetOrderAsync(accessToken, cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException($"Objednávka {orderId} z události neexistuje.");
+
+        // Než upomínka odejde, mohla dorazit platba — pak se neposílá.
+        if (reminder && order.Payment is null)
+        {
+            return;
+        }
 
         (string subject, string html, string text) = OrderPlacedEmail.Render(
             order,
-            OrderUrl(order, integrationEvent.AccessToken),
+            OrderUrl(order, accessToken),
             options,
-            TimeZoneInfo.FindSystemTimeZoneById("Europe/Prague"));
+            TimeZoneInfo.FindSystemTimeZoneById("Europe/Prague"),
+            reminder);
 
         List<EmailAttachment> attachments = order.Payment is { } payment
             ? [new EmailAttachment($"qr-platba-{order.Number}.png", "image/png", qrCodes.Png(payment.Spayd), OrderPlacedEmail.QrContentId)]
             : [];
 
-        emails.Add(EmailMessage.Create(
-            integrationEvent.EventId, OrderPlacedEmail.Kind, order.CustomerEmail, subject, html, text, attachments));
+        emails.Add(EmailMessage.Create(eventId, kind, order.CustomerEmail, subject, html, text, attachments));
 
         await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }

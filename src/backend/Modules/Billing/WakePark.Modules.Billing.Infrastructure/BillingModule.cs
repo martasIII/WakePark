@@ -54,6 +54,8 @@ public static class BillingModule
         services.AddSingleton<OutboxDispatcher<BillingDbContext>>();
         services.AddHostedService(sp => sp.GetRequiredService<OutboxDispatcher<BillingDbContext>>());
 
+        services.AddHostedService<Orders.UnpaidOrdersWorker>();
+
         services.AddBillingApplication();
 
         return services;

@@ -17,7 +17,10 @@ public static class DependencyInjection
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        services.AddScoped<IIntegrationEventConsumer<OrderPlacedIntegrationEvent>, OrderPlacedConsumer>();
+        services.AddScoped<OrderPlacedConsumer>();
+        services.AddScoped<IIntegrationEventConsumer<OrderPlacedIntegrationEvent>>(sp => sp.GetRequiredService<OrderPlacedConsumer>());
+        services.AddScoped<IIntegrationEventConsumer<OrderPaymentRemindedIntegrationEvent>>(sp => sp.GetRequiredService<OrderPlacedConsumer>());
+        services.AddScoped<IIntegrationEventConsumer<OrderCancelledIntegrationEvent>, OrderCancelledConsumer>();
         services.AddScoped<IIntegrationEventConsumer<VouchersIssuedIntegrationEvent>, VouchersIssuedConsumer>();
         services.AddScoped<ICommandHandler<SendPendingEmailsCommand, EmailBatchResult>, SendPendingEmailsCommandHandler>();
         services.AddScoped<IIntegrationEventConsumer<PaymentNeedsAttentionIntegrationEvent>, PaymentNeedsAttentionConsumer>();

@@ -13,13 +13,15 @@ namespace WakePark.Modules.Notifications.Application.Orders;
 internal static class OrderPlacedEmail
 {
     public const string Kind = "order-placed";
+    public const string ReminderKind = "payment-reminder";
     public const string QrContentId = "qr-platba";
 
     public static (string Subject, string Html, string Text) Render(
         OrderDto order,
         Uri orderUrl,
         NotificationsOptions options,
-        TimeZoneInfo timeZone)
+        TimeZoneInfo timeZone,
+        bool reminder = false)
     {
         ArgumentNullException.ThrowIfNull(order);
         ArgumentNullException.ThrowIfNull(orderUrl);
@@ -31,9 +33,21 @@ internal static class OrderPlacedEmail
             ? amount.ToString("#,0.##", culture) + " CZK"
             : amount.ToString("#,0.##", culture) + " Kč";
 
-        string subject = en
-            ? $"Order {order.Number} — Wake Park Džbán"
-            : $"Objednávka {order.Number} — Wake Park Džbán";
+        string subject = (reminder, en) switch
+        {
+            (true, true) => $"Reminder: order {order.Number} is awaiting payment",
+            (true, false) => $"Připomínka: objednávka {order.Number} čeká na platbu",
+            (false, true) => $"Order {order.Number} — Wake Park Džbán",
+            (false, false) => $"Objednávka {order.Number} — Wake Park Džbán",
+        };
+
+        string intro = (reminder, en) switch
+        {
+            (true, true) => $"your order no. {order.Number} is still awaiting payment. If you have already paid, please ignore this e-mail — the payment may still be on its way.",
+            (true, false) => $"objednávka č. {order.Number} zatím čeká na platbu. Pokud jste už zaplatili, tento e-mail ignorujte — platba může být ještě na cestě.",
+            (false, true) => $"thank you for your order no. {order.Number}. As soon as your payment arrives, we will e-mail you the voucher.",
+            (false, false) => $"děkujeme za objednávku č. {order.Number}. Jakmile dorazí platba, pošleme vám voucher e-mailem.",
+        };
 
         PaymentInstructionsDto? payment = order.Payment;
         string due = TimeZoneInfo.ConvertTime(order.PaymentDueAtUtc, timeZone)
@@ -42,9 +56,7 @@ internal static class OrderPlacedEmail
         StringBuilder text = new();
         text.AppendLine(en ? $"Hello {order.CustomerName}," : $"Dobrý den, {order.CustomerName},");
         text.AppendLine();
-        text.AppendLine(en
-            ? $"thank you for your order no. {order.Number}. As soon as your payment arrives, we will e-mail you the voucher."
-            : $"děkujeme za objednávku č. {order.Number}. Jakmile dorazí platba, pošleme vám voucher e-mailem.");
+        text.AppendLine(intro);
         text.AppendLine();
         foreach (OrderLineDto line in order.Lines)
         {
@@ -78,9 +90,7 @@ internal static class OrderPlacedEmail
         html.Append("<div style=\"max-width:560px;margin:0 auto;background:#fff;border-radius:8px;padding:24px\">");
         html.Append("<h1 style=\"margin:0 0 12px;font-size:22px;color:#e50051\">").Append(H(subject)).Append("</h1>");
         html.Append("<p>").Append(H(en ? $"Hello {order.CustomerName}," : $"Dobrý den, {order.CustomerName},")).Append("</p>");
-        html.Append("<p>").Append(H(en
-            ? "thank you for your order. As soon as your payment arrives, we will e-mail you the voucher."
-            : "děkujeme za objednávku. Jakmile dorazí platba, pošleme vám voucher e-mailem.")).Append("</p>");
+        html.Append("<p>").Append(H(intro)).Append("</p>");
 
         html.Append("<table style=\"width:100%;border-collapse:collapse;margin:16px 0\">");
         foreach (OrderLineDto line in order.Lines)

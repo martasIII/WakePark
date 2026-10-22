@@ -19,6 +19,16 @@ internal sealed class OrderRepository(BillingDbContext dbContext) : IOrderReposi
         dbContext.Orders
             .Include(o => o.Lines)
             .FirstOrDefaultAsync(o => o.EnterpriseId == enterpriseId && o.Number == number, cancellationToken);
+
+    public async Task<IReadOnlyList<Order>> GetAwaitingPaymentPlacedBeforeAsync(
+        DateTimeOffset placedBeforeUtc,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Orders
+            .Where(o => o.Status == OrderStatus.AwaitingPayment && o.PlacedAtUtc <= placedBeforeUtc)
+            .OrderBy(o => o.PlacedAtUtc)
+            .Take(200)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
 }
 
 /// <summary>

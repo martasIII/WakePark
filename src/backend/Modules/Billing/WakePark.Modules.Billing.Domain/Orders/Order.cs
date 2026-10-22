@@ -89,6 +89,12 @@ public sealed class Order : AggregateRoot, ITenantOwned, IAuditable
     /// <summary>Bankovní pohyb, který objednávku zaplatil.</summary>
     public Guid? PaidByBankTransactionId { get; private set; }
 
+    /// <summary>Kdy odešla upomínka nezaplacené objednávky (nejvýš jedna).</summary>
+    public DateTimeOffset? PaymentReminderAtUtc { get; private set; }
+
+    /// <summary>Kdy se objednávka zrušila, protože do splatnosti nepřišla platba.</summary>
+    public DateTimeOffset? CancelledAtUtc { get; private set; }
+
     public DateTimeOffset CreatedAtUtc { get; set; }
 
     public string? CreatedBy { get; set; }
@@ -96,6 +102,38 @@ public sealed class Order : AggregateRoot, ITenantOwned, IAuditable
     public DateTimeOffset? UpdatedAtUtc { get; set; }
 
     public string? UpdatedBy { get; set; }
+
+    /// <summary>Upomínka — jen jednou a jen u objednávky, která na platbu pořád čeká.</summary>
+    /// <returns><c>true</c>, pokud se upomínka má poslat.</returns>
+    public bool RemindPayment(DateTimeOffset nowUtc)
+    {
+        if (Status != OrderStatus.AwaitingPayment || PaymentReminderAtUtc is not null)
+        {
+            return false;
+        }
+
+        PaymentReminderAtUtc = nowUtc;
+        Raise(new OrderPaymentReminded(Guid.CreateVersion7(), nowUtc, EnterpriseId, Id, AccessToken));
+        return true;
+    }
+
+    /// <summary>
+    /// Splatnost uplynula a platba nepřišla. Zrušení ale není konečné: pozdní platbu se správným
+    /// VS a částkou systém dál přijme a voucher vystaví (<see cref="MarkPaid"/>).
+    /// </summary>
+    /// <returns><c>true</c>, pokud se objednávka právě zrušila.</returns>
+    public bool CancelUnpaid(DateTimeOffset nowUtc)
+    {
+        if (Status != OrderStatus.AwaitingPayment || nowUtc < PaymentDueAtUtc)
+        {
+            return false;
+        }
+
+        Status = OrderStatus.Cancelled;
+        CancelledAtUtc = nowUtc;
+        Raise(new OrderCancelled(Guid.CreateVersion7(), nowUtc, EnterpriseId, Id, AccessToken));
+        return true;
+    }
 
     /// <summary>
     /// Platba dorazila. Přijme se i po splatnosti, dokonce i u zrušené objednávky — poukazů

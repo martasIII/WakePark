@@ -20,6 +20,13 @@
             <p>@T["PaidText"]</p>
         </section>
     }
+    @if (order.Status == "Cancelled")
+    {
+        <section class="card errors" role="status">
+            <h2>@T["CancelledTitle"]</h2>
+            <p>@T["CancelledText"]</p>
+        </section>
+    }
     @if (order.Payment is { } payment)
     {
         <section class="card payment">

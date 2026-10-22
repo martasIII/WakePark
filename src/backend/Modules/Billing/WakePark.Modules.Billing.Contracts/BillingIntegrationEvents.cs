@@ -10,6 +10,14 @@ namespace WakePark.Modules.Billing.Contracts;
 public sealed record OrderPlacedIntegrationEvent(Guid EventId, DateTimeOffset OccurredAtUtc, Guid EnterpriseId, Guid OrderId, string AccessToken)
     : IIntegrationEvent;
 
+/// <summary>Objednávka pořád čeká na platbu — Notifications pošle upomínku s QR kódem.</summary>
+public sealed record OrderPaymentRemindedIntegrationEvent(Guid EventId, DateTimeOffset OccurredAtUtc, Guid EnterpriseId, Guid OrderId, string AccessToken)
+    : IIntegrationEvent;
+
+/// <summary>Objednávka se zrušila po splatnosti — Notifications to zákazníkovi oznámí.</summary>
+public sealed record OrderCancelledIntegrationEvent(Guid EventId, DateTimeOffset OccurredAtUtc, Guid EnterpriseId, Guid OrderId, string AccessToken)
+    : IIntegrationEvent;
+
 /// <summary>Objednávka je zaplacená — vystaví se voucher a doklad.</summary>
 public sealed record OrderPaidIntegrationEvent(Guid EventId, DateTimeOffset OccurredAtUtc, Guid EnterpriseId, Guid OrderId, string AccessToken)
     : IIntegrationEvent;

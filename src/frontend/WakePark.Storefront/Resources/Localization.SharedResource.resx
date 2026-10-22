@@ -54,4 +54,6 @@
   <data name="PaidTitle" xml:space="preserve"><value>Zaplaceno — děkujeme</value></data>
   <data name="PaidText" xml:space="preserve"><value>Platba dorazila a objednávka je zaplacená. Voucher vám pošleme e-mailem.</value></data>
   <data name="AutoRefresh" xml:space="preserve"><value>Jakmile platbu spárujeme (obvykle do 5 minut od připsání na účet), stránka se sama obnoví.</value></data>
+  <data name="CancelledTitle" xml:space="preserve"><value>Objednávka byla zrušena</value></data>
+  <data name="CancelledText" xml:space="preserve"><value>Platba nedorazila do splatnosti. Pokud jste ji už odeslali, nic se neděje — jakmile dorazí se správným variabilním symbolem, voucher vám pošleme e-mailem.</value></data>
 </root>

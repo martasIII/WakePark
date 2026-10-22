@@ -67,6 +67,8 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options)
         OrderPlaced e => new OrderPlacedIntegrationEvent(e.EventId, e.OccurredAtUtc, e.EnterpriseId, e.OrderId, e.AccessToken),
         OrderPaid e => new OrderPaidIntegrationEvent(e.EventId, e.OccurredAtUtc, e.EnterpriseId, e.OrderId, e.AccessToken),
         PaymentNeedsAttention e => PaymentAlert(e),
+        OrderPaymentReminded e => new OrderPaymentRemindedIntegrationEvent(e.EventId, e.OccurredAtUtc, e.EnterpriseId, e.OrderId, e.AccessToken),
+        OrderCancelled e => new OrderCancelledIntegrationEvent(e.EventId, e.OccurredAtUtc, e.EnterpriseId, e.OrderId, e.AccessToken),
         _ => null,
     };
 

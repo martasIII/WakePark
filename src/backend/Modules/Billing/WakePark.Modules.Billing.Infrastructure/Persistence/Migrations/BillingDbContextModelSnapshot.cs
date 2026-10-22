@@ -178,6 +178,10 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
                         .HasColumnName("access_token")
                         .IsFixedLength();
 
+                    b.Property<DateTimeOffset?>("CancelledAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("cancelled_at_utc");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamptz")
                         .HasColumnName("created_at_utc");
@@ -219,6 +223,10 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("PaymentDueAtUtc")
                         .HasColumnType("timestamptz")
                         .HasColumnName("payment_due_at_utc");
+
+                    b.Property<DateTimeOffset?>("PaymentReminderAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("payment_reminder_at_utc");
 
                     b.Property<DateTimeOffset>("PlacedAtUtc")
                         .HasColumnType("timestamptz")
