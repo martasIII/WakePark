@@ -23,6 +23,9 @@ public sealed class NotificationsOptions
 
     public string Phone { get; init; } = "+420 737 562 516";
 
+    /// <summary>Kam chodí upozornění pro provozovatele (platby k ručnímu vyřízení, chyby).</summary>
+    public string AdminEmail { get; init; } = "info@wake-dzban.cz";
+
     /// <summary>E-mail, který se do té doby neodešle, propadne.</summary>
     public TimeSpan MaxAge { get; init; } = TimeSpan.FromHours(24);
 

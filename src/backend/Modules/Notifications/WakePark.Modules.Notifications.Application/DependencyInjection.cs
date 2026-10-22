@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 
+using WakePark.BuildingBlocks.Application.Abstractions;
 using WakePark.BuildingBlocks.Application.Messaging;
 using WakePark.Modules.Billing.Contracts;
+using WakePark.Modules.Notifications.Application.Admin;
 using WakePark.Modules.Notifications.Application.Emails;
 using WakePark.Modules.Notifications.Application.Orders;
 using WakePark.Modules.Vouchers.Contracts;
@@ -18,6 +20,8 @@ public static class DependencyInjection
         services.AddScoped<IIntegrationEventConsumer<OrderPlacedIntegrationEvent>, OrderPlacedConsumer>();
         services.AddScoped<IIntegrationEventConsumer<VouchersIssuedIntegrationEvent>, VouchersIssuedConsumer>();
         services.AddScoped<ICommandHandler<SendPendingEmailsCommand, EmailBatchResult>, SendPendingEmailsCommandHandler>();
+        services.AddScoped<IIntegrationEventConsumer<PaymentNeedsAttentionIntegrationEvent>, PaymentNeedsAttentionConsumer>();
+        services.AddScoped<IAdminAlerts, AdminAlerts>();
 
         return services;
     }

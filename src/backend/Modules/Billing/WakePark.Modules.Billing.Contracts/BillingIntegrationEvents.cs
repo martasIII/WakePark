@@ -14,6 +14,23 @@ public sealed record OrderPlacedIntegrationEvent(Guid EventId, DateTimeOffset Oc
 public sealed record OrderPaidIntegrationEvent(Guid EventId, DateTimeOffset OccurredAtUtc, Guid EnterpriseId, Guid OrderId, string AccessToken)
     : IIntegrationEvent;
 
+/// <summary>
+/// Platba čeká na ruční vyřízení (nedoplatek, přeplatek, neznámá objednávka, druhá platba).
+/// Údaje o platbě jsou přímo v události — příjemce je jen přepošle provozovateli.
+/// </summary>
+public sealed record PaymentNeedsAttentionIntegrationEvent(
+    Guid EventId,
+    DateTimeOffset OccurredAtUtc,
+    Guid EnterpriseId,
+    DateOnly BookedOn,
+    decimal Amount,
+    string Currency,
+    string? VariableSymbol,
+    string? CounterpartyName,
+    string? CounterpartyAccount,
+    string? Message,
+    string Reason) : IIntegrationEvent;
+
 /// <summary>Daňový doklad k objednávce pro ostatní moduly.</summary>
 public interface IInvoiceDirectory
 {

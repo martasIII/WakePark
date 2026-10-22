@@ -141,6 +141,13 @@ public sealed class BankSyncTests : IAsyncLifetime
         underpaid.Note.ShouldBe("Nedoplatek: přišlo 2500.00, objednávka 2580.00.");
         underpaid.CounterpartyName.ShouldBe("Nováková Jana", "k ručnímu vyřízení je potřeba vědět, komu peníze vrátit");
 
+        // Nedoplatek jde do outboxu jako upozornění pro provozovatele — ve stejné transakci.
+        List<string> outbox = await dbContext.Set<WakePark.BuildingBlocks.Infrastructure.Outbox.OutboxMessage>()
+            .Select(m => m.Type)
+            .ToListAsync(TestContext.Current.CancellationToken);
+        outbox.Count(t => t.StartsWith("WakePark.Modules.Billing.Contracts.PaymentNeedsAttentionIntegrationEvent", StringComparison.Ordinal))
+            .ShouldBe(1, "jen nedoplatek, platby mimo e-shop se nehlásí");
+
         BankTransaction invoice = await dbContext.BankTransactions.SingleAsync(t => t.ExternalId == "2002", TestContext.Current.CancellationToken);
         invoice.Status.ShouldBe(BankTransactionStatus.Ignored);
         invoice.CounterpartyName.ShouldBeNull("platby mimo e-shop si osobní údaje nenechávají");

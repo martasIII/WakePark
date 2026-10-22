@@ -77,12 +77,47 @@ public sealed partial class OutboxDispatcher<TContext>(
             {
                 message.MarkFailed($"{ex.GetType().Name}: {ex.Message}", clock.UtcNow);
                 LogDeliveryFailed(logger, message.Type, message.Id, message.Attempts, ex);
+
+                if (message.Attempts >= OutboxMessage.MaxAttempts)
+                {
+                    await AlertGaveUpAsync(message, cancellationToken).ConfigureAwait(false);
+                }
             }
 
             await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return delivered;
+    }
+
+    /// <summary>
+    /// Zpráva se po všech pokusech nedoručila — např. k zaplacené objednávce se nevystavil
+    /// voucher. Bez upozornění by zákazník zaplatil a nic nedostal a nikdo by to nevěděl.
+    /// </summary>
+    private async Task AlertGaveUpAsync(OutboxMessage message, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using AsyncServiceScope scope = scopes.CreateAsyncScope();
+            if (scope.ServiceProvider.GetService<IAdminAlerts>() is { } alerts)
+            {
+                await alerts.SendAsync(
+                    "Vnitřní chyba: zprávu mezi moduly se nepodařilo doručit",
+                    $"""
+                    Systém to vzdal po {message.Attempts} pokusech. Je potřeba to prověřit ručně.
+
+                    Zpráva: {message.Type}
+                    Id: {message.Id}
+                    Vznikla: {message.OccurredAtUtc:u}
+                    Poslední chyba: {message.LastError}
+                    """,
+                    cancellationToken).ConfigureAwait(false);
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAlertFailed(logger, message.Id, ex);
+        }
     }
 
     private static async Task DeliverAsync(IServiceProvider services, IIntegrationEvent integrationEvent, CancellationToken cancellationToken)
@@ -100,6 +135,9 @@ public sealed partial class OutboxDispatcher<TContext>(
 
     [LoggerMessage(EventId = 4001, Level = LogLevel.Warning, Message = "Doručení {Type} ({MessageId}) selhalo, pokus {Attempt}.")]
     private static partial void LogDeliveryFailed(ILogger logger, string type, Guid messageId, int attempt, Exception ex);
+
+    [LoggerMessage(EventId = 4003, Level = LogLevel.Error, Message = "Upozornění na nedoručitelnou zprávu {MessageId} se nepodařilo odeslat.")]
+    private static partial void LogAlertFailed(ILogger logger, Guid messageId, Exception ex);
 
     [LoggerMessage(EventId = 4002, Level = LogLevel.Error, Message = "Outbox modulu {Context} se nepodařilo zpracovat.")]
     private static partial void LogBatchFailed(ILogger logger, string context, Exception ex);

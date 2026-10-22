@@ -89,8 +89,12 @@ public sealed class BankTransaction : AggregateRoot, ITenantOwned, IAuditable
     public void MarkMatched(Guid orderId, DateTimeOffset nowUtc) =>
         Process(BankTransactionStatus.Matched, orderId, null, nowUtc);
 
-    public void MarkUnmatched(string reason, DateTimeOffset nowUtc, Guid? orderId = null) =>
+    /// <summary>Platba vypadá jako za objednávku, ale nesedí — provozovatel ji vyřídí ručně.</summary>
+    public void MarkUnmatched(string reason, DateTimeOffset nowUtc, Guid? orderId = null)
+    {
         Process(BankTransactionStatus.Unmatched, orderId, reason, nowUtc);
+        Raise(new PaymentNeedsAttention(Guid.CreateVersion7(), nowUtc, EnterpriseId, Id));
+    }
 
     /// <summary>
     /// Pohyb se e-shopu netýká. Na účet chodí i platby od lidí, kteří s e-shopem nemají nic

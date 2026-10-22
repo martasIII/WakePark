@@ -62,12 +62,22 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options)
     }
 
     /// <summary>Které doménové události Billing zveřejňuje ostatním modulům.</summary>
-    private static IIntegrationEvent? ToIntegrationEvent(IDomainEvent domainEvent) => domainEvent switch
+    private IIntegrationEvent? ToIntegrationEvent(IDomainEvent domainEvent) => domainEvent switch
     {
         OrderPlaced e => new OrderPlacedIntegrationEvent(e.EventId, e.OccurredAtUtc, e.EnterpriseId, e.OrderId, e.AccessToken),
         OrderPaid e => new OrderPaidIntegrationEvent(e.EventId, e.OccurredAtUtc, e.EnterpriseId, e.OrderId, e.AccessToken),
+        PaymentNeedsAttention e => PaymentAlert(e),
         _ => null,
     };
+
+    private PaymentNeedsAttentionIntegrationEvent PaymentAlert(PaymentNeedsAttention e)
+    {
+        BankTransaction transaction = BankTransactions.Local.Single(t => t.Id == e.BankTransactionId);
+        return new PaymentNeedsAttentionIntegrationEvent(
+            e.EventId, e.OccurredAtUtc, e.EnterpriseId, transaction.BookedOn, transaction.Amount, transaction.Currency,
+            transaction.VariableSymbol, transaction.CounterpartyName, transaction.CounterpartyAccount, transaction.Message,
+            transaction.Note ?? string.Empty);
+    }
 }
 
 /// <summary>
