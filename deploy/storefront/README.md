@@ -163,9 +163,12 @@ install -o root -g root -m 755 backup-db.sh /opt/wakepark/storefront/backup-db.s
 echo '30 3 * * * root /opt/wakepark/storefront/backup-db.sh' > /etc/cron.d/wakepark-backup
 ```
 
-**Záloha leží na stejném serveru** — pomůže při chybě aplikace nebo omylem smazaných datech,
-ne když umře server. Kopie mimo server se musí vyřešit **před spuštěním plateb**
-(ADR 0006): od první objednávky jsou v databázi účetní doklady.
+Na serveru pomůže záloha při chybě aplikace nebo omylem smazaných datech, ne když umře
+server. **Kopie mimo server:** `scripts/backup-from-server.ps1` na Martinově počítači každý den
+ve 12:00 (Plánovač úloh Windows „WakePark - zaloha databaze“, zmeškaný běh dožene po zapnutí)
+spustí zálohu na serveru, ověří ji (`gzip -t`, velikost) a stáhne do
+`%USERPROFILE%\Zalohy\WakePark` — mimo OneDrive, zálohy obsahují osobní údaje. Drží 60 dní,
+nejnovějších 10 vždy. Průběh v `backup.log` tamtéž.
 
 Obnova (přepíše současná data!):
 
