@@ -32,7 +32,10 @@ public sealed class Invoice : AggregateRoot, ITenantOwned, IAuditable
 
     public Guid OrderId { get; private set; }
 
-    /// <summary>Číslo dokladu, např. <c>FV2026-00001</c>. Řada je bez mezer.</summary>
+    /// <summary>
+    /// Číslo dokladu, např. <c>FV_E_2026-000001</c>. <c>E</c> = e-shop: odliší řadu od faktur, které
+    /// Wake Park vystavuje v iDokladu. Řada je bez mezer.
+    /// </summary>
     public string Number { get; private set; } = string.Empty;
 
     public int Year { get; private set; }
@@ -69,7 +72,7 @@ public sealed class Invoice : AggregateRoot, ITenantOwned, IAuditable
     public string? UpdatedBy { get; set; }
 
     public static string FormatNumber(int year, long sequence) =>
-        string.Create(CultureInfo.InvariantCulture, $"FV{year}-{sequence:00000}");
+        string.Create(CultureInfo.InvariantCulture, $"FV_E_{year}-{sequence:000000}");
 
     public static Invoice Issue(
         Order order,

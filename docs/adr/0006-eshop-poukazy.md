@@ -145,7 +145,7 @@ jde do fronty nespárovaných.
 | Řada | Formát | Mezery | Vzniká |
 |---|---|---|---|
 | Objednávka | `2026000123` (10 číslic = VS) | povolené (propadlé objednávky) | při odeslání objednávky |
-| Daňový doklad | `FV2026-00001` | **bez mezer** | při zaplacení, ve stejné transakci, ze zamčeného čítače |
+| Daňový doklad | `FV_E_2026-000001` (upřesněno 22. 10.) | **bez mezer** | při zaplacení, ve stejné transakci, ze zamčeného čítače |
 
 **E-mail** — SMTP Wedosu z adresy domény, na doméně SPF, DKIM a DMARC. Záloha: transakční
 služba (Brevo apod.).
@@ -282,7 +282,7 @@ vlastní ochranu (klíč webu, rate limit).
 ## Vouchery a daňový doklad (22. 10. 2026)
 
 - **Daňový doklad** vzniká při spárování platby **ve stejné transakci** jako zaplacení
-  objednávky. Číslo `FV{rok}-{pořadí:00000}` z čítače, který se zamyká uvnitř transakce —
+  objednávky. Číslo `FV_E_{rok}-{pořadí:000000}` (E = e-shop, odliší řadu od faktur z iDokladu) z čítače, který se zamyká uvnitř transakce —
   při chybě se vrátí i číslo, řada je **bez mezer**. DUZP = den zaúčtování platby, doklad je
   neměnný (prodávající, kupující i řádky zamrazené). Údaje prodávajícího zatím z konfigurace.
 - **Modul Vouchers** konzumuje `OrderPaid` z outboxu Billingu a vystaví **jeden poukaz na

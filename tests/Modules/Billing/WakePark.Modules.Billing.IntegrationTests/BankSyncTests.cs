@@ -79,7 +79,7 @@ public sealed class BankSyncTests : IAsyncLifetime
         await using BillingDbContext dbContext = CreateDbContext();
         Invoice invoice = await dbContext.Invoices.SingleAsync(TestContext.Current.CancellationToken);
         invoice.OrderId.ShouldBe(order.Id);
-        invoice.Number.ShouldBe("FV2026-00001");
+        invoice.Number.ShouldBe("FV_E_2026-000001");
         invoice.TaxableSupplyOn.ShouldBe(Today, "DUZP = den připsání platby");
         invoice.VariableSymbol.ShouldBe("261000");
         invoice.Seller.CompanyId.ShouldBe("06633633");
@@ -110,7 +110,7 @@ public sealed class BankSyncTests : IAsyncLifetime
 
         await using BillingDbContext readContext = CreateDbContext();
         (await readContext.Invoices.OrderBy(i => i.Sequence).Select(i => i.Number).ToListAsync(TestContext.Current.CancellationToken))
-            .ShouldBe(["FV2026-00001", "FV2026-00002"]);
+            .ShouldBe(["FV_E_2026-000001", "FV_E_2026-000002"]);
     }
 
     [Fact]
