@@ -2,6 +2,7 @@ using Shouldly;
 
 using WakePark.BuildingBlocks.Domain;
 using WakePark.Modules.Billing.Domain.Customers;
+using WakePark.Modules.Billing.Domain.Invoices;
 using WakePark.Modules.Billing.Domain.Orders;
 
 namespace WakePark.Modules.Billing.UnitTests;
@@ -43,6 +44,19 @@ public sealed class DomainTests
     public void Neplatny_kontakt_neprojde(string name, string email, string? companyId, string? companyName)
     {
         Should.Throw<DomainException>(() => CustomerContact.Create(name, email, null, companyName, companyId));
+    }
+
+    [Fact]
+    public void Kupujici_firma_jde_na_doklad_i_se_sidlem_a_objednatelem()
+    {
+        CustomerContact contact = CustomerContact.Create(
+            "Jana Nováková", "jana@example.cz", null, "Wake Park s.r.o.", "06633633", "CZ06633633", "Pavlovská 585/1, Liboc, 16200 Praha 6");
+
+        InvoiceParty buyer = InvoiceParty.Buyer(contact);
+
+        buyer.Name.ShouldBe("Wake Park s.r.o.");
+        buyer.Address.ShouldBe("Pavlovská 585/1, Liboc, 16200 Praha 6");
+        buyer.ContactName.ShouldBe("Jana Nováková");
     }
 
     [Fact]

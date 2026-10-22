@@ -53,4 +53,74 @@
     }
 
     update();
+
+    // Nákup na firmu: po zadání IČO doplní název, sídlo a DIČ z registru ARES (přes náš server,
+    // ARES sám prohlížeč nevolá). Pole jsou jen k nahlédnutí — na doklad je bere server sám.
+    const company = form.querySelector('.company');
+    if (!company) {
+        return;
+    }
+
+    const toggle = company.querySelector('.company-toggle input');
+    const ico = company.querySelector('input[name="Form.CompanyId"]');
+    const status = company.querySelector('.company-status');
+    const name = company.querySelector('#company-name');
+    const address = company.querySelector('#company-address');
+    const vat = company.querySelector('#company-vat');
+    let last = ico.value.replace(/\s/g, '');
+    let timer;
+    let pending;
+
+    const show = (data, message) => {
+        name.value = data?.name ?? '';
+        address.value = data?.address ?? '';
+        vat.value = data?.vatId ?? '';
+        vat.placeholder = data && !data.vatId ? vat.dataset.none : '';
+        status.textContent = message;
+    };
+
+    const lookup = async () => {
+        const value = ico.value.replace(/\s/g, '');
+        if (value === last) {
+            return;
+        }
+        last = value;
+        pending?.abort();
+
+        if (!/^\d{8}$/.test(value)) {
+            show(null, value.length > 8 ? status.dataset.notFound : '');
+            return;
+        }
+
+        show(null, status.dataset.loading);
+        pending = new AbortController();
+        const url = new URL(location.pathname, location.origin);
+        url.searchParams.set('handler', 'Company');
+        url.searchParams.set('ico', value);
+
+        try {
+            const response = await fetch(url, { signal: pending.signal, headers: { Accept: 'application/json' } });
+            if (response.ok) {
+                show(await response.json(), '');
+            } else {
+                show(null, response.status === 404 ? status.dataset.notFound : status.dataset.unavailable);
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                show(null, status.dataset.unavailable);
+            }
+        }
+    };
+
+    ico.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(lookup, 400);
+    });
+    ico.addEventListener('change', lookup);
+    toggle.addEventListener('change', () => {
+        ico.required = toggle.checked;
+        if (toggle.checked) {
+            ico.focus();
+        }
+    });
 })();

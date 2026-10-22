@@ -6,13 +6,15 @@ namespace WakePark.Modules.Billing.Domain.Customers;
 
 /// <summary>
 /// Kontakt kupujícího zamrazený v objednávce — modul Customers se zatím neimplementuje
-/// (ADR 0006). Firma, IČO a DIČ jsou volitelné, kvůli dokladu na firmu.
+/// (ADR 0006). Firma, IČO, DIČ a sídlo jsou volitelné, kvůli dokladu na firmu — web je bere
+/// z registru ARES, ne z formuláře.
 /// </summary>
 public sealed partial class CustomerContact
 {
     public const int NameMaxLength = 200;
     public const int EmailMaxLength = 254;
     public const int PhoneMaxLength = 30;
+    public const int AddressMaxLength = 300;
 
     private CustomerContact()
     {
@@ -32,13 +34,17 @@ public sealed partial class CustomerContact
     /// <summary>DIČ.</summary>
     public string? VatId { get; private set; }
 
+    /// <summary>Sídlo firmy, jak ho uvádí ARES.</summary>
+    public string? CompanyAddress { get; private set; }
+
     public static CustomerContact Create(
         string name,
         string email,
         string? phone = null,
         string? companyName = null,
         string? companyId = null,
-        string? vatId = null)
+        string? vatId = null,
+        string? companyAddress = null)
     {
         string trimmedName = (name ?? string.Empty).Trim();
         if (trimmedName.Length is 0 or > NameMaxLength)
@@ -58,11 +64,7 @@ public sealed partial class CustomerContact
             throw new DomainException("customer.invalid_phone", "Telefon smí obsahovat jen číslice, mezery a +.");
         }
 
-        string? cleanCompanyId = Optional(companyId)?.Replace(" ", string.Empty, StringComparison.Ordinal);
-        if (cleanCompanyId is not null && !IsValidCompanyId(cleanCompanyId))
-        {
-            throw new DomainException("customer.invalid_company_id", "IČO nemá platný tvar (8 číslic s kontrolní číslicí).");
-        }
+        string? cleanCompanyId = Optional(companyId) is { } id ? ParseCompanyId(id) : null;
 
         string? cleanVatId = Optional(vatId)?.Replace(" ", string.Empty, StringComparison.Ordinal).ToUpperInvariant();
         if (cleanVatId is not null && !VatIdPattern().IsMatch(cleanVatId))
@@ -76,7 +78,13 @@ public sealed partial class CustomerContact
             throw new DomainException("customer.invalid_company_name", "Název firmy je příliš dlouhý.");
         }
 
-        if (cleanCompanyName is null && (cleanCompanyId is not null || cleanVatId is not null))
+        string? cleanAddress = Optional(companyAddress);
+        if (cleanAddress is { Length: > AddressMaxLength })
+        {
+            throw new DomainException("customer.invalid_company_address", "Adresa sídla je příliš dlouhá.");
+        }
+
+        if (cleanCompanyName is null && (cleanCompanyId is not null || cleanVatId is not null || cleanAddress is not null))
         {
             throw new DomainException("customer.company_name_required", "K IČO nebo DIČ vyplňte i název firmy.");
         }
@@ -89,12 +97,24 @@ public sealed partial class CustomerContact
             CompanyName = cleanCompanyName,
             CompanyId = cleanCompanyId,
             VatId = cleanVatId,
+            CompanyAddress = cleanAddress,
         };
     }
 
+    /// <summary>IČO bez mezer, nebo výjimka, když nemá platný tvar.</summary>
+    public static string ParseCompanyId(string companyId)
+    {
+        ArgumentNullException.ThrowIfNull(companyId);
+
+        string clean = companyId.Replace(" ", string.Empty, StringComparison.Ordinal).Trim();
+        return IsValidCompanyId(clean)
+            ? clean
+            : throw new DomainException("customer.invalid_company_id", "IČO nemá platný tvar (8 číslic s kontrolní číslicí).");
+    }
+
     /// <summary>
-    /// České IČO: 8 číslic, poslední je kontrolní (vážený součet modulo 11). Ověření v ARES
-    /// přijde později — tohle chytí jen překlepy.
+    /// České IČO: 8 číslic, poslední je kontrolní (vážený součet modulo 11). Chytí překlepy
+    /// dřív, než se zeptáme ARES.
     /// </summary>
     public static bool IsValidCompanyId(string companyId)
     {

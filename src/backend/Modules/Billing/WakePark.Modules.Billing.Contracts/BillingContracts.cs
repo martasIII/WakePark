@@ -7,13 +7,18 @@ public sealed record PlaceOrderRequest(
     IReadOnlyList<PlaceOrderLine> Lines,
     bool TermsAccepted);
 
+/// <summary>
+/// Kupující. U nákupu na firmu jen IČO — název, DIČ a sídlo doplní server z registru ARES,
+/// aby se na doklad nedostal překlep ani vymyšlená firma.
+/// </summary>
 public sealed record PlaceOrderCustomer(
     string Name,
     string Email,
     string? Phone,
-    string? CompanyName,
-    string? CompanyId,
-    string? VatId);
+    string? CompanyId);
+
+/// <summary>Firma z registru ARES. DIČ jen u plátce DPH.</summary>
+public sealed record CompanyDto(string CompanyId, string Name, string? VatId, string? Address);
 
 public sealed record PlaceOrderLine(Guid ProductId, int Quantity);
 

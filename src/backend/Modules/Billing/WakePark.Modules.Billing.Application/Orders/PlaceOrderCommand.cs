@@ -41,6 +41,7 @@ internal sealed class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderC
 
 internal sealed class PlaceOrderCommandHandler(
     ICatalogReader catalog,
+    ICompanyRegistry companies,
     IOrderNumberAllocator numbers,
     IOrderRepository orders,
     IBillingUnitOfWork unitOfWork,
@@ -60,9 +61,14 @@ internal sealed class PlaceOrderCommandHandler(
         PlaceOrderRequest request = command.Request;
 
         // Kontakt se ověří dřív, než se přidělí číslo — překlep v e-mailu nemá spotřebovat číslo z řady.
+        // Firmu bereme z ARES: na doklad jde název, DIČ a sídlo z registru, ne z formuláře.
         PlaceOrderCustomer input = request.Customer;
+        RegisteredCompany? company = string.IsNullOrWhiteSpace(input.CompanyId)
+            ? null
+            : await FindCompanyAsync(CustomerContact.ParseCompanyId(input.CompanyId), cancellationToken).ConfigureAwait(false);
+
         CustomerContact customer = CustomerContact.Create(
-            input.Name, input.Email, input.Phone, input.CompanyName, input.CompanyId, input.VatId);
+            input.Name, input.Email, input.Phone, company?.Name, company?.CompanyId, company?.VatId, company?.Address);
 
         CatalogDto offer = await catalog
             .GetPublishedCatalogAsync(command.EnterpriseId, cancellationToken)
@@ -111,6 +117,32 @@ internal sealed class PlaceOrderCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new PlacedOrderDto(order.Number, order.AccessToken);
+    }
+
+    private async Task<RegisteredCompany> FindCompanyAsync(string companyId, CancellationToken cancellationToken)
+    {
+        RegisteredCompany? company;
+        try
+        {
+            company = await companies.FindAsync(companyId, cancellationToken).ConfigureAwait(false);
+        }
+        catch (CompanyRegistryUnavailableException)
+        {
+            throw new ValidationException(
+                "Registr firem ARES teď neodpovídá, firmu nejde ověřit. Zkuste to prosím za chvíli, nebo objednejte bez firmy.");
+        }
+
+        if (company is null)
+        {
+            throw new ValidationException($"Firmu s IČO {companyId} jsme v registru ARES nenašli.");
+        }
+
+        if (!company.IsActive)
+        {
+            throw new ValidationException($"Firma s IČO {companyId} podle registru ARES zanikla.");
+        }
+
+        return company;
     }
 
     /// <summary>

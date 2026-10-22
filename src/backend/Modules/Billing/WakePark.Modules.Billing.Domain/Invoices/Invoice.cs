@@ -178,7 +178,7 @@ public sealed class InvoiceParty
         ArgumentNullException.ThrowIfNull(customer);
 
         return customer.CompanyName is { } company
-            ? new InvoiceParty(company, customer.CompanyId, customer.VatId, null, null, customer.Name, customer.Email)
+            ? new InvoiceParty(company, customer.CompanyId, customer.VatId, customer.CompanyAddress, null, customer.Name, customer.Email)
             : new InvoiceParty(customer.Name, null, null, null, null, null, customer.Email);
     }
 }

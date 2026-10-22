@@ -22,6 +22,13 @@
   <data name="CompanyName" xml:space="preserve"><value>Company name</value></data>
   <data name="CompanyId" xml:space="preserve"><value>Company ID (IČO)</value></data>
   <data name="VatId" xml:space="preserve"><value>VAT ID</value></data>
+  <data name="CompanyAddress" xml:space="preserve"><value>Registered office</value></data>
+  <data name="CompanyHint" xml:space="preserve"><value>Just enter the Czech company ID (IČO) — name, registered office and VAT ID are filled in from the ARES business register.</value></data>
+  <data name="CompanyLoading" xml:space="preserve"><value>Looking the company up in ARES…</value></data>
+  <data name="CompanyNotFound" xml:space="preserve"><value>We could not find an active company with this ID (IČO) in the ARES register. Please check the number.</value></data>
+  <data name="CompanyUnavailable" xml:space="preserve"><value>The ARES business register is not responding, so we cannot verify the company. Please try again shortly, or order as an individual.</value></data>
+  <data name="ValidationCompanyIdRequired" xml:space="preserve"><value>Enter the company ID (IČO) when buying as a company.</value></data>
+  <data name="NotVatPayer" xml:space="preserve"><value>not VAT registered</value></data>
   <data name="TermsAgree" xml:space="preserve"><value>I agree to the</value></data>
   <data name="Terms" xml:space="preserve"><value>terms and conditions</value></data>
   <data name="PayNote" xml:space="preserve"><value>After sending we show a QR code for a bank transfer. We e-mail the voucher as soon as the payment arrives.</value></data>

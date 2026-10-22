@@ -48,6 +48,10 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
                        "spayd": "SPD*1.0*ACC:CZ9520100000002601338268*AM:2580.00*CC:CZK*X-VS:261000" } }
         """;
 
+    private const string CompanyJson = """
+        { "companyId": "06633633", "name": "Wake Park s.r.o.", "vatId": "CZ06633633", "address": "Pavlovská 585/1, Liboc, 16200 Praha 6" }
+        """;
+
     [Fact]
     public async Task Odeslana_objednavka_presmeruje_na_stranku_objednavky()
     {
@@ -203,13 +207,77 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
         api.PlacedBodies.Count.ShouldBe(5);
     }
 
-    private static async Task<HttpResponseMessage> PostOrderAsync(HttpClient client, int quantity, string honeypot = "")
+    [Fact]
+    public async Task Na_firmu_se_posila_jen_ICO__nazev_a_DIC_doplni_API()
+    {
+        FakeApi api = new() { PlaceResponse = (HttpStatusCode.Created, $$"""{ "number": 261000, "accessToken": "{{Token}}" }""") };
+
+        HttpResponseMessage response = await PostOrderAsync(CreateClient(api), quantity: 1, company: ("true", "066 33 633"));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Redirect);
+        string body = api.PlacedBodies.Single();
+        body.ShouldContain("\"companyId\":\"06633633\"");
+        body.ShouldNotContain("companyName");
+        body.ShouldNotContain("vatId");
+    }
+
+    [Fact]
+    public async Task Na_firmu_bez_ICO_objednavka_neodejde()
+    {
+        FakeApi api = new();
+
+        HttpResponseMessage response = await PostOrderAsync(CreateClient(api), quantity: 1, company: ("true", ""));
+
+        string html = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        html.ShouldContain("Při nákupu na firmu vyplňte IČO.");
+        api.PlacedBodies.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task Firma_kterou_ARES_nezna_objednavku_zastavi_uz_na_webu()
+    {
+        FakeApi api = new();
+
+        HttpResponseMessage response = await PostOrderAsync(CreateClient(api), quantity: 1, company: ("true", "25596641"));
+
+        string html = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        html.ShouldContain("Firmu s tímto IČO jsme v registru ARES nenašli");
+        api.PlacedBodies.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task ICO_bez_zaskrtnuteho_nakupu_na_firmu_se_neposila()
+    {
+        FakeApi api = new() { PlaceResponse = (HttpStatusCode.Created, $$"""{ "number": 261000, "accessToken": "{{Token}}" }""") };
+
+        await PostOrderAsync(CreateClient(api), quantity: 1, company: ("false", "06633633"));
+
+        api.PlacedBodies.Single().ShouldContain("\"companyId\":null");
+    }
+
+    [Fact]
+    public async Task Formular_si_firmu_podle_ICO_nacte_jako_JSON()
+    {
+        HttpClient client = CreateClient(new FakeApi());
+
+        string json = await client.GetStringAsync(new Uri("/eshop?handler=Company&ico=06633633", UriKind.Relative), TestContext.Current.CancellationToken);
+        HttpResponseMessage unknown = await client.GetAsync(new Uri("/eshop?handler=Company&ico=25596641", UriKind.Relative), TestContext.Current.CancellationToken);
+        HttpResponseMessage malformed = await client.GetAsync(new Uri("/eshop?handler=Company&ico=abc", UriKind.Relative), TestContext.Current.CancellationToken);
+
+        json.ShouldContain("\"name\":\"Wake Park s.r.o.\"");
+        json.ShouldContain("\"vatId\":\"CZ06633633\"");
+        unknown.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        malformed.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    private static async Task<HttpResponseMessage> PostOrderAsync(
+        HttpClient client, int quantity, string honeypot = "", (string IsCompany, string CompanyId)? company = null)
     {
         // Formulář nese antiforgery token — vezme se z vykreslené stránky, jako v prohlížeči.
         string page = await client.GetStringAsync(new Uri("/eshop", UriKind.Relative), TestContext.Current.CancellationToken);
         string antiforgery = AntiforgeryToken().Match(page).Groups[1].Value;
 
-        using FormUrlEncodedContent form = new(new Dictionary<string, string>
+        Dictionary<string, string> fields = new()
         {
             [$"Quantities[{ProductId}]"] = quantity.ToString(System.Globalization.CultureInfo.InvariantCulture),
             ["Form.Name"] = "Jana Nováková",
@@ -217,7 +285,15 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
             ["Form.TermsAccepted"] = "true",
             ["Form.Website"] = honeypot,
             ["__RequestVerificationToken"] = antiforgery,
-        });
+        };
+
+        if (company is { } c)
+        {
+            fields["Form.IsCompany"] = c.IsCompany;
+            fields["Form.CompanyId"] = c.CompanyId;
+        }
+
+        using FormUrlEncodedContent form = new(fields);
 
         return await client.PostAsync(new Uri("/eshop", UriKind.Relative), form, TestContext.Current.CancellationToken);
     }
@@ -232,6 +308,7 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
                 {
                     services.AddHttpClient<CatalogClient>().ConfigurePrimaryHttpMessageHandler(() => api);
                     services.AddHttpClient<OrderClient>().ConfigurePrimaryHttpMessageHandler(() => api);
+                    services.AddHttpClient<CompanyClient>().ConfigurePrimaryHttpMessageHandler(() => api);
                 });
             })
             .CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = true });
@@ -239,7 +316,7 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
     [GeneratedRegex("name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"")]
     private static partial Regex AntiforgeryToken();
 
-    /// <summary>Místo API: nabídka, založení objednávky a objednávka podle tokenu.</summary>
+    /// <summary>Místo API: nabídka, založení objednávky, objednávka podle tokenu a firma z ARES.</summary>
     private sealed class FakeApi : HttpMessageHandler
     {
         public (HttpStatusCode Status, string Body) PlaceResponse { get; init; } = (HttpStatusCode.InternalServerError, "");
@@ -256,6 +333,7 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
                 _ when request.Method == HttpMethod.Post => PlaceResponse,
                 _ when path == $"/api/v1/billing/orders/{Token}" => (HttpStatusCode.OK, OrderJson),
                 _ when path == $"/api/v1/billing/orders/{PaidToken}" => (HttpStatusCode.OK, PaidOrderJson),
+                _ when path == "/api/v1/billing/companies/06633633" => (HttpStatusCode.OK, CompanyJson),
                 _ => (HttpStatusCode.NotFound, ""),
             };
 

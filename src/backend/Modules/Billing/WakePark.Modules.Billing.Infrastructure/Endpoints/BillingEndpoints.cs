@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 using WakePark.BuildingBlocks.Application.Messaging;
+using WakePark.Modules.Billing.Application.Abstractions;
+using WakePark.Modules.Billing.Application.Customers;
 using WakePark.Modules.Billing.Application.Orders;
 using WakePark.Modules.Billing.Contracts;
 
@@ -46,7 +48,38 @@ public static class BillingEndpoints
             .Produces(StatusCodes.Status404NotFound)
             .AllowAnonymous();
 
+        group.MapGet("/companies/{companyId}", FindCompanyAsync)
+            .WithName("FindCompany")
+            .WithSummary("Firma podle IČO z registru ARES")
+            .WithDescription("""
+                Pro náhled ve formuláři e-shopu: název, DIČ a sídlo. Neplatné IČO, neexistující
+                i zaniklá firma vrátí 404, výpadek ARES 503.
+                """)
+            .Produces<CompanyDto>()
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status503ServiceUnavailable)
+            .AllowAnonymous();
+
         return endpoints;
+    }
+
+    private static async Task<IResult> FindCompanyAsync(
+        string companyId,
+        IQueryHandler<FindCompanyQuery, CompanyDto?> handler,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            CompanyDto? company = await handler
+                .HandleAsync(new FindCompanyQuery(companyId), cancellationToken)
+                .ConfigureAwait(false);
+
+            return company is null ? Results.NotFound() : Results.Ok(company);
+        }
+        catch (CompanyRegistryUnavailableException)
+        {
+            return Results.Problem("Registr firem ARES teď neodpovídá.", statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
     }
 
     private static async Task<IResult> PlaceOrderAsync(

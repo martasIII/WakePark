@@ -22,6 +22,13 @@
   <data name="CompanyName" xml:space="preserve"><value>Název firmy</value></data>
   <data name="CompanyId" xml:space="preserve"><value>IČO</value></data>
   <data name="VatId" xml:space="preserve"><value>DIČ</value></data>
+  <data name="CompanyAddress" xml:space="preserve"><value>Sídlo</value></data>
+  <data name="CompanyHint" xml:space="preserve"><value>Stačí IČO — název, sídlo a DIČ doplníme z registru firem ARES.</value></data>
+  <data name="CompanyLoading" xml:space="preserve"><value>Hledám firmu v ARES…</value></data>
+  <data name="CompanyNotFound" xml:space="preserve"><value>Firmu s tímto IČO jsme v registru ARES nenašli (nebo už zanikla). Zkontrolujte prosím IČO.</value></data>
+  <data name="CompanyUnavailable" xml:space="preserve"><value>Registr firem ARES teď neodpovídá, firmu nejde ověřit. Zkuste to prosím za chvíli, nebo objednejte bez firmy.</value></data>
+  <data name="ValidationCompanyIdRequired" xml:space="preserve"><value>Při nákupu na firmu vyplňte IČO.</value></data>
+  <data name="NotVatPayer" xml:space="preserve"><value>neplátce DPH</value></data>
   <data name="TermsAgree" xml:space="preserve"><value>Souhlasím s</value></data>
   <data name="Terms" xml:space="preserve"><value>obchodními podmínkami</value></data>
   <data name="PayNote" xml:space="preserve"><value>Po odeslání ukážeme QR kód pro platbu převodem. Voucher pošleme e-mailem, jakmile platba dorazí.</value></data>

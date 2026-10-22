@@ -229,8 +229,22 @@ Totéž platí pro permanentky. Daňový doklad se tedy vystavuje při zaplacen�
 kontakt a tlačítko „Objednat“ — jeden formulář, bez JavaScriptu a bez cookie. Při 4–10
 produktech by košík byl zbytečná složitost. Cenu počítá vždy server z katalogu.
 
-**Zákazník** — jméno a e-mail povinné, telefon nepovinný; volitelně firma, IČO a DIČ
-(daňový doklad na firmu). Později: dohledání a ověření subjektu v ARES podle IČO.
+**Zákazník** — jméno a e-mail povinné, telefon nepovinný; volitelně nákup na firmu
+(daňový doklad na firmu).
+
+**Nákup na firmu (22. 10.)** — zákazník zaškrtne „Nakupuji na firmu“ a vyplní **jen IČO**
+(pak je povinné). Název, sídlo a DIČ se dohledají v ARES (REST API MF, zdarma, 500 dotazů/min)
+a ve formuláři se ukážou jen pro čtení. Na doklad je API bere **samo z ARES** při založení
+objednávky — z formuláře nikdy, takže na dokladu nemůže být překlep ani vymyšlená firma.
+- Prohlížeč do ARES nechodí: web → API (`GET /api/v1/billing/companies/{ico}`) → ARES.
+  Odpovědi se drží v paměti (nalezená firma 24 h, nenalezená 10 min); na webu limit
+  30 dotazů za minutu z jedné IP.
+- Neplatné IČO (kontrolní číslice) se do ARES vůbec neposílá. Neexistující a zaniklá firma
+  objednávku zastaví.
+- **ARES nefunguje** → objednávka na firmu neprojde s hláškou „zkuste za chvíli, nebo
+  objednejte bez firmy“. Bez ručního zadávání a dodatečného doplňování.
+- DIČ jen z ARES (u neplátce DPH prázdné), sídlo jako `textovaAdresa`. Jiná fakturační
+  adresa, pobočky a zahraniční firmy — ručně přes info@.
 
 **Souhlas s obchodními podmínkami** je povinný. Podmínky a zásady ochrany osobních údajů
 se píšou znovu a zreviduje je advokátka — **bez nich se ostrý prodej nespouští**.

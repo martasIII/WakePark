@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,6 +14,7 @@ namespace WakePark.Storefront.Pages;
 public sealed partial class EshopModel(
     CatalogClient catalogClient,
     OrderClient orderClient,
+    CompanyClient companyClient,
     IStringLocalizer<SharedResource> text,
     ILogger<EshopModel> logger) : PageModel
 {
@@ -26,11 +28,35 @@ public sealed partial class EshopModel(
     [BindProperty]
     public OrderForm Form { get; set; } = new();
 
+    /// <summary>Firma z ARES k zadanému IČO — jen k zobrazení, na doklad ji bere API samo.</summary>
+    public CompanyInfo? Company { get; private set; }
+
     /// <summary>Chyby objednávky pro zákazníka — z formuláře i z API.</summary>
     public IReadOnlyList<string> Errors { get; private set; } = [];
 
     public async Task OnGetAsync(CancellationToken cancellationToken) =>
         Catalog = await catalogClient.GetCatalogAsync(cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// Náhled firmy pro formulář (volá eshop.js při psaní IČO). Bez skriptu se firma ověří
+    /// a ukáže až po odeslání.
+    /// </summary>
+    public async Task<IActionResult> OnGetCompanyAsync(string? ico, CancellationToken cancellationToken)
+    {
+        string companyId = (ico ?? string.Empty).Replace(" ", string.Empty, StringComparison.Ordinal);
+        if (!CompanyIdPattern().IsMatch(companyId))
+        {
+            return NotFound();
+        }
+
+        CompanyLookup lookup = await companyClient.FindAsync(companyId, cancellationToken).ConfigureAwait(false);
+        return lookup.Status switch
+        {
+            CompanyLookupStatus.Found => new JsonResult(lookup.Company),
+            CompanyLookupStatus.NotFound => NotFound(),
+            _ => StatusCode(StatusCodes.Status503ServiceUnavailable),
+        };
+    }
 
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
@@ -54,6 +80,34 @@ public sealed partial class EshopModel(
             errors.Insert(0, text["ValidationNoProduct"]);
         }
 
+        // Na firmu je IČO povinné. Firmu ověříme už tady, ať chyba přijde v jazyce stránky
+        // a po návratu do formuláře jsou vidět název, sídlo a DIČ.
+        string? companyId = null;
+        if (Form.IsCompany)
+        {
+            companyId = Form.CompanyId?.Replace(" ", string.Empty, StringComparison.Ordinal);
+            if (string.IsNullOrEmpty(companyId))
+            {
+                errors.Add(text["ValidationCompanyIdRequired"]);
+            }
+            else
+            {
+                CompanyLookup lookup = CompanyIdPattern().IsMatch(companyId)
+                    ? await companyClient.FindAsync(companyId, cancellationToken).ConfigureAwait(false)
+                    : new CompanyLookup(CompanyLookupStatus.NotFound);
+
+                Company = lookup.Company;
+                if (lookup.Status == CompanyLookupStatus.NotFound)
+                {
+                    errors.Add(text["CompanyNotFound"]);
+                }
+                else if (lookup.Status == CompanyLookupStatus.Unavailable)
+                {
+                    errors.Add(text["CompanyUnavailable"]);
+                }
+            }
+        }
+
         if (errors.Count > 0)
         {
             Errors = errors.Distinct(StringComparer.Ordinal).ToList();
@@ -62,7 +116,7 @@ public sealed partial class EshopModel(
 
         OrderRequest request = new(
             SiteView.Language,
-            new OrderCustomer(Form.Name, Form.Email, Form.Phone, Form.CompanyName, Form.CompanyId, Form.VatId),
+            new OrderCustomer(Form.Name, Form.Email, Form.Phone, companyId),
             lines,
             Form.TermsAccepted);
 
@@ -84,6 +138,9 @@ public sealed partial class EshopModel(
     public int QuantityOf(EshopProduct product) =>
         Quantities.TryGetValue(product.Id, out int quantity) ? quantity : 0;
 
+    [GeneratedRegex("^[0-9]{8}$", RegexOptions.CultureInvariant)]
+    private static partial Regex CompanyIdPattern();
+
     [LoggerMessage(Level = LogLevel.Information, Message = "Objednávka s vyplněným skrytým polem — nejspíš robot, zahozena.")]
     private partial void LogHoneypot();
 }
@@ -103,14 +160,12 @@ public sealed class OrderForm
     [StringLength(30)]
     public string? Phone { get; set; }
 
-    [StringLength(200)]
-    public string? CompanyName { get; set; }
+    /// <summary>Nakupuji na firmu. Jen pak se IČO posílá a je povinné.</summary>
+    public bool IsCompany { get; set; }
 
+    /// <summary>IČO. Název, sídlo a DIČ se nevyplňují — doplní je API z ARES.</summary>
     [StringLength(12)]
     public string? CompanyId { get; set; }
-
-    [StringLength(14)]
-    public string? VatId { get; set; }
 
     public bool TermsAccepted { get; set; }
 

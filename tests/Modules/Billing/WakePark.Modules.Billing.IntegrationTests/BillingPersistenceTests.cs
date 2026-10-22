@@ -58,7 +58,7 @@ public sealed class BillingPersistenceTests : IAsyncLifetime
             EnterpriseId,
             261000,
             token,
-            CustomerContact.Create("Jana Nováková", "jana@example.cz", "+420 777 123 456", "Wake Park s.r.o.", "06633633", "CZ06633633"),
+            CustomerContact.Create("Jana Nováková", "jana@example.cz", "+420 777 123 456", "Wake Park s.r.o.", "06633633", "CZ06633633", "Pavlovská 585/1, Liboc, 16200 Praha 6"),
             "cs",
             "CZK",
             [new OrderLineDraft(Guid.CreateVersion7(), "voucher-2-sloty", "Voucher pro dva", "Voucher pro dva", 2, 1290m, 12m)],
@@ -77,6 +77,7 @@ public sealed class BillingPersistenceTests : IAsyncLifetime
         loaded.ShouldNotBeNull();
         loaded.Number.ShouldBe(261000);
         loaded.Customer.CompanyId.ShouldBe("06633633");
+        loaded.Customer.CompanyAddress.ShouldBe("Pavlovská 585/1, Liboc, 16200 Praha 6");
         loaded.Lines.Single().LineGross.ShouldBe(2580m);
         loaded.TotalVat.ShouldBe(276.43m);
     }

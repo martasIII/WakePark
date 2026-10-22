@@ -29,6 +29,7 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             customer.Property(c => c.CompanyName).HasMaxLength(CustomerContact.NameMaxLength);
             customer.Property(c => c.CompanyId).HasMaxLength(8);
             customer.Property(c => c.VatId).HasMaxLength(12);
+            customer.Property(c => c.CompanyAddress).HasMaxLength(CustomerContact.AddressMaxLength);
         });
 
         builder.Navigation(o => o.Customer).IsRequired();

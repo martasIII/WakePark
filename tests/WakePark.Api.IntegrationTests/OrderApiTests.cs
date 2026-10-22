@@ -141,7 +141,7 @@ public sealed class OrderApiTests : IAsyncLifetime
     private static PlaceOrderRequest Request(Guid productId, int quantity) =>
         new(
             "cs",
-            new PlaceOrderCustomer("Jana Nováková", "jana@example.cz", null, null, null, null),
+            new PlaceOrderCustomer("Jana Nováková", "jana@example.cz", null, null),
             [new PlaceOrderLine(productId, quantity)],
             TermsAccepted: true);
 }

@@ -74,6 +74,9 @@ public sealed class OrderEmailFlowTests : IAsyncLifetime
                 // Banka nahrazená seznamem plateb, který test plní sám.
                 services.RemoveAll<IBankStatementSource>();
                 services.AddSingleton<IBankStatementSource>(new FakeBank(_payments));
+                // ARES nahrazený jednou známou firmou — test nesmí záviset na cizí službě.
+                services.RemoveAll<ICompanyRegistry>();
+                services.AddSingleton<ICompanyRegistry>(new FakeCompanyRegistry());
             });
             builder.UseSetting("Billing:Seller:Name", "Wake Park s.r.o.");
             builder.UseSetting("Billing:Seller:CompanyId", "06633633");
@@ -112,7 +115,7 @@ public sealed class OrderEmailFlowTests : IAsyncLifetime
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             new Uri($"/api/v1/billing/enterprises/{EnterpriseId}/orders", UriKind.Relative),
-            new PlaceOrderRequest("cs", new PlaceOrderCustomer("Jana Nováková", "jana@example.cz", null, null, null, null),
+            new PlaceOrderRequest("cs", new PlaceOrderCustomer("Jana Nováková", "jana@example.cz", null, null),
                 [new PlaceOrderLine(catalog.Products.Single().Id, 1)], TermsAccepted: true),
             TestContext.Current.CancellationToken);
         PlacedOrderDto placed = (await response.Content.ReadFromJsonAsync<PlacedOrderDto>(TestContext.Current.CancellationToken))!;
@@ -157,7 +160,7 @@ public sealed class OrderEmailFlowTests : IAsyncLifetime
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
             new Uri($"/api/v1/billing/enterprises/{EnterpriseId}/orders", UriKind.Relative),
-            new PlaceOrderRequest("cs", new PlaceOrderCustomer("Jana Nováková", "jana@example.cz", null, "Wake Park s.r.o.", "06633633", "CZ06633633"),
+            new PlaceOrderRequest("cs", new PlaceOrderCustomer("Jana Nováková", "jana@example.cz", null, "06633633"),
                 [new PlaceOrderLine(catalog.Products.Single().Id, 2)], TermsAccepted: true),
             TestContext.Current.CancellationToken);
         PlacedOrderDto placed = (await response.Content.ReadFromJsonAsync<PlacedOrderDto>(TestContext.Current.CancellationToken))!;
@@ -215,6 +218,14 @@ public sealed class OrderEmailFlowTests : IAsyncLifetime
             pdf[..4].ShouldBe("%PDF"u8.ToArray());
             await File.WriteAllBytesAsync(Path.Combine(outputDirectory, attachment.GetProperty("FileName").GetString()!), pdf, TestContext.Current.CancellationToken);
         }
+    }
+
+    private sealed class FakeCompanyRegistry : ICompanyRegistry
+    {
+        public Task<RegisteredCompany?> FindAsync(string companyId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(companyId == "06633633"
+                ? new RegisteredCompany("06633633", "Wake Park s.r.o.", "CZ06633633", "Pavlovská 585/1, Liboc, 16200 Praha 6", null)
+                : null);
     }
 
     private sealed class FakeBank(List<BankTransactionData> payments) : IBankStatementSource

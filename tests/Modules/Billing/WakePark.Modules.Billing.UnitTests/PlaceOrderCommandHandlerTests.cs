@@ -10,6 +10,7 @@ using WakePark.Modules.Billing.Application;
 using WakePark.Modules.Billing.Application.Abstractions;
 using WakePark.Modules.Billing.Application.Orders;
 using WakePark.Modules.Billing.Contracts;
+using WakePark.Modules.Billing.Domain.Customers;
 using WakePark.Modules.Billing.Domain.Orders;
 using WakePark.Modules.Catalog.Contracts;
 
@@ -21,6 +22,7 @@ public sealed class PlaceOrderCommandHandlerTests
     private static readonly Guid VoucherId = Guid.CreateVersion7();
 
     private readonly ICatalogReader _catalog = Substitute.For<ICatalogReader>();
+    private readonly ICompanyRegistry _companies = Substitute.For<ICompanyRegistry>();
     private readonly IOrderNumberAllocator _numbers = Substitute.For<IOrderNumberAllocator>();
     private readonly List<Order> _saved = [];
     private readonly IOrderRepository _orders = Substitute.For<IOrderRepository>();
@@ -101,7 +103,7 @@ public sealed class PlaceOrderCommandHandlerTests
     {
         PlaceOrderRequest request = Request(new PlaceOrderLine(VoucherId, 1)) with
         {
-            Customer = new PlaceOrderCustomer("Jana", "neplatny-email", null, null, null, null),
+            Customer = new PlaceOrderCustomer("Jana", "neplatny-email", null, null),
         };
 
         await Should.ThrowAsync<DomainException>(() => PlaceAsync(request));
@@ -109,10 +111,72 @@ public sealed class PlaceOrderCommandHandlerTests
         await _numbers.DidNotReceiveWithAnyArgs().NextSequenceAsync(default, default, TestContext.Current.CancellationToken);
     }
 
+    [Fact]
+    public async Task Firma_se_na_doklad_bere_z_ARES_ne_z_formulare()
+    {
+        _companies.FindAsync("06633633", Arg.Any<CancellationToken>()).Returns(
+            new RegisteredCompany("06633633", "Wake Park s.r.o.", "CZ06633633", "Pavlovská 585/1, Liboc, 16200 Praha 6", null));
+
+        await PlaceAsync(Request(new PlaceOrderLine(VoucherId, 1), companyId: "066 33 633"));
+
+        CustomerContact customer = _saved.Single().Customer;
+        customer.Name.ShouldBe("Jana Nováková", "objednatel zůstává z formuláře");
+        customer.CompanyName.ShouldBe("Wake Park s.r.o.");
+        customer.CompanyId.ShouldBe("06633633");
+        customer.VatId.ShouldBe("CZ06633633");
+        customer.CompanyAddress.ShouldBe("Pavlovská 585/1, Liboc, 16200 Praha 6");
+    }
+
+    [Fact]
+    public async Task Neplatne_ICO_se_do_ARES_vubec_neposila()
+    {
+        await Should.ThrowAsync<DomainException>(() =>
+            PlaceAsync(Request(new PlaceOrderLine(VoucherId, 1), companyId: "06633634")));
+
+        await _companies.DidNotReceiveWithAnyArgs().FindAsync(default!, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task Firma_kterou_ARES_nezna_neprojde_a_nespotrebuje_cislo()
+    {
+        _companies.FindAsync("06633633", Arg.Any<CancellationToken>()).Returns((RegisteredCompany?)null);
+
+        ValidationException error = await Should.ThrowAsync<ValidationException>(() =>
+            PlaceAsync(Request(new PlaceOrderLine(VoucherId, 1), companyId: "06633633")));
+
+        error.Message.ShouldContain("nenašli");
+        await _numbers.DidNotReceiveWithAnyArgs().NextSequenceAsync(default, default, TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task Zanikla_firma_neprojde()
+    {
+        _companies.FindAsync("06633633", Arg.Any<CancellationToken>()).Returns(
+            new RegisteredCompany("06633633", "Stará firma s.r.o.", null, null, new DateOnly(2020, 1, 1)));
+
+        ValidationException error = await Should.ThrowAsync<ValidationException>(() =>
+            PlaceAsync(Request(new PlaceOrderLine(VoucherId, 1), companyId: "06633633")));
+
+        error.Message.ShouldContain("zanikla");
+    }
+
+    [Fact]
+    public async Task Pri_vypadku_ARES_objednavka_na_firmu_neprojde_se_srozumitelnou_hlaskou()
+    {
+        _companies.FindAsync("06633633", Arg.Any<CancellationToken>())
+            .Returns<RegisteredCompany?>(_ => throw new CompanyRegistryUnavailableException());
+
+        ValidationException error = await Should.ThrowAsync<ValidationException>(() =>
+            PlaceAsync(Request(new PlaceOrderLine(VoucherId, 1), companyId: "06633633")));
+
+        error.Message.ShouldContain("neodpovídá");
+        _saved.ShouldBeEmpty();
+    }
+
     private Task<PlacedOrderDto> PlaceAsync(PlaceOrderRequest request) =>
-        new PlaceOrderCommandHandler(_catalog, _numbers, _orders, _unitOfWork, _clock, new BillingOptions())
+        new PlaceOrderCommandHandler(_catalog, _companies, _numbers, _orders, _unitOfWork, _clock, new BillingOptions())
             .HandleAsync(new PlaceOrderCommand(EnterpriseId, request), TestContext.Current.CancellationToken);
 
-    private static PlaceOrderRequest Request(PlaceOrderLine line, string language = "cs") =>
-        new(language, new PlaceOrderCustomer("Jana Nováková", "jana@example.cz", null, null, null, null), [line], TermsAccepted: true);
+    private static PlaceOrderRequest Request(PlaceOrderLine line, string language = "cs", string? companyId = null) =>
+        new(language, new PlaceOrderCustomer("Jana Nováková", "jana@example.cz", null, companyId), [line], TermsAccepted: true);
 }

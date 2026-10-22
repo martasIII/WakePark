@@ -9,7 +9,7 @@ namespace WakePark.Storefront.Eshop;
 
 public sealed record OrderRequest(string Language, OrderCustomer Customer, IReadOnlyList<OrderRequestLine> Lines, bool TermsAccepted);
 
-public sealed record OrderCustomer(string Name, string Email, string? Phone, string? CompanyName, string? CompanyId, string? VatId);
+public sealed record OrderCustomer(string Name, string Email, string? Phone, string? CompanyId);
 
 public sealed record OrderRequestLine(Guid ProductId, int Quantity);
 

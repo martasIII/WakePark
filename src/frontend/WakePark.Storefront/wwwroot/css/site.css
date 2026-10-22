@@ -99,7 +99,14 @@ footer .small{font-size:12px; opacity:.8}
 .contact label .opt{font-weight:500}
 .contact input[type=text], .contact input[type=email], .contact input[type=tel], .contact input:not([type]){
   padding:10px; font:inherit; font-size:16px; color:#1d1d1f; border:1px solid #ccc; border-radius:4px}
-.contact .company summary{cursor:pointer; font-size:14px; font-weight:700; color:var(--brand); margin:4px 0}
+.contact .company-toggle{flex-direction:row; align-items:center; gap:10px; margin:6px 0; font-size:14px; color:var(--brand); cursor:pointer}
+.contact .company-toggle input{width:20px; height:20px; margin:0; flex:none}
+.contact .company-fields{display:none}
+.contact .company:has(.company-toggle input:checked) .company-fields{display:block}
+.contact .company-hint, .contact .company-status{margin:4px 0; color:#5f5f66; font-size:13.5px}
+.contact .company-status:empty{display:none}
+.contact input[readonly]{background:#f4f4f6; border-color:#e2e2e6}
+.contact .fields .wide{grid-column:1/-1}
 .contact .terms{flex-direction:row; align-items:flex-start; gap:10px; margin:16px 0 6px; font-size:14px; font-weight:500; color:#1d1d1f}
 .contact .terms input{width:20px; height:20px; margin:0; flex:none}
 .contact .pay-note{color:#5f5f66; font-size:13.5px; line-height:1.55}

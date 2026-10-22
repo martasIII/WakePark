@@ -48,18 +48,29 @@ builder.Services.AddSingleton(TimeProvider.System);
 // ukázat telefon, než nechat návštěvníka čekat.
 builder.Services.AddHttpClient<CatalogClient>(client => client.Timeout = TimeSpan.FromSeconds(5));
 builder.Services.AddHttpClient<OrderClient>(client => client.Timeout = TimeSpan.FromSeconds(15));
+builder.Services.AddHttpClient<CompanyClient>(client => client.Timeout = TimeSpan.FromSeconds(8));
 
 // Objednávky z jedné IP: 5 za 10 minut. Člověku to stačí i s opravami překlepů; robot,
-// který by zakládal objednávky (a později rozesílal e-maily), narazí. Čtení stránek se neomezuje.
+// který by zakládal objednávky (a později rozesílal e-maily), narazí. Dotazy na firmu podle IČO
+// (formulář, ARES): 30 za minutu — ať přes nás nikdo nevytěžuje ARES. Čtení stránek se neomezuje.
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-        HttpMethods.IsPost(context.Request.Method)
+    {
+        string ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        if (HttpMethods.IsPost(context.Request.Method))
+        {
+            return RateLimitPartition.GetFixedWindowLimiter(
+                ip, _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(10) });
+        }
+
+        return string.Equals(context.Request.Query["handler"], "company", StringComparison.OrdinalIgnoreCase)
             ? RateLimitPartition.GetFixedWindowLimiter(
-                context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-                _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(10) })
-            : RateLimitPartition.GetNoLimiter("read"));
+                $"company:{ip}", _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(1) })
+            : RateLimitPartition.GetNoLimiter("read");
+    });
     options.OnRejected = (context, cancellationToken) =>
     {
         context.HttpContext.Response.ContentType = "text/plain; charset=utf-8";

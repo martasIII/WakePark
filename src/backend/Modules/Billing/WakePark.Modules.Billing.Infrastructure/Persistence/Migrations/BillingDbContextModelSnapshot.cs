@@ -692,6 +692,11 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
                                 .HasColumnType("uuid")
                                 .HasColumnName("id");
 
+                            b1.Property<string>("CompanyAddress")
+                                .HasMaxLength(300)
+                                .HasColumnType("character varying(300)")
+                                .HasColumnName("customer_company_address");
+
                             b1.Property<string>("CompanyId")
                                 .HasMaxLength(8)
                                 .HasColumnType("character varying(8)")

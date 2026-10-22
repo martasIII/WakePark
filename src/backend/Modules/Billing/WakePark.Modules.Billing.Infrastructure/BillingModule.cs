@@ -6,6 +6,7 @@ using WakePark.BuildingBlocks.Infrastructure.Outbox;
 using WakePark.BuildingBlocks.Infrastructure.Persistence;
 using WakePark.Modules.Billing.Application;
 using WakePark.Modules.Billing.Application.Abstractions;
+using WakePark.Modules.Billing.Infrastructure.Ares;
 using WakePark.Modules.Billing.Infrastructure.Fio;
 using WakePark.Modules.Billing.Infrastructure.Persistence;
 using WakePark.Modules.Billing.Infrastructure.Persistence.Repositories;
@@ -49,6 +50,15 @@ public static class BillingModule
         {
             services.AddHostedService<BankSyncWorker>();
         }
+
+        // ARES: firmy pro doklad na firmu. Krátký timeout — zákazník čeká u formuláře.
+        services.AddMemoryCache();
+        services.AddHttpClient<ICompanyRegistry, AresCompanyRegistry>(client =>
+        {
+            client.BaseAddress = AresCompanyRegistry.BaseAddress;
+            client.Timeout = TimeSpan.FromSeconds(5);
+            client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+        });
 
         // Doručování událostí z outboxu Billingu ostatním modulům.
         services.AddSingleton<OutboxDispatcher<BillingDbContext>>();
