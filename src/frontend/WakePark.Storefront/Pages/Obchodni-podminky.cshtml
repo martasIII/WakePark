@@ -1,17 +1,16 @@
 @page
 @{
-    ViewData["Title"] = "Obchodní podmínky — Wake Park Džbán";
+    ViewData["Title"] = T["TermsTitle"].Value;
     ViewData["BodyClass"] = "page";
-    ViewData["Heading"] = "Obchodní podmínky";
+    ViewData["Heading"] = T["TermsHeading"].Value;
     ViewData["NoIndex"] = true;
 }
 <partial name="_PageHeader" />
 <main class="page-body">
     @* Text píšeme znovu, před zveřejněním ho zreviduje advokátka. Bez něj se ostrý prodej nespouští (ADR 0006). *@
     <section class="card">
-        <p>Obchodní podmínky a zásady ochrany osobních údajů právě připravujeme.
-            S dotazy se obraťte na <a href="mailto:info@("@")wake-dzban.cz">info@("@")wake-dzban.cz</a>
-            nebo <a href="tel:+420737562516">+420 737 562 516</a>.</p>
-        <p>Prodávající: Wake Park s.r.o., IČO 06633633, DIČ CZ06633633, Pavlovská 585/1, Liboc, 162 00 Praha 6, spisová značka C 285893 u Městského soudu v Praze.</p>
+        <p>@T["TermsPreparing"] <a href="mailto:info@("@")wake-dzban.cz">info@("@")wake-dzban.cz</a>
+            @T["Or"] <a href="tel:+420737562516">+420 737 562 516</a>.</p>
+        <p>@T["Seller"]: Wake Park s.r.o., IČO 06633633, DIČ CZ06633633, Pavlovská 585/1, Liboc, 162 00 Praha 6, @T["Registration"].</p>
     </section>
 </main>

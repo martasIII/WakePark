@@ -56,4 +56,65 @@
   <data name="AutoRefresh" xml:space="preserve"><value>Jakmile platbu spárujeme (obvykle do 5 minut od připsání na účet), stránka se sama obnoví.</value></data>
   <data name="CancelledTitle" xml:space="preserve"><value>Objednávka byla zrušena</value></data>
   <data name="CancelledText" xml:space="preserve"><value>Platba nedorazila do splatnosti. Pokud jste ji už odeslali, nic se neděje — jakmile dorazí se správným variabilním symbolem, voucher vám pošleme e-mailem.</value></data>
+  <data name="HomeTitle" xml:space="preserve"><value>Wake Park Džbán — Praha 6-Vokovice</value></data>
+  <data name="HomeDescription" xml:space="preserve"><value>Wake Park Džbán, Praha 6-Vokovice. Dva vodní vleky, minirampa, Wake Bar a dárkové vouchery.</value></data>
+  <data name="TileWakeDzban" xml:space="preserve"><value>Wake Džbán — ceník jízd</value></data>
+  <data name="TileCable1" xml:space="preserve"><value>Vlek 1 — rezervace</value></data>
+  <data name="TileCable2" xml:space="preserve"><value>Vlek 2 — rezervace</value></data>
+  <data name="ComingSoonLower" xml:space="preserve"><value>připravujeme</value></data>
+  <data name="ComingSoon" xml:space="preserve"><value>Připravujeme</value></data>
+  <data name="TileMiniRamp" xml:space="preserve"><value>Minirampa</value></data>
+  <data name="TileShop" xml:space="preserve"><value>Wake Shop — dárkové vouchery a permanentky</value></data>
+  <data name="PricesTitle" xml:space="preserve"><value>Ceník — Wake Park Džbán</value></data>
+  <data name="PricesDescription" xml:space="preserve"><value>Ceník Wake Parku Džbán — jízdné, permanentky, půjčovna vybavení, instruktor a dárkové vouchery.</value></data>
+  <data name="Prices" xml:space="preserve"><value>Ceník</value></data>
+  <data name="EshopDescription" xml:space="preserve"><value>Dárkové vouchery a permanentky Wake Parku Džbán.</value></data>
+  <data name="ErrorTitle" xml:space="preserve"><value>Chyba — Wake Park Džbán</value></data>
+  <data name="ErrorHeading" xml:space="preserve"><value>Něco se pokazilo</value></data>
+  <data name="ErrorText" xml:space="preserve"><value>Omlouváme se, stránku se teď nepodařilo zobrazit. Zkuste to prosím za chvíli, nebo nám zavolejte na</value></data>
+  <data name="NotFoundTitle" xml:space="preserve"><value>Stránka nenalezena — Wake Park Džbán</value></data>
+  <data name="NotFoundHeading" xml:space="preserve"><value>Tady nic není</value></data>
+  <data name="NotFoundSubtitle" xml:space="preserve"><value>Stránku jsme po přestavbě webu nejspíš přesunuli.</value></data>
+  <data name="NotFoundTry" xml:space="preserve"><value>Zkuste</value></data>
+  <data name="HomePage" xml:space="preserve"><value>úvodní stránku</value></data>
+  <data name="PricesLower" xml:space="preserve"><value>ceník</value></data>
+  <data name="Or" xml:space="preserve"><value>nebo</value></data>
+  <data name="ContactLower" xml:space="preserve"><value>kontakt</value></data>
+  <data name="Location" xml:space="preserve"><value>Jižní břeh vodní nádrže Džbán, Praha 6-Vokovice</value></data>
+  <data name="FooterOperator" xml:space="preserve"><value>Správce areálu Wake Park s.r.o., IČ 06633633</value></data>
+  <data name="HomeLink" xml:space="preserve"><value>Wake Park Džbán — úvod</value></data>
+  <data name="TermsTitle" xml:space="preserve"><value>Obchodní podmínky — Wake Park Džbán</value></data>
+  <data name="TermsHeading" xml:space="preserve"><value>Obchodní podmínky</value></data>
+  <data name="TermsPreparing" xml:space="preserve"><value>Obchodní podmínky a zásady ochrany osobních údajů právě připravujeme. S dotazy se obraťte na</value></data>
+  <data name="Seller" xml:space="preserve"><value>Prodávající</value></data>
+  <data name="Registration" xml:space="preserve"><value>spisová značka C 285893 u Městského soudu v Praze</value></data>
+  <data name="ContactTitle" xml:space="preserve"><value>Kontakt — Wake Park Džbán</value></data>
+  <data name="ContactDescription" xml:space="preserve"><value>Kontakt na Wake Park Džbán — Praha 6-Vokovice, jižní břeh vodní nádrže Džbán. Otevírací doba, telefon, e-mail a jak se k nám dostat.</value></data>
+  <data name="WhereToFind" xml:space="preserve"><value>Kde nás najdete</value></data>
+  <data name="Address" xml:space="preserve"><value>Adresa</value></data>
+  <data name="AddressLine1" xml:space="preserve"><value>Jižní břeh vodní nádrže Džbán</value></data>
+  <data name="AddressLine2" xml:space="preserve"><value>Praha 6-Vokovice</value></data>
+  <data name="OpenInMaps" xml:space="preserve"><value>Otevřít v Mapy.cz</value></data>
+  <data name="OpeningHours" xml:space="preserve"><value>Otevírací doba</value></data>
+  <data name="BookingSystem" xml:space="preserve"><value>Rezervační systém</value></data>
+  <data name="ContactPeople" xml:space="preserve"><value>Kontaktní osoby</value></data>
+  <data name="RoleDan" xml:space="preserve"><value>Firemní akce, marketing, spolupráce</value></data>
+  <data name="RoleKaterina" xml:space="preserve"><value>Rezervace, firemní akce, spolupráce</value></data>
+  <data name="HowToGetHere" xml:space="preserve"><value>Jak se k nám dostat</value></data>
+  <data name="HowToGetHereNote" xml:space="preserve"><value>Jednoduše — tramvají, metrem nebo autem, všechny cesty k nám vedou.</value></data>
+  <data name="ByTram" xml:space="preserve"><value>Tramvají</value></data>
+  <data name="ByTramText" xml:space="preserve"><value>Zastávka „Nad Džbánem“ (linky 20 a 26), odtud asi 300 m po cestě lesíkem k hlavní bráně koupaliště Džbán.</value></data>
+  <data name="ByMetro" xml:space="preserve"><value>Metrem</value></data>
+  <data name="ByMetroText" xml:space="preserve"><value>Stanice „Nádraží Veleslavín“ (linka A), odtud asi 12 minut pěšky lesíkem k hlavní bráně koupaliště Džbán.</value></data>
+  <data name="ByCar" xml:space="preserve"><value>Autem</value></data>
+  <data name="ByCarText" xml:space="preserve"><value>Velké veřejné parkoviště na konci ulice Nad Lávkou, odtud pár minut pěšky podél vody.</value></data>
+  <data name="Operator" xml:space="preserve"><value>Provozovatel</value></data>
+  <data name="ParkOperator" xml:space="preserve"><value>Provozovatel areálu</value></data>
+  <data name="CompanyIdShort" xml:space="preserve"><value>IČ</value></data>
+  <data name="ParkManager" xml:space="preserve"><value>Správce areálu</value></data>
+  <data name="ValidationName" xml:space="preserve"><value>Vyplňte jméno.</value></data>
+  <data name="ValidationEmailRequired" xml:space="preserve"><value>Vyplňte e-mail — pošleme na něj voucher.</value></data>
+  <data name="ValidationEmail" xml:space="preserve"><value>E-mail nevypadá platně.</value></data>
+  <data name="ValidationNoProduct" xml:space="preserve"><value>Vyberte aspoň jeden produkt.</value></data>
+  <data name="OrderUnavailable" xml:space="preserve"><value>Objednávku se teď nepodařilo odeslat. Zkuste to prosím za chvíli, nebo nám zavolejte.</value></data>
 </root>

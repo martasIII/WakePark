@@ -4,6 +4,5 @@ namespace WakePark.Storefront.Localization;
 /// Značka pro <c>IStringLocalizer&lt;SharedResource&gt;</c>. Texty rozhraní, které nejsou
 /// v obsahu (Zdarma, Dnes …), jsou v <c>Resources/Localization.SharedResource.*.resx</c>.
 /// </summary>
-#pragma warning disable CA1812 // Typ slouží jen jako klíč pro lokalizaci, instance nevzniká.
-internal sealed class SharedResource;
-#pragma warning restore CA1812
+/// <remarks>Veřejná, protože ji dostávají veřejné page modely (validace formuláře e-shopu).</remarks>
+public sealed class SharedResource;

@@ -1,6 +1,6 @@
 @* Hlavička podstránek: logo zpět na úvod, nadpis a podtitul. *@
 <header class="page-head">
-    <a class="home" asp-page="/Index" asp-route-lang="@Site.LanguageRoute" aria-label="Wake Park Džbán — úvod">
+    <a class="home" asp-page="/Index" asp-route-lang="@Site.LanguageRoute" aria-label="@T["HomeLink"]">
         <partial name="Icons/_WakeDzban" />
     </a>
     <h1>@ViewData["Heading"]</h1>

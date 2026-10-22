@@ -9,7 +9,7 @@
     "sun": "10:00–20:00"
   },
   "exceptions": [
-    {"date": "2026-10-28", "hours": {"cs": "Zavřeno"}, "note": {"cs": "Státní svátek"}}
+    {"date": "2026-10-28", "hours": {"cs": "Zavřeno", "en": "Closed"}, "note": {"cs": "Státní svátek", "en": "Public holiday"}}
   ],
-  "note": {"cs": "Doporučujeme si před každou návštěvou zkontrolovat rezervace a případně si zarezervovat vhodný termín."}
+  "note": {"cs": "Doporučujeme si před každou návštěvou zkontrolovat rezervace a případně si zarezervovat vhodný termín.", "en": "Before each visit we recommend checking the bookings and reserving a suitable time slot."}
 }

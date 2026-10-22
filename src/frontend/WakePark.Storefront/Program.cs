@@ -30,7 +30,10 @@ builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services
     .AddRazorPages(options => options.Conventions.Add(
         new LanguageRouteConvention([.. storefront.SiteLanguages.Skip(1)])))
-    .AddViewLocalization();
+    .AddViewLocalization()
+    // Hlášky validace formuláře (ErrorMessage = klíč) se překládají ze stejných .resx jako stránky.
+    .AddDataAnnotationsLocalization(options =>
+        options.DataAnnotationLocalizerProvider = (_, factory) => factory.Create(typeof(SharedResource)));
 
 // Bez toho Razor kóduje každé písmeno s diakritikou jako &#x10D; — funkční, ale nečitelné.
 builder.Services.Configure<WebEncoderOptions>(options =>

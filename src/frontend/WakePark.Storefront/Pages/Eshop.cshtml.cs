@@ -2,13 +2,19 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Localization;
 
 using WakePark.Storefront.Eshop;
 using WakePark.Storefront.Infrastructure;
+using WakePark.Storefront.Localization;
 
 namespace WakePark.Storefront.Pages;
 
-public sealed partial class EshopModel(CatalogClient catalogClient, OrderClient orderClient, ILogger<EshopModel> logger) : PageModel
+public sealed partial class EshopModel(
+    CatalogClient catalogClient,
+    OrderClient orderClient,
+    IStringLocalizer<SharedResource> text,
+    ILogger<EshopModel> logger) : PageModel
 {
     /// <summary>Null, když API neodpovídá nebo e-shop není nastavený — stránka pak ukáže telefon.</summary>
     public EshopCatalog? Catalog { get; private set; }
@@ -45,7 +51,7 @@ public sealed partial class EshopModel(CatalogClient catalogClient, OrderClient 
         List<string> errors = [.. ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)];
         if (lines.Count == 0)
         {
-            errors.Insert(0, "Vyberte aspoň jeden produkt.");
+            errors.Insert(0, text["ValidationNoProduct"]);
         }
 
         if (errors.Count > 0)
@@ -64,7 +70,8 @@ public sealed partial class EshopModel(CatalogClient catalogClient, OrderClient 
 
         if (result.Order is null)
         {
-            Errors = result.Errors;
+            // Technickou chybu říká web v jazyce stránky; hlášky API (např. neplatné IČO) zatím česky.
+            Errors = [.. result.Errors.Select(e => e == OrderClient.UnavailableMessage ? text["OrderUnavailable"].Value : e)];
             return Page();
         }
 
@@ -84,12 +91,12 @@ public sealed partial class EshopModel(CatalogClient catalogClient, OrderClient 
 /// <summary>Kontaktní údaje z formuláře. Pravidla tady jsou jen první síto, rozhoduje API.</summary>
 public sealed class OrderForm
 {
-    [Required(ErrorMessage = "Vyplňte jméno.")]
+    [Required(ErrorMessage = "ValidationName")]
     [StringLength(200)]
     public string Name { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Vyplňte e-mail — pošleme na něj voucher.")]
-    [EmailAddress(ErrorMessage = "E-mail nevypadá platně.")]
+    [Required(ErrorMessage = "ValidationEmailRequired")]
+    [EmailAddress(ErrorMessage = "ValidationEmail")]
     [StringLength(254)]
     public string Email { get; set; } = string.Empty;
 

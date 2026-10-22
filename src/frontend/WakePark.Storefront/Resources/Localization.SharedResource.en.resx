@@ -56,4 +56,65 @@
   <data name="AutoRefresh" xml:space="preserve"><value>Once we match your payment (usually within 5 minutes of it arriving), this page refreshes by itself.</value></data>
   <data name="CancelledTitle" xml:space="preserve"><value>Order cancelled</value></data>
   <data name="CancelledText" xml:space="preserve"><value>The payment did not arrive by the due date. If you have already sent it, don't worry — once it arrives with the right variable symbol, we will e-mail you the voucher.</value></data>
+  <data name="HomeTitle" xml:space="preserve"><value>Wake Park Džbán — Prague 6-Vokovice</value></data>
+  <data name="HomeDescription" xml:space="preserve"><value>Wake Park Džbán, Prague 6-Vokovice. Two cable systems, a mini ramp, Wake Bar and gift vouchers.</value></data>
+  <data name="TileWakeDzban" xml:space="preserve"><value>Wake Džbán — ride prices</value></data>
+  <data name="TileCable1" xml:space="preserve"><value>Cable 1 — booking</value></data>
+  <data name="TileCable2" xml:space="preserve"><value>Cable 2 — booking</value></data>
+  <data name="ComingSoonLower" xml:space="preserve"><value>coming soon</value></data>
+  <data name="ComingSoon" xml:space="preserve"><value>Coming soon</value></data>
+  <data name="TileMiniRamp" xml:space="preserve"><value>Mini ramp</value></data>
+  <data name="TileShop" xml:space="preserve"><value>Wake Shop — gift vouchers and passes</value></data>
+  <data name="PricesTitle" xml:space="preserve"><value>Prices — Wake Park Džbán</value></data>
+  <data name="PricesDescription" xml:space="preserve"><value>Wake Park Džbán prices — rides, passes, equipment rental, instructor and gift vouchers.</value></data>
+  <data name="Prices" xml:space="preserve"><value>Prices</value></data>
+  <data name="EshopDescription" xml:space="preserve"><value>Gift vouchers and passes from Wake Park Džbán.</value></data>
+  <data name="ErrorTitle" xml:space="preserve"><value>Error — Wake Park Džbán</value></data>
+  <data name="ErrorHeading" xml:space="preserve"><value>Something went wrong</value></data>
+  <data name="ErrorText" xml:space="preserve"><value>Sorry, we could not show this page right now. Please try again in a moment, or call us at</value></data>
+  <data name="NotFoundTitle" xml:space="preserve"><value>Page not found — Wake Park Džbán</value></data>
+  <data name="NotFoundHeading" xml:space="preserve"><value>Nothing here</value></data>
+  <data name="NotFoundSubtitle" xml:space="preserve"><value>We have probably moved the page while rebuilding the site.</value></data>
+  <data name="NotFoundTry" xml:space="preserve"><value>Try</value></data>
+  <data name="HomePage" xml:space="preserve"><value>the home page</value></data>
+  <data name="PricesLower" xml:space="preserve"><value>prices</value></data>
+  <data name="Or" xml:space="preserve"><value>or</value></data>
+  <data name="ContactLower" xml:space="preserve"><value>contact</value></data>
+  <data name="Location" xml:space="preserve"><value>South shore of the Džbán reservoir, Prague 6-Vokovice</value></data>
+  <data name="FooterOperator" xml:space="preserve"><value>Operated by Wake Park s.r.o., company ID 06633633</value></data>
+  <data name="HomeLink" xml:space="preserve"><value>Wake Park Džbán — home</value></data>
+  <data name="TermsTitle" xml:space="preserve"><value>Terms and conditions — Wake Park Džbán</value></data>
+  <data name="TermsHeading" xml:space="preserve"><value>Terms and conditions</value></data>
+  <data name="TermsPreparing" xml:space="preserve"><value>We are preparing the terms and conditions and the privacy policy. With questions, contact</value></data>
+  <data name="Seller" xml:space="preserve"><value>Seller</value></data>
+  <data name="Registration" xml:space="preserve"><value>registered at the Municipal Court in Prague, file C 285893</value></data>
+  <data name="ContactTitle" xml:space="preserve"><value>Contact — Wake Park Džbán</value></data>
+  <data name="ContactDescription" xml:space="preserve"><value>Contact Wake Park Džbán — Prague 6-Vokovice, south shore of the Džbán reservoir. Opening hours, phone, e-mail and how to get here.</value></data>
+  <data name="WhereToFind" xml:space="preserve"><value>Where to find us</value></data>
+  <data name="Address" xml:space="preserve"><value>Address</value></data>
+  <data name="AddressLine1" xml:space="preserve"><value>South shore of the Džbán reservoir</value></data>
+  <data name="AddressLine2" xml:space="preserve"><value>Prague 6-Vokovice</value></data>
+  <data name="OpenInMaps" xml:space="preserve"><value>Open in Mapy.cz</value></data>
+  <data name="OpeningHours" xml:space="preserve"><value>Opening hours</value></data>
+  <data name="BookingSystem" xml:space="preserve"><value>Booking system</value></data>
+  <data name="ContactPeople" xml:space="preserve"><value>Contact people</value></data>
+  <data name="RoleDan" xml:space="preserve"><value>Corporate events, marketing, partnerships</value></data>
+  <data name="RoleKaterina" xml:space="preserve"><value>Bookings, corporate events, partnerships</value></data>
+  <data name="HowToGetHere" xml:space="preserve"><value>How to get here</value></data>
+  <data name="HowToGetHereNote" xml:space="preserve"><value>Easily — by tram, metro or car, all roads lead here.</value></data>
+  <data name="ByTram" xml:space="preserve"><value>By tram</value></data>
+  <data name="ByTramText" xml:space="preserve"><value>Stop “Nad Džbánem” (lines 20 and 26), then about 300 m along the path through the woods to the main gate of the Džbán swimming area.</value></data>
+  <data name="ByMetro" xml:space="preserve"><value>By metro</value></data>
+  <data name="ByMetroText" xml:space="preserve"><value>Station “Nádraží Veleslavín” (line A), then about a 12-minute walk through the woods to the main gate of the Džbán swimming area.</value></data>
+  <data name="ByCar" xml:space="preserve"><value>By car</value></data>
+  <data name="ByCarText" xml:space="preserve"><value>Large public car park at the end of Nad Lávkou street, then a few minutes’ walk along the water.</value></data>
+  <data name="Operator" xml:space="preserve"><value>Operator</value></data>
+  <data name="ParkOperator" xml:space="preserve"><value>Park operator</value></data>
+  <data name="CompanyIdShort" xml:space="preserve"><value>company ID</value></data>
+  <data name="ParkManager" xml:space="preserve"><value>Park manager</value></data>
+  <data name="ValidationName" xml:space="preserve"><value>Please fill in your name.</value></data>
+  <data name="ValidationEmailRequired" xml:space="preserve"><value>Please fill in your e-mail — we will send the voucher there.</value></data>
+  <data name="ValidationEmail" xml:space="preserve"><value>The e-mail address does not look valid.</value></data>
+  <data name="ValidationNoProduct" xml:space="preserve"><value>Please choose at least one product.</value></data>
+  <data name="OrderUnavailable" xml:space="preserve"><value>We could not send your order right now. Please try again in a moment, or call us.</value></data>
 </root>

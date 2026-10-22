@@ -1,10 +1,10 @@
 @page
 @model CenikModel
 @{
-    ViewData["Title"] = "Ceník — Wake Park Džbán";
-    ViewData["Description"] = "Ceník Wake Parku Džbán — jízdné, permanentky, půjčovna vybavení, instruktor a dárkové vouchery.";
+    ViewData["Title"] = T["PricesTitle"].Value;
+    ViewData["Description"] = T["PricesDescription"].Value;
     ViewData["BodyClass"] = "page";
-    ViewData["Heading"] = "Ceník";
+    ViewData["Heading"] = T["Prices"].Value;
     ViewData["Subtitle"] = Model.PriceList?.Season?.Resolve(SiteView.Language);
     string lang = SiteView.Language;
 }

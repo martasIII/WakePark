@@ -28,10 +28,10 @@
 <body class="@ViewData["BodyClass"]">
     @RenderBody()
     <footer>
-        <p>Jižní břeh vodní nádrže Džbán, Praha 6-Vokovice
+        <p>@T["Location"]
             <span class="sep">·</span> <a href="tel:+420737562516">+420 737 562 516</a>
             <span class="sep">·</span> <a href="mailto:info@("@")wake-dzban.cz">info@("@")wake-dzban.cz</a></p>
-        <p class="small">Správce areálu Wake Park s.r.o., IČ 06633633</p>
+        <p class="small">@T["FooterOperator"]</p>
         @if (Site.IsMultilingual && currentPage is not null)
         {
             <p class="languages">

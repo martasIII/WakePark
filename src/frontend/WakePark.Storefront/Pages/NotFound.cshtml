@@ -1,15 +1,15 @@
 @page
 @{
-    ViewData["Title"] = "Stránka nenalezena — Wake Park Džbán";
+    ViewData["Title"] = T["NotFoundTitle"].Value;
     ViewData["BodyClass"] = "page";
-    ViewData["Heading"] = "Tady nic není";
-    ViewData["Subtitle"] = "Stránku jsme po přestavbě webu nejspíš přesunuli.";
+    ViewData["Heading"] = T["NotFoundHeading"].Value;
+    ViewData["Subtitle"] = T["NotFoundSubtitle"].Value;
 }
 <partial name="_PageHeader" />
 <main class="page-body">
     <section class="card">
-        <p>Zkuste <a asp-page="/Index" asp-route-lang="@Site.LanguageRoute">úvodní stránku</a>,
-            <a asp-page="/Cenik" asp-route-lang="@Site.LanguageRoute">ceník</a> nebo
-            <a asp-page="/Kontakt" asp-route-lang="@Site.LanguageRoute">kontakt</a>.</p>
+        <p>@T["NotFoundTry"] <a asp-page="/Index" asp-route-lang="@Site.LanguageRoute">@T["HomePage"]</a>,
+            <a asp-page="/Cenik" asp-route-lang="@Site.LanguageRoute">@T["PricesLower"]</a> @T["Or"]
+            <a asp-page="/Kontakt" asp-route-lang="@Site.LanguageRoute">@T["ContactLower"]</a>.</p>
     </section>
 </main>

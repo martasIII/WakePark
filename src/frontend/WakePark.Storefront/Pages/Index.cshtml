@@ -1,7 +1,7 @@
 @page
 @{
-    ViewData["Title"] = "Wake Park Džbán — Praha 6-Vokovice";
-    ViewData["Description"] = "Wake Park Džbán, Praha 6-Vokovice. Dva vodní vleky, minirampa, Wake Bar a dárkové vouchery.";
+    ViewData["Title"] = T["HomeTitle"].Value;
+    ViewData["Description"] = T["HomeDescription"].Value;
     ViewData["BodyClass"] = "home";
     string reservation = Site.Options.ReservationUrl.ToString();
 }
@@ -9,13 +9,13 @@
     <h1 class="sr-only">Wake Park Džbán</h1>
     @* Dlaždice 4 × 2 podle náčrtku. Wake Bar, Minirampa a Džbán Park zatím nemají stránku. *@
     <ul class="tiles">
-        <li><a class="tile" asp-page="/Cenik" asp-route-lang="@Site.LanguageRoute" aria-label="Wake Džbán — ceník jízd"><partial name="Icons/_WakeDzban" /></a></li>
-        <li><a class="tile" href="@reservation" aria-label="Vlek 1 — rezervace"><partial name="Icons/_Vlek1" /></a></li>
-        <li><a class="tile" href="@reservation" aria-label="Vlek 2 — rezervace"><partial name="Icons/_Vlek2" /></a></li>
-        <li><div class="tile soon" role="img" aria-label="Wake Bar — připravujeme" title="Připravujeme"><partial name="Icons/_WakeBar" /></div></li>
-        <li><div class="tile soon" role="img" aria-label="Minirampa — připravujeme" title="Připravujeme"><partial name="Icons/_Minirampa" /></div></li>
-        <li><a class="tile" asp-page="/Kontakt" asp-route-lang="@Site.LanguageRoute" aria-label="Kontakt"><partial name="Icons/_Kontakt" /></a></li>
-        <li><a class="tile" asp-page="/Eshop" asp-route-lang="@Site.LanguageRoute" aria-label="Wake Shop — dárkové vouchery a permanentky"><partial name="Icons/_WakeShop" /></a></li>
-        <li><div class="tile soon" role="img" aria-label="Džbán Park — připravujeme" title="Připravujeme"><partial name="Icons/_DzbanPark" /></div></li>
+        <li><a class="tile" asp-page="/Cenik" asp-route-lang="@Site.LanguageRoute" aria-label="@T["TileWakeDzban"]"><partial name="Icons/_WakeDzban" /></a></li>
+        <li><a class="tile" href="@reservation" aria-label="@T["TileCable1"]"><partial name="Icons/_Vlek1" /></a></li>
+        <li><a class="tile" href="@reservation" aria-label="@T["TileCable2"]"><partial name="Icons/_Vlek2" /></a></li>
+        <li><div class="tile soon" role="img" aria-label="Wake Bar — @T["ComingSoonLower"]" title="@T["ComingSoon"]"><partial name="Icons/_WakeBar" /></div></li>
+        <li><div class="tile soon" role="img" aria-label="@T["TileMiniRamp"] — @T["ComingSoonLower"]" title="@T["ComingSoon"]"><partial name="Icons/_Minirampa" /></div></li>
+        <li><a class="tile" asp-page="/Kontakt" asp-route-lang="@Site.LanguageRoute" aria-label="@T["Contact"]"><partial name="Icons/_Kontakt" /></a></li>
+        <li><a class="tile" asp-page="/Eshop" asp-route-lang="@Site.LanguageRoute" aria-label="@T["TileShop"]"><partial name="Icons/_WakeShop" /></a></li>
+        <li><div class="tile soon" role="img" aria-label="Džbán Park — @T["ComingSoonLower"]" title="@T["ComingSoon"]"><partial name="Icons/_DzbanPark" /></div></li>
     </ul>
 </main>
