@@ -15,3 +15,4 @@ Rozhodnutí se **nepřepisují**. Když se změní, přidá se nové ADR, které
 | [0005](0005-kde-zije-slot.md) | Slot patří do modulu Reservations, ne Operations | Přijato |
 | [0006](0006-eshop-poukazy.md) | E-shop s poukazy: moduly, platba QR převodem, veřejný web | Navrženo |
 | [0007](0007-omezeni-dat-na-provozovatele.md) | Omezení dat na provozovatele v aplikační vrstvě, ne globálním filtrem EF | Přijato |
+| [0008](0008-backoffice-mapa-modulu.md) | Backoffice: mapa modulů, dva pohledy a pořadí | Navrženo |
