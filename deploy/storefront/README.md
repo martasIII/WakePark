@@ -181,6 +181,48 @@ gunzip -c /var/backups/wakepark/wakepark-<datum>.sql.gz \
 
 Push do `main` → v GitHubu záložka Actions → úloha „Storefront — nasazení na VPS“.
 
+## Ostré spuštění (přepnutí na wake-dzban.cz)
+
+Pořadí je důležité. Odhad: hodina práce, web je nedostupný jen pár minut kolem kroku 5.
+
+**Den předem**
+1. Ve Wedosu snížit TTL A záznamů `wake-dzban.cz` a `www` na **300 s** (dnes 3600) —
+   přepnutí se pak projeví do 5 minut, ne do hodiny.
+2. V repu (commit + push, nasadí se samo):
+   - finální `src/backend/WakePark.Api/data/katalog.json` a obrázky,
+   - finální text obchodních podmínek na stránce `Obchodni-podminky.cshtml`,
+   - `Storefront:EshopTrialMode` → `false` (zmizí pruh „Zkušební provoz“),
+   - v `docker-compose.yml` u api `Notifications__PublicBaseUrl: "https://wake-dzban.cz"`
+     (odkazy v e-mailech) — compose zkopírovat na server (viz výše).
+
+**V den spuštění** (jako root, `ssh dochazka`)
+3. Záloha a úklid testovacích dat (objednávky, doklady, vouchery, e-maily, číselné řady):
+   ```bash
+   /opt/wakepark/storefront/backup-db.sh
+   docker exec -i wakepark-db psql -U wakepark -d wakepark -v ON_ERROR_STOP=1 < cleanup-test-data.sql
+   ```
+4. Ve Wedosu změnit A záznamy `wake-dzban.cz` a `www.wake-dzban.cz` na **31.31.73.220**.
+   **MX ani TXT (SPF, DMARC) neměnit** — pošta zůstává u Wedosu.
+5. Až `dig +short wake-dzban.cz` vrací 31.31.73.220:
+   ```bash
+   install -m 644 nginx-wake-dzban.cz.conf /etc/nginx/sites-available/wake-dzban
+   ln -s /etc/nginx/sites-available/wake-dzban /etc/nginx/sites-enabled/wake-dzban
+   nginx -t && systemctl reload nginx
+   certbot --nginx -d wake-dzban.cz -d www.wake-dzban.cz --redirect
+   ```
+6. `novy.wake-dzban.cz` přesměrovat na hlavní doménu se zachováním cesty — odkazy
+   v už odeslaných e-mailech (`/objednavka/…`) musí dál fungovat. V
+   `/etc/nginx/sites-available/storefront` v bloku pro 443 nahradit `location / {…}` za
+   `return 301 https://wake-dzban.cz$request_uri;`, pak `nginx -t && systemctl reload nginx`.
+7. Zkontrolovat: https://wake-dzban.cz, /eshop, /en, staré adresy (`/cenik.html`, `/shop/`),
+   jedna objednávka za 1 Kč nanečisto (pak stornovat ručně).
+8. UptimeRobot přepnout na `https://wake-dzban.cz/eshop`.
+
+**Potom**
+- Statický web na webhostingu Wedos nechat pár týdnů jako zálohu, pak zrušit.
+- Písmo Montserrat hostovat na vlastním serveru místo Google Fonts (zásady ochrany
+  osobních údajů pak nemusí zmiňovat předání IP adresy Googlu).
+
 ## Údržba
 
 | Co | Příkaz na serveru |
