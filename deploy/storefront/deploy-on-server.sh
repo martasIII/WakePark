@@ -32,6 +32,13 @@ docker image prune -f > /dev/null
 # Hotovo je, až web ukáže nabídku — tím se ověří celá cesta web → API → databáze.
 for _ in $(seq 1 30); do
     if curl -fsS http://127.0.0.1:5081/eshop 2> /dev/null | grep -q 'class="product"'; then
+        # Ruční příkazy z README (docker compose run … bez WAKEPARK_TAG) berou :latest —
+        # ať je to vždy verze, která běží, ne nějaká starší.
+        if [ "$tag" != latest ]; then
+            for service in api storefront; do
+                docker tag "ghcr.io/martasiii/wakepark-$service:$tag" "ghcr.io/martasiii/wakepark-$service:latest"
+            done
+        fi
         echo "Nasazeno: $tag"
         exit 0
     fi
