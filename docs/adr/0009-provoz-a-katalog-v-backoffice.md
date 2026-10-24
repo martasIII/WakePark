@@ -126,3 +126,23 @@ odpovídá skutečnosti (každý den jinak, podle světla) a připraví se jedn�
 **Co ztrácíme.** Pravidelnou dobu „v pondělí 10–20“ už systém sám nedopočítá — každý den
 se musí zadat (importem). To je záměr: odpovídá to provozu Wake Parku. Pro další parky
 s pravidelnou dobou by se doplnilo generování dnů z šablony — až po pilotu (ADR 0008).
+
+## Upřesnění 24. 10. — základní data provozu na produkci
+
+Na produkci zatím není provozovatel, areál, vleky ani uživatelé (e-shopu a katalogu stačilo
+`EnterpriseId` z konfigurace). Provozní dny a blokace se ale vážou na areál a vleky.
+
+- **`data/provoz.json`** — provozovatel (Wake Park s.r.o., stávající `EnterpriseId`), areál
+  Wake Park Džbán (časové pásmo, měna, rezervační e-mail info@wake-dzban.cz, **GPS souřadnice**;
+  přesná poštovní adresa areálu není, adresa je jen popisná), vleky a nastavení areálu
+  (blok 20 min, 3 jezdci, web 14 dní, rezervace 30 dní).
+- **Vleky jsou editovatelné přes `provoz.json`:** název, počet sloupů, délka dráhy, popis
+  a **schéma překážek** (název, druh, poloha na dráze). Dokud editace vleků není
+  v backoffice, je zdrojem pravdy soubor: nasazení databázi **srovná podle souboru**.
+  Bezpečné, protože provozní dny ani blokace v souboru nejsou. Až přijde editace
+  v backoffice, přepne se na „doplnit chybějící“ jako u katalogu.
+- **Admini:** příkaz `create-admin` na serveru, opakovatelný (adminů bude víc). Heslo zadá
+  člověk v terminálu, nikde jinde není. Provozovatel má **vlastníka nepovinného** — doplní
+  ho první admin.
+- **Otevírací doba na webu** se přepne z `oteviraci-doba.json` na API až po nahrání CSV
+  sezóny 2027 (sezóna 2026 skončila): přepínač `Storefront:OpeningHoursFromApi`.
