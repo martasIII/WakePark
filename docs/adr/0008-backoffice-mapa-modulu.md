@@ -1,6 +1,6 @@
 # 0008 — Backoffice: mapa modulů, dva pohledy a pořadí
 
-**Stav:** Navrženo · 22. 10. 2026
+**Stav:** Přijato · 24. 10. 2026
 
 ## Kontext
 
