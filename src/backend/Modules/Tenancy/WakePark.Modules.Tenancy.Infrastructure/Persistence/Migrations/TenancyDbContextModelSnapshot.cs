@@ -26,7 +26,6 @@ namespace WakePark.Modules.Tenancy.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("WakePark.Modules.Tenancy.Domain.Enterprises.Enterprise", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -54,7 +53,7 @@ namespace WakePark.Modules.Tenancy.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
 
-                    b.Property<Guid>("OwnerUserAccountId")
+                    b.Property<Guid?>("OwnerUserAccountId")
                         .HasColumnType("uuid")
                         .HasColumnName("owner_user_account_id");
 
@@ -90,7 +89,6 @@ namespace WakePark.Modules.Tenancy.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("WakePark.Modules.Tenancy.Domain.Parks.Park", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -204,6 +202,31 @@ namespace WakePark.Modules.Tenancy.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("WakePark.Modules.Tenancy.Domain.Parks.Park", b =>
                 {
+                    b.OwnsOne("WakePark.BuildingBlocks.Domain.ValueObjects.GeoPoint", "Location", b1 =>
+                        {
+                            b1.Property<Guid>("ParkId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasPrecision(9, 6)
+                                .HasColumnType("numeric(9,6)")
+                                .HasColumnName("location_latitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasPrecision(9, 6)
+                                .HasColumnType("numeric(9,6)")
+                                .HasColumnName("location_longitude");
+
+                            b1.HasKey("ParkId");
+
+                            b1.ToTable("wake_parks", "tenancy");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ParkId")
+                                .HasConstraintName("fk_wake_parks_wake_parks_id");
+                        });
+
                     b.OwnsOne("WakePark.Modules.Tenancy.Domain.Parks.CancellationPolicy", "CancellationPolicy", b1 =>
                         {
                             b1.Property<Guid>("ParkId")
@@ -219,13 +242,13 @@ namespace WakePark.Modules.Tenancy.Infrastructure.Persistence.Migrations
                                 .HasColumnName("cancellation_policy_free_cancellation_hours");
 
                             b1.Property<decimal>("LateCancellationRefundPercent")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("numeric(18,2)")
+                                .HasPrecision(5, 2)
+                                .HasColumnType("numeric(5,2)")
                                 .HasColumnName("cancellation_policy_late_cancellation_refund_percent");
 
                             b1.Property<decimal>("NoShowRefundPercent")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("numeric(18,2)")
+                                .HasPrecision(5, 2)
+                                .HasColumnType("numeric(5,2)")
                                 .HasColumnName("cancellation_policy_no_show_refund_percent");
 
                             b1.HasKey("ParkId");
@@ -286,6 +309,8 @@ namespace WakePark.Modules.Tenancy.Infrastructure.Persistence.Migrations
 
                     b.Navigation("CancellationPolicy")
                         .IsRequired();
+
+                    b.Navigation("Location");
                 });
 #pragma warning restore 612, 618
         }

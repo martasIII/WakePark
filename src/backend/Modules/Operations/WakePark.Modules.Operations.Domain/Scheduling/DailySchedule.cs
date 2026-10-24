@@ -4,7 +4,7 @@ namespace WakePark.Modules.Operations.Domain.Scheduling;
 
 /// <summary>
 /// Jeden souvislý provozní blok v rámci dne, už bez vazby na sezónu a den v týdnu.
-/// Mezivýsledek mezi konfigurací (<see cref="WorkingHours"/>) a výpočtem slotů.
+/// Mezivýsledek mezi provozním dnem (<see cref="Calendar.OperatingDay"/>) a výpočtem slotů.
 /// </summary>
 public sealed record DailySchedule
 {
@@ -40,7 +40,4 @@ public sealed record DailySchedule
 
     /// <summary>Kolik jezdců se v jednom bloku vystřídá.</summary>
     public int Capacity { get; }
-
-    public DailySchedule WithHours(TimeOnly start, TimeOnly end) =>
-        new(start, end, SlotDurationMinutes, Capacity);
 }

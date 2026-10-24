@@ -16,6 +16,8 @@ public static class Permissions
     public const string OperationsRead = "operations.read";
     public const string OperationsManage = "operations.manage";
 
+    public const string BlockingsManage = "blockings.manage";
+
     public const string ReservationsRead = "reservations.read";
     public const string ReservationsCreate = "reservations.create";
     public const string ReservationsCancel = "reservations.cancel";
@@ -33,6 +35,7 @@ public static class Permissions
         [ParksManage] = "Spravovat areály a jejich nastavení",
         [OperationsRead] = "Zobrazit rozvrh a provozní dobu",
         [OperationsManage] = "Spravovat vleky, sezóny a provozní dobu",
+        [BlockingsManage] = "Blokovat vlek nebo areál (závada, akce, počasí)",
         [ReservationsRead] = "Zobrazit rezervace a obsazenost",
         [ReservationsCreate] = "Vytvářet rezervace",
         [ReservationsCancel] = "Stornovat rezervace",
@@ -61,6 +64,7 @@ public static class SystemRoles
                 Permissions.ParksManage,
                 Permissions.OperationsRead,
                 Permissions.OperationsManage,
+                Permissions.BlockingsManage,
                 Permissions.ReservationsRead,
                 Permissions.ReservationsCreate,
                 Permissions.ReservationsCancel,
@@ -71,6 +75,7 @@ public static class SystemRoles
             [
                 Permissions.ParksRead,
                 Permissions.OperationsRead,
+                Permissions.BlockingsManage,
                 Permissions.ReservationsRead,
                 Permissions.ReservationsCreate,
                 Permissions.ReservationsCancel,

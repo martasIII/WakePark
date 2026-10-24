@@ -51,6 +51,9 @@ public sealed class Park : AggregateRoot, IAuditable, ITenantOwned
 
     public string? ReservationEmail { get; private set; }
 
+    /// <summary>Poloha areálu (GPS). Přesnou poštovní adresu areál Džbán nemá.</summary>
+    public GeoPoint? Location { get; private set; }
+
     /// <summary>Pravidla storna. Každý areál si je nastavuje sám.</summary>
     public CancellationPolicy CancellationPolicy { get; private set; } = CancellationPolicy.Default;
 
@@ -63,6 +66,15 @@ public sealed class Park : AggregateRoot, IAuditable, ITenantOwned
     public string? UpdatedBy { get; set; }
 
     public static Park Create(
+        Guid enterpriseId,
+        string name,
+        Address address,
+        string timeZoneId,
+        string currency) =>
+        Build(NewId(), enterpriseId, name, address, timeZoneId, currency);
+
+    private static Park Build(
+        Guid id,
         Guid enterpriseId,
         string name,
         Address address,
@@ -89,8 +101,32 @@ public sealed class Park : AggregateRoot, IAuditable, ITenantOwned
             throw new DomainException("park.unknown_timezone", $"Neznámá časová zóna '{timeZoneId}'.");
         }
 
-        return new Park(NewId(), enterpriseId, name.Trim(), address, timeZoneId, currency.ToUpperInvariant());
+        return new Park(id, enterpriseId, name.Trim(), address, timeZoneId, currency.ToUpperInvariant());
     }
+
+    /// <summary>Areál z výchozích dat s pevným Id — web podle něj čte otevírací dobu.</summary>
+    public static Park CreateFromSetup(Guid id, Guid enterpriseId, string name, Address address, string timeZoneId, string currency)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new DomainException("park.id_required", "Areál z výchozích dat musí mít Id.");
+        }
+
+        return Build(id, enterpriseId, name, address, timeZoneId, currency);
+    }
+
+    /// <summary>Údaje areálu podle výchozích dat nebo backoffice. Provozovatele změnit nejde.</summary>
+    public void Update(string name, Address address, string timeZoneId, string currency)
+    {
+        Park validated = Build(Id, EnterpriseId, name, address, timeZoneId, currency);
+
+        Name = validated.Name;
+        Address = validated.Address;
+        TimeZoneId = validated.TimeZoneId;
+        Currency = validated.Currency;
+    }
+
+    public void Locate(GeoPoint? location) => Location = location;
 
     public void Describe(string? description) =>
         Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();

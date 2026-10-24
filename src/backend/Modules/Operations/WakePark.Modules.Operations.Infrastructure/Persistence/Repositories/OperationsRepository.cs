@@ -2,80 +2,64 @@ using Microsoft.EntityFrameworkCore;
 
 using WakePark.Modules.Operations.Application.Abstractions;
 using WakePark.Modules.Operations.Domain.Cables;
-using WakePark.Modules.Operations.Domain.Scheduling;
-using WakePark.Modules.Operations.Domain.Seasons;
+using WakePark.Modules.Operations.Domain.Calendar;
+using WakePark.Modules.Operations.Domain.Parks;
 
 namespace WakePark.Modules.Operations.Infrastructure.Persistence.Repositories;
 
+/// <summary>
+/// Záznamy se načítají se sledováním změn — příkazy je upravují a dat je málo (vleky, dny
+/// jedné sezóny). Čtení pro rozvrh tak nepotřebuje zvláštní repozitář.
+/// </summary>
 internal sealed class OperationsRepository(OperationsDbContext dbContext) : IOperationsRepository
 {
-    public async Task<Cable?> FindCableAsync(Guid cableId, CancellationToken cancellationToken = default) =>
-        await dbContext.Cables
-            .AsNoTracking()
-            .FirstOrDefaultAsync(cable => cable.Id == cableId, cancellationToken)
-            .ConfigureAwait(false);
+    public Task<Cable?> FindCableAsync(Guid cableId, CancellationToken cancellationToken = default) =>
+        dbContext.Cables.FirstOrDefaultAsync(cable => cable.Id == cableId, cancellationToken);
 
-    public async Task<IReadOnlyList<Cable>> GetCablesAsync(
-        Guid wakeParkId,
-        CancellationToken cancellationToken = default) =>
+    public async Task<IReadOnlyList<Cable>> GetCablesAsync(Guid wakeParkId, CancellationToken cancellationToken = default) =>
         await dbContext.Cables
-            .AsNoTracking()
             .Where(cable => cable.WakeParkId == wakeParkId)
             .OrderBy(cable => cable.Name)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-    public async Task<Season?> FindSeasonAsync(
-        Guid cableId,
-        DateOnly localDate,
-        CancellationToken cancellationToken = default)
-    {
-        Guid? wakeParkId = await dbContext.Cables
-            .AsNoTracking()
-            .Where(cable => cable.Id == cableId)
-            .Select(cable => (Guid?)cable.WakeParkId)
-            .FirstOrDefaultAsync(cancellationToken)
-            .ConfigureAwait(false);
+    public Task<ParkSettings?> GetSettingsAsync(Guid wakeParkId, CancellationToken cancellationToken = default) =>
+        dbContext.ParkSettings.FirstOrDefaultAsync(settings => settings.WakeParkId == wakeParkId, cancellationToken);
 
-        if (wakeParkId is null)
-        {
-            return null;
-        }
-
-        // Sezóna nastavená přímo pro vlek přebíjí obecnou sezónu areálu.
-        return await dbContext.Seasons
-            .AsNoTracking()
-            .Where(season => season.WakeParkId == wakeParkId
-                && (season.CableId == null || season.CableId == cableId)
-                && season.StartDate <= localDate
-                && season.EndDate >= localDate)
-            .OrderByDescending(season => season.CableId)
-            .FirstOrDefaultAsync(cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    public async Task<IReadOnlyList<WorkingHours>> GetWorkingHoursAsync(
-        Guid cableId,
-        Guid seasonId,
-        DayOfWeek dayOfWeek,
+    public async Task<IReadOnlyList<OperatingDay>> GetOperatingDaysAsync(
+        Guid wakeParkId,
+        DateOnly firstDay,
+        DateOnly lastDay,
         CancellationToken cancellationToken = default) =>
-        await dbContext.WorkingHours
-            .AsNoTracking()
-            .Where(hours => hours.CableId == cableId
-                && hours.SeasonId == seasonId
-                && hours.DayOfWeek == dayOfWeek)
-            .OrderBy(hours => hours.StartTime)
+        await dbContext.OperatingDays
+            .Where(day => day.WakeParkId == wakeParkId && day.Date >= firstDay && day.Date <= lastDay)
+            .OrderBy(day => day.Date)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-    public async Task<ScheduleOverride?> FindScheduleOverrideAsync(
-        Guid cableId,
-        DateOnly localDate,
+    public async Task<IReadOnlyList<Blocking>> GetBlockingsAsync(
+        Guid wakeParkId,
+        DateTimeOffset fromUtc,
+        DateTimeOffset toUtc,
         CancellationToken cancellationToken = default) =>
-        await dbContext.ScheduleOverrides
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                exception => exception.CableId == cableId && exception.Date == localDate,
-                cancellationToken)
+        await dbContext.Blockings
+            .Where(blocking => blocking.WakeParkId == wakeParkId && blocking.StartUtc < toUtc && blocking.EndUtc > fromUtc)
+            .OrderBy(blocking => blocking.StartUtc)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
+
+    public Task<Blocking?> FindBlockingAsync(Guid blockingId, CancellationToken cancellationToken = default) =>
+        dbContext.Blockings.FirstOrDefaultAsync(blocking => blocking.Id == blockingId, cancellationToken);
+
+    public void Add(Cable cable) => dbContext.Cables.Add(cable);
+
+    public void Add(ParkSettings settings) => dbContext.ParkSettings.Add(settings);
+
+    public void Add(OperatingDay day) => dbContext.OperatingDays.Add(day);
+
+    public void Add(Blocking blocking) => dbContext.Blockings.Add(blocking);
+
+    public void Remove(OperatingDay day) => dbContext.OperatingDays.Remove(day);
+
+    public void Remove(Blocking blocking) => dbContext.Blockings.Remove(blocking);
 }

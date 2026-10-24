@@ -1,0 +1,60 @@
+// Výchozí data provozu (ADR 0009, upřesnění 24. 10.): provozovatel, areál, nastavení areálu
+// a vleky. Id provozovatele se bere z konfigurace (Catalog:EnterpriseId) — stejné jako
+// u katalogu a objednávek, ať je všechno pod jedním provozovatelem.
+//
+// Nasazení databázi SROVNÁ podle tohoto souboru (import-setup): co tu je, založí nebo přepíše;
+// vlek, který odsud zmizí, se vyřadí. Dokud vleky nejdou upravit v backoffice, mění se tady:
+// úprava → commit → nasazení. Provozní dny a blokace tu nejsou — ty jsou v backoffice.
+//
+// Id areálu se nemění: podle něj web čte otevírací dobu (Storefront:WakeParkId).
+{
+  "enterprise": {
+    "name": "Wake Park s.r.o.",
+    "registrationNumber": "06633633",
+    "vatNumber": "CZ06633633",
+    "address": { "street": "Pavlovská", "houseNumber": "585/1", "city": "Praha 6", "postalCode": "162 00", "countryCode": "CZ" },
+    "bankAccountNumber": "2601338268/2010",
+    "iban": "CZ9520100000002601338268"
+  },
+  "park": {
+    "id": "01a1a2d0-5f3e-7c41-9b8e-2a6d0c7e4f15",
+    "name": "Wake Park Džbán",
+    "description": "Wakeboarding na vodní nádrži Džbán, Praha 6 – Vokovice.",
+    // Areál nemá přesnou poštovní adresu — tohle je jen popis místa. Přesná poloha je v GPS.
+    "address": { "street": "Vodní nádrž Džbán", "houseNumber": null, "city": "Praha 6 – Vokovice", "postalCode": "162 00", "countryCode": "CZ" },
+    "timeZoneId": "Europe/Prague",
+    "currency": "CZK",
+    "reservationEmail": "info@wake-dzban.cz",
+    // Z odkazu „Otevřít v mapách“ na stránce Kontakt (Mapy.cz). Ověřit a případně upřesnit.
+    "latitude": 50.095390,
+    "longitude": 14.334290
+  },
+  "settings": {
+    // Jeden blok na laně a kolik jezdců se v něm vystřídá.
+    "slotDurationMinutes": 20,
+    "capacity": 3,
+    // Veřejný web: otevírací doba na 14 dní, online rezervace nejvýš 30 dní dopředu.
+    "publicHoursDaysAhead": 14,
+    "publicBookingDaysAhead": 30
+  },
+  "cables": [
+    {
+      "code": "vlek-1",
+      "name": "Vlek 1",
+      "description": null,
+      "towerCount": 2,
+      // DOPLNIT: délka dráhy v metrech a překážky (Martin / Dan).
+      "lengthMeters": null,
+      // Překážky v pořadí na dráze: { "name": "Kicker", "kind": "kicker", "positionMeters": 40, "description": null }
+      "obstacles": []
+    },
+    {
+      "code": "vlek-2",
+      "name": "Vlek 2",
+      "description": null,
+      "towerCount": 2,
+      "lengthMeters": null,
+      "obstacles": []
+    }
+  ]
+}

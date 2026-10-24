@@ -34,6 +34,7 @@ public static class TenancyModule
 
         services.AddScoped<IParkReadRepository, ParkReadRepository>();
         services.AddScoped<IParkDirectory, ParkDirectory>();
+        services.AddScoped<TenancySetupApplier>();
         services.AddTenancyApplication();
 
         return services;

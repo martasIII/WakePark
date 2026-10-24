@@ -26,9 +26,14 @@ namespace WakePark.Modules.Operations.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("WakePark.Modules.Operations.Domain.Cables.Cable", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("code");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamptz")
@@ -46,6 +51,10 @@ namespace WakePark.Modules.Operations.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
+
+                    b.Property<int?>("LengthMeters")
+                        .HasColumnType("integer")
+                        .HasColumnName("length_meters");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -69,25 +78,36 @@ namespace WakePark.Modules.Operations.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("wake_park_id");
 
+                    b.Property<string>("_obstacles")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("obstacles");
+
                     b.HasKey("Id")
                         .HasName("pk_cables");
 
-                    b.HasIndex("WakeParkId")
-                        .HasDatabaseName("ix_cables_wake_park_id");
+                    b.HasIndex("WakeParkId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_cables_wake_park_id_code");
 
                     b.ToTable("cables", "operations");
                 });
 
-            modelBuilder.Entity("WakePark.Modules.Operations.Domain.Scheduling.ScheduleOverride", b =>
+            modelBuilder.Entity("WakePark.Modules.Operations.Domain.Calendar.Blocking", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("CableId")
+                    b.Property<Guid?>("CableId")
                         .HasColumnType("uuid")
                         .HasColumnName("cable_id");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("category");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamptz")
@@ -97,27 +117,18 @@ namespace WakePark.Modules.Operations.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("created_by");
 
-                    b.Property<TimeOnly?>("CustomEndTime")
-                        .HasColumnType("time")
-                        .HasColumnName("custom_end_time");
+                    b.Property<DateTimeOffset>("EndUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("end_utc");
 
-                    b.Property<TimeOnly?>("CustomStartTime")
-                        .HasColumnType("time")
-                        .HasColumnName("custom_start_time");
-
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date")
-                        .HasColumnName("date");
-
-                    b.Property<bool>("IsClosed")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_closed");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
+                    b.Property<string>("Note")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
-                        .HasColumnName("reason");
+                        .HasColumnName("note");
+
+                    b.Property<DateTimeOffset>("StartUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("start_utc");
 
                     b.Property<DateTimeOffset?>("UpdatedAtUtc")
                         .HasColumnType("timestamptz")
@@ -127,26 +138,72 @@ namespace WakePark.Modules.Operations.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("updated_by");
 
+                    b.Property<Guid>("WakeParkId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("wake_park_id");
+
                     b.HasKey("Id")
-                        .HasName("pk_schedule_overrides");
+                        .HasName("pk_blockings");
 
-                    b.HasIndex("CableId", "Date")
-                        .IsUnique()
-                        .HasDatabaseName("ix_schedule_overrides_cable_id_date");
+                    b.HasIndex("WakeParkId", "StartUtc", "EndUtc")
+                        .HasDatabaseName("ix_blockings_wake_park_id_start_utc_end_utc");
 
-                    b.ToTable("schedule_overrides", "operations");
+                    b.ToTable("blockings", "operations");
                 });
 
-            modelBuilder.Entity("WakePark.Modules.Operations.Domain.Scheduling.WorkingHours", b =>
+            modelBuilder.Entity("WakePark.Modules.Operations.Domain.Calendar.OperatingDay", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("CableId")
+                    b.Property<TimeOnly>("ClosesAt")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("closes_at");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<TimeOnly>("OpensAt")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("opens_at");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("WakeParkId")
                         .HasColumnType("uuid")
-                        .HasColumnName("cable_id");
+                        .HasColumnName("wake_park_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_operating_days");
+
+                    b.HasIndex("WakeParkId", "Date")
+                        .IsUnique()
+                        .HasDatabaseName("ix_operating_days_wake_park_id_date");
+
+                    b.ToTable("operating_days", "operations");
+                });
+
+            modelBuilder.Entity("WakePark.Modules.Operations.Domain.Parks.ParkSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<int>("Capacity")
                         .HasColumnType("integer")
@@ -160,25 +217,17 @@ namespace WakePark.Modules.Operations.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("created_by");
 
-                    b.Property<int>("DayOfWeek")
+                    b.Property<int>("PublicBookingDaysAhead")
                         .HasColumnType("integer")
-                        .HasColumnName("day_of_week");
+                        .HasColumnName("public_booking_days_ahead");
 
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time")
-                        .HasColumnName("end_time");
-
-                    b.Property<Guid>("SeasonId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("season_id");
+                    b.Property<int>("PublicHoursDaysAhead")
+                        .HasColumnType("integer")
+                        .HasColumnName("public_hours_days_ahead");
 
                     b.Property<int>("SlotDurationMinutes")
                         .HasColumnType("integer")
                         .HasColumnName("slot_duration_minutes");
-
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time")
-                        .HasColumnName("start_time");
 
                     b.Property<DateTimeOffset?>("UpdatedAtUtc")
                         .HasColumnType("timestamptz")
@@ -188,19 +237,23 @@ namespace WakePark.Modules.Operations.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("updated_by");
 
+                    b.Property<Guid>("WakeParkId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("wake_park_id");
+
                     b.HasKey("Id")
-                        .HasName("pk_working_hours");
+                        .HasName("pk_park_settings");
 
-                    b.HasIndex("CableId", "SeasonId", "DayOfWeek")
-                        .HasDatabaseName("ix_working_hours_cable_id_season_id_day_of_week");
+                    b.HasIndex("WakeParkId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_park_settings_wake_park_id");
 
-                    b.ToTable("working_hours", "operations");
+                    b.ToTable("park_settings", "operations");
                 });
 
             modelBuilder.Entity("WakePark.Modules.Operations.Domain.Seasons.Season", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 

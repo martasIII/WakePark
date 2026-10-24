@@ -7,8 +7,8 @@
 #
 # Ručně (jako root): /opt/wakepark/storefront/deploy.sh <commit|latest>
 #
-# Pořadí: databáze → migrace → import katalogu → nové kontejnery. Když selže migrace
-# nebo import, nová verze se nespustí a dál běží stará.
+# Pořadí: databáze → migrace → základní data provozu → katalog → nové kontejnery. Když
+# selže migrace nebo import, nová verze se nespustí a dál běží stará.
 set -eu
 
 tag="${SSH_ORIGINAL_COMMAND:-${1:-latest}}"
@@ -25,6 +25,7 @@ export WAKEPARK_TAG="$tag"
 docker compose pull --quiet
 docker compose up -d --wait db
 docker compose run --rm --no-deps api migrate
+docker compose run --rm --no-deps api import-setup
 docker compose run --rm --no-deps api import-catalog
 docker compose up -d --remove-orphans
 docker image prune -f > /dev/null

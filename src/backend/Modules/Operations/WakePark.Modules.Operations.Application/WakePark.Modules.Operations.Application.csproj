@@ -4,4 +4,7 @@
     <ProjectReference Include="..\WakePark.Modules.Operations.Contracts\WakePark.Modules.Operations.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Application\WakePark.BuildingBlocks.Application.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="WakePark.Modules.Operations.UnitTests" />
+  </ItemGroup>
 </Project>

@@ -5,9 +5,10 @@
     <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\backend\Modules\Operations\WakePark.Modules.Operations.Domain\WakePark.Modules.Operations.Domain.csproj" />
+    <ProjectReference Include="..\..\..\..\src\backend\Modules\Operations\WakePark.Modules.Operations.Application\WakePark.Modules.Operations.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="NSubstitute" />
     <PackageReference Include="Shouldly" />
     <PackageReference Include="xunit.v3" />
   </ItemGroup>

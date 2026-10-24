@@ -6,6 +6,12 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Free" xml:space="preserve"><value>Zdarma</value></data>
   <data name="Today" xml:space="preserve"><value>Dnes</value></data>
+  <data name="Closed" xml:space="preserve"><value>Zavřeno</value></data>
+  <data name="WholePark" xml:space="preserve"><value>Celý areál</value></data>
+  <data name="BlockingTechnicalFault" xml:space="preserve"><value>technická závada</value></data>
+  <data name="BlockingPrivateEvent" xml:space="preserve"><value>soukromá akce</value></data>
+  <data name="BlockingWeather" xml:space="preserve"><value>počasí</value></data>
+  <data name="BlockingOther" xml:space="preserve"><value>mimo provoz</value></data>
   <data name="Exceptions" xml:space="preserve"><value>Výjimky</value></data>
   <data name="LoadFailed" xml:space="preserve"><value>Údaje se teď nepodařilo načíst. Rádi vám vše sdělíme na</value></data>
   <data name="EshopSubtitle" xml:space="preserve"><value>Dárkové vouchery a permanentky</value></data>

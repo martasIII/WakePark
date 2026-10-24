@@ -34,7 +34,12 @@
             {
                 <tr class="@(day.IsToday ? "today" : null)">
                     <td>@day.Day @if (day.IsToday) { <span class="tag">@T["Today"]</span> }</td>
-                    <td>@day.Hours</td>
+                    <td>@day.Hours
+                        @foreach (string blocking in day.Blockings ?? [])
+                        {
+                            <span class="desc">@blocking</span>
+                        }
+                    </td>
                 </tr>
             }
         </table>

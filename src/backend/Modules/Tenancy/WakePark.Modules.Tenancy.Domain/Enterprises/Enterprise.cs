@@ -19,7 +19,7 @@ public sealed class Enterprise : AggregateRoot, IAuditable
         string name,
         Address address,
         string registrationNumber,
-        Guid ownerUserAccountId)
+        Guid? ownerUserAccountId)
         : base(id)
     {
         Name = name;
@@ -44,8 +44,10 @@ public sealed class Enterprise : AggregateRoot, IAuditable
 
     /// <summary>
     /// Vlastník. Odkaz do modulu Identity je záměrně jen holé Id — moduly si nesdílí navigační vlastnosti.
+    /// Null u provozovatele založeného z výchozích dat (<c>provoz.json</c>) — doplní ho první
+    /// admin (ADR 0009, upřesnění 24. 10.).
     /// </summary>
-    public Guid OwnerUserAccountId { get; private set; }
+    public Guid? OwnerUserAccountId { get; private set; }
 
     public DateTimeOffset CreatedAtUtc { get; set; }
 
@@ -71,6 +73,54 @@ public sealed class Enterprise : AggregateRoot, IAuditable
         }
 
         return new Enterprise(NewId(), name.Trim(), address, registrationNumber.Trim(), ownerUserAccountId);
+    }
+
+    /// <summary>
+    /// Provozovatel z výchozích dat: s pevným Id (na které už odkazuje katalog a objednávky)
+    /// a zatím bez vlastníka.
+    /// </summary>
+    public static Enterprise CreateFromSetup(Guid id, string name, Address address, string registrationNumber)
+    {
+        if (id == Guid.Empty)
+        {
+            throw new DomainException("enterprise.id_required", "Provozovatel z výchozích dat musí mít Id.");
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(address);
+        ArgumentException.ThrowIfNullOrWhiteSpace(registrationNumber);
+
+        return new Enterprise(id, name.Trim(), address, registrationNumber.Trim(), null);
+    }
+
+    /// <summary>Údaje firmy podle výchozích dat nebo backoffice.</summary>
+    public void Update(string name, Address address, string registrationNumber)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(address);
+        ArgumentException.ThrowIfNullOrWhiteSpace(registrationNumber);
+
+        Name = name.Trim();
+        Address = address;
+        RegistrationNumber = registrationNumber.Trim();
+    }
+
+    /// <summary>Doplní vlastníka, pokud ještě žádný není. Existujícího nepřepíše.</summary>
+    /// <returns><c>true</c>, pokud se vlastník nastavil.</returns>
+    public bool ClaimOwnership(Guid userAccountId)
+    {
+        if (userAccountId == Guid.Empty)
+        {
+            throw new DomainException("enterprise.owner_required", "Provozovatel musí mít vlastníka.");
+        }
+
+        if (OwnerUserAccountId is not null)
+        {
+            return false;
+        }
+
+        OwnerUserAccountId = userAccountId;
+        return true;
     }
 
     public void SetVatRegistration(string? vatNumber) =>

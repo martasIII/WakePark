@@ -1,15 +1,17 @@
 using WakePark.BuildingBlocks.Domain;
 using WakePark.Modules.Operations.Application.Abstractions;
+using WakePark.Modules.Operations.Application.Calendar;
 using WakePark.Modules.Operations.Contracts;
 using WakePark.Modules.Operations.Domain.Cables;
-using WakePark.Modules.Operations.Domain.Scheduling;
-using WakePark.Modules.Operations.Domain.Seasons;
+using WakePark.Modules.Operations.Domain.Calendar;
+using WakePark.Modules.Operations.Domain.Parks;
 
 namespace WakePark.Modules.Operations.Application.Schedule;
 
 /// <summary>
-/// Poskládá rozvrh vleku: sezóna → provozní doba pro den v týdnu → výjimky → sloty.
-/// Implementuje veřejný kontrakt, přes který si rozvrh čte modul Reservations.
+/// Poskládá rozvrh vleku (ADR 0009): provozní den areálu → bloky podle nastavení areálu →
+/// bez blokací vleku nebo areálu. Implementuje veřejný kontrakt, přes který si rozvrh čte
+/// modul Reservations.
 /// </summary>
 internal sealed class ScheduleService(
     IOperationsRepository repository,
@@ -28,37 +30,18 @@ internal sealed class ScheduleService(
             return [];
         }
 
-        Season? season = await repository
-            .FindSeasonAsync(cableId, localDate, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (season is null)
-        {
-            // Mimo sezónu se nejezdí. Není to chyba, jen prázdný rozvrh.
-            return [];
-        }
-
-        IReadOnlyList<WorkingHours> workingHours = await repository
-            .GetWorkingHoursAsync(cableId, season.Id, localDate.DayOfWeek, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (workingHours.Count == 0)
+        // Areál bez nastavení ještě není připravený k provozu — nejezdí se.
+        ParkSettings? settings = await repository.GetSettingsAsync(cable.WakeParkId, cancellationToken).ConfigureAwait(false);
+        if (settings is null)
         {
             return [];
         }
 
-        IReadOnlyList<DailySchedule> schedules = [.. workingHours.Select(hours => hours.ToDailySchedule())];
-
-        ScheduleOverride? exception = await repository
-            .FindScheduleOverrideAsync(cableId, localDate, cancellationToken)
+        IReadOnlyList<OperatingDay> days = await repository
+            .GetOperatingDaysAsync(cable.WakeParkId, localDate, localDate, cancellationToken)
             .ConfigureAwait(false);
 
-        if (exception is not null)
-        {
-            schedules = exception.ApplyTo(schedules);
-        }
-
-        if (schedules.Count == 0)
+        if (days.Count == 0)
         {
             return [];
         }
@@ -67,11 +50,18 @@ internal sealed class ScheduleService(
             .GetTimeZoneAsync(cable.WakeParkId, cancellationToken)
             .ConfigureAwait(false);
 
+        DateTimeOffset dayStart = ParkAccess.StartOfDayUtc(localDate, timeZone);
+        DateTimeOffset dayEnd = ParkAccess.StartOfDayUtc(localDate.AddDays(1), timeZone);
+
+        IReadOnlyList<Blocking> blockings = await repository
+            .GetBlockingsAsync(cable.WakeParkId, dayStart, dayEnd, cancellationToken)
+            .ConfigureAwait(false);
+
         return
         [
-            .. SlotPlanner
-                .Plan(localDate, timeZone, schedules)
-                .Select(slot => new SlotTemplateDto(cableId, slot.StartUtc, slot.DurationMinutes, slot.Capacity))
+            .. DayPlanner
+                .Plan(cableId, days[0], settings, timeZone, blockings)
+                .Select(slot => new SlotTemplateDto(cableId, slot.StartUtc, slot.DurationMinutes, slot.Capacity)),
         ];
     }
 
@@ -100,7 +90,6 @@ internal sealed class ScheduleService(
                 cancellationToken).ConfigureAwait(false);
 
             SlotTemplateDto? match = templates.FirstOrDefault(template => template.StartUtc == startUtc);
-
             if (match is not null)
             {
                 return match;

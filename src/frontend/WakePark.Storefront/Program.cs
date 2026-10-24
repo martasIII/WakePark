@@ -49,6 +49,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddHttpClient<CatalogClient>(client => client.Timeout = TimeSpan.FromSeconds(5));
 builder.Services.AddHttpClient<OrderClient>(client => client.Timeout = TimeSpan.FromSeconds(15));
 builder.Services.AddHttpClient<CompanyClient>(client => client.Timeout = TimeSpan.FromSeconds(8));
+builder.Services.AddHttpClient<OpeningHoursClient>(client => client.Timeout = TimeSpan.FromSeconds(5));
 
 // Objednávky z jedné IP: 5 za 10 minut. Člověku to stačí i s opravami překlepů; robot,
 // který by zakládal objednávky (a později rozesílal e-maily), narazí. Dotazy na firmu podle IČO

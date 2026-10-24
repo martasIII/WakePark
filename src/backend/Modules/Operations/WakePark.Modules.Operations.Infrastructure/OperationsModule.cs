@@ -31,8 +31,10 @@ public static class OperationsModule
                 .AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>()));
 
         services.AddMemoryCache();
+        services.AddScoped<IOperationsUnitOfWork>(sp => sp.GetRequiredService<OperationsDbContext>());
         services.AddScoped<IOperationsRepository, OperationsRepository>();
         services.AddScoped<IParkTimeZoneProvider, ParkTimeZoneProvider>();
+        services.AddScoped<IParkLookup, ParkLookup>();
         services.AddOperationsApplication();
 
         return services;

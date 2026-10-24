@@ -122,6 +122,52 @@ public sealed partial class IdentitySeeder(
         LogAdminCreated(logger, normalized);
     }
 
+    /// <summary>
+    /// Admin pro celého provozovatele (příkaz <c>create-admin</c> na serveru, ADR 0009). Opakovatelné:
+    /// existující účet jen dostane roli, heslo se mu nemění.
+    /// </summary>
+    /// <returns>Id účtu.</returns>
+    public async Task<Guid> EnsureAdminAsync(string email, string password, Guid enterpriseId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(email);
+        ArgumentException.ThrowIfNullOrWhiteSpace(password);
+
+        await SeedPermissionsAsync(cancellationToken).ConfigureAwait(false);
+        await SeedRolesAsync(cancellationToken).ConfigureAwait(false);
+
+        string normalized = UserAccount.NormalizeEmail(email);
+        UserAccount? account = await dbContext.UserAccounts
+            .FirstOrDefaultAsync(a => a.Email == normalized, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (account is null)
+        {
+            account = UserAccount.Create(normalized, passwordHasher.Hash(password));
+            account.ConfirmEmail(clock.UtcNow);
+            dbContext.UserAccounts.Add(account);
+            LogAdminCreated(logger, normalized);
+        }
+
+        Role adminRole = await dbContext.Roles
+            .FirstAsync(r => r.EnterpriseId == null && r.Name == SystemRoles.Admin, cancellationToken)
+            .ConfigureAwait(false);
+
+        bool hasRole = await dbContext.UserParkRoles
+            .AnyAsync(
+                r => r.UserAccountId == account.Id && r.EnterpriseId == enterpriseId && r.WakeParkId == null
+                    && r.RoleId == adminRole.Id && r.ValidToUtc == null,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!hasRole)
+        {
+            dbContext.UserParkRoles.Add(UserParkRole.ForWholeEnterprise(account.Id, enterpriseId, adminRole.Id, clock.UtcNow));
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return account.Id;
+    }
+
     private static string DescribeRole(string roleName) => roleName switch
     {
         SystemRoles.Admin => "Plná správa systému",

@@ -77,6 +77,10 @@ services:
       Storefront__TrustedProxyNetworks__0: "172.16.0.0/12"
       Storefront__ApiBaseUrl: "http://api:8080"
       Storefront__EnterpriseId: "01a15f92-3547-75ae-a047-65a2a9ecbeaf"
+      # Areál z provoz.json. Otevírací doba z API až po nahrání CSV sezóny 2027 (ADR 0009):
+      # přepnout na "true" a compose zkopírovat na server.
+      Storefront__WakeParkId: "01a1a2d0-5f3e-7c41-9b8e-2a6d0c7e4f15"
+      Storefront__OpeningHoursFromApi: "false"
     volumes:
       # Klíče pro podepisování formulářů přežijí nové nasazení — rozpracovaná objednávka
       # po deployi nespadne na neplatném antiforgery tokenu.

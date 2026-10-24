@@ -224,6 +224,26 @@ Pořadí je důležité. Odhad: hodina práce, web je nedostupný jen pár minut
 - Písmo Montserrat hostovat na vlastním serveru místo Google Fonts (zásady ochrany
   osobních údajů pak nemusí zmiňovat předání IP adresy Googlu).
 
+## Backoffice: admini a provoz (ADR 0009)
+
+**Základní data provozu** (provozovatel, areál, vleky, nastavení) jsou v
+`src/backend/WakePark.Api/data/provoz.json`. Každé nasazení je srovná krokem `import-setup`
+— úprava vleku = úprava souboru → commit → nasazení.
+
+**Admin** (jako root na serveru, opakovatelné; heslo se zadá v terminálu a nikde jinde není):
+
+```bash
+cd /opt/wakepark/storefront && docker compose run --rm -it --no-deps api create-admin jmeno@wake-dzban.cz
+```
+
+První admin se stane vlastníkem provozovatele. Existujícímu účtu příkaz jen přidá roli admina,
+heslo nemění.
+
+**Otevírací doba z backoffice na webu:** po nahrání CSV sezóny (backoffice nebo
+`POST /api/v1/operations/parks/{id}/days/import`) přepnout v `docker-compose.yml`
+`Storefront__OpeningHoursFromApi` na `"true"`, compose zkopírovat na server a
+`docker compose up -d storefront`. Do té doby web čte `oteviraci-doba.json`.
+
 ## Údržba
 
 | Co | Příkaz na serveru |

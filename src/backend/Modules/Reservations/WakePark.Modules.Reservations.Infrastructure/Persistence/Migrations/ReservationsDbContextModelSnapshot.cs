@@ -26,7 +26,6 @@ namespace WakePark.Modules.Reservations.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("WakePark.Modules.Reservations.Domain.Passes.CreditTransaction", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -72,7 +71,6 @@ namespace WakePark.Modules.Reservations.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("WakePark.Modules.Reservations.Domain.Passes.RidePass", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -142,7 +140,6 @@ namespace WakePark.Modules.Reservations.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("WakePark.Modules.Reservations.Domain.Reservations.Reservation", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -177,8 +174,8 @@ namespace WakePark.Modules.Reservations.Infrastructure.Persistence.Migrations
                         .HasColumnName("order_id");
 
                     b.Property<decimal?>("RefundPercent")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
                         .HasColumnName("refund_percent");
 
                     b.Property<Guid?>("RidePassId")
@@ -239,7 +236,6 @@ namespace WakePark.Modules.Reservations.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("WakePark.Modules.Reservations.Domain.Slots.Slot", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 

@@ -33,7 +33,8 @@ public static class ModelBuilderExtensions
 
             foreach (IMutableProperty property in entityType.GetProperties())
             {
-                if (property.ClrType == typeof(decimal) || property.ClrType == typeof(decimal?))
+                // Výchozí přesnost pro peníze; výslovné HasPrecision (procenta, GPS) má přednost.
+                if ((property.ClrType == typeof(decimal) || property.ClrType == typeof(decimal?)) && property.GetPrecision() is null)
                 {
                     property.SetPrecision(18);
                     property.SetScale(2);

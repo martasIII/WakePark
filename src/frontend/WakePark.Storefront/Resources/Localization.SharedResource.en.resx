@@ -6,6 +6,12 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Free" xml:space="preserve"><value>Free</value></data>
   <data name="Today" xml:space="preserve"><value>Today</value></data>
+  <data name="Closed" xml:space="preserve"><value>Closed</value></data>
+  <data name="WholePark" xml:space="preserve"><value>Whole park</value></data>
+  <data name="BlockingTechnicalFault" xml:space="preserve"><value>technical fault</value></data>
+  <data name="BlockingPrivateEvent" xml:space="preserve"><value>private event</value></data>
+  <data name="BlockingWeather" xml:space="preserve"><value>weather</value></data>
+  <data name="BlockingOther" xml:space="preserve"><value>not running</value></data>
   <data name="Exceptions" xml:space="preserve"><value>Exceptions</value></data>
   <data name="LoadFailed" xml:space="preserve"><value>We couldn't load this right now. Call us at</value></data>
   <data name="EshopSubtitle" xml:space="preserve"><value>Gift vouchers and season passes</value></data>

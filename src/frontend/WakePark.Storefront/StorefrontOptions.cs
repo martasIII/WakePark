@@ -41,6 +41,17 @@ public sealed class StorefrontOptions
 
     public bool IsEshopConfigured => ApiBaseUrl is not null && EnterpriseId is not null;
 
+    /// <summary>Areál, jehož otevírací dobu web ukazuje (Id z <c>provoz.json</c>).</summary>
+    public Guid? WakeParkId { get; init; }
+
+    /// <summary>
+    /// Otevírací doba z API (provozní dny z backoffice) místo <c>oteviraci-doba.json</c>.
+    /// Zapnout až po nahrání CSV sezóny 2027 (ADR 0009, upřesnění 24. 10.).
+    /// </summary>
+    public bool OpeningHoursFromApi { get; init; }
+
+    public bool IsOpeningHoursApiConfigured => OpeningHoursFromApi && ApiBaseUrl is not null && WakeParkId is not null;
+
     /// <summary>
     /// Zkušební provoz e-shopu: na nabídce i objednávce svítí „nic neplaťte“. Vypnout až
     /// s hotovými obchodními podmínkami a párováním plateb (ADR 0006).

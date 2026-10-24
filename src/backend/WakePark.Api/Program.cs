@@ -120,6 +120,16 @@ if (args.Contains(MigrationExtensions.CommandName, StringComparer.Ordinal))
     return 0;
 }
 
+if (args.Contains(SetupExtensions.ImportCommandName, StringComparer.Ordinal))
+{
+    return await app.ImportSetupAsync().ConfigureAwait(false) ? 0 : 1;
+}
+
+if (args.Contains(SetupExtensions.CreateAdminCommandName, StringComparer.Ordinal))
+{
+    return await app.CreateAdminAsync(args).ConfigureAwait(false) ? 0 : 1;
+}
+
 if (args.Contains(CatalogImportExtensions.CommandName, StringComparer.Ordinal))
 {
     // Bez přepínače jen doplní chybějící; --overwrite přepíše i úpravy z backoffice (ADR 0009).
