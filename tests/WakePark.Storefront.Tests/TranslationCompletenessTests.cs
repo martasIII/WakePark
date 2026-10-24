@@ -12,7 +12,6 @@ public sealed class TranslationCompletenessTests
     private static readonly string StorefrontRoot = Path.Combine(FindRepoRoot(), "src", "frontend", "WakePark.Storefront");
 
     [Theory]
-    [InlineData("cenik.json")]
     [InlineData("oteviraci-doba.json")]
     public void Kazdy_cesky_text_v_obsahu_ma_anglicky_preklad(string file)
     {

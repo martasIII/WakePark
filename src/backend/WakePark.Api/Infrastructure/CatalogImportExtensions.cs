@@ -9,19 +9,25 @@ using WakePark.Modules.Catalog.Infrastructure.Persistence;
 namespace WakePark.Api.Infrastructure;
 
 /// <summary>
-/// Nahraje nabídku e-shopu ze souboru <c>katalog.json</c> do databáze (ADR 0006).
+/// Nahraje výchozí katalog ze souboru <c>katalog.json</c> do databáze (ADR 0006, 0009).
 /// </summary>
 /// <remarks>
 /// Ve vývoji běží při startu, stejně jako seed identity. Na serveru je to samostatný krok
 /// nasazení (<c>dotnet WakePark.Api.dll import-catalog</c>) — aplikace si při startu sama data
 /// nemění. Migrace se ani tady neaplikují automaticky.
+///
+/// Výchozí režim jen doplní chybějící kategorie a produkty — katalog spravuje backoffice
+/// a nasazení ho nesmí přepsat. <c>import-catalog --overwrite</c> srovná databázi se souborem
+/// a přepíše i úpravy z backoffice; jen ručně.
 /// </remarks>
 internal static partial class CatalogImportExtensions
 {
     public const string CommandName = "import-catalog";
 
+    public const string OverwriteOption = "--overwrite";
+
     /// <returns><c>true</c>, pokud import proběhl, nebo nebylo co importovat.</returns>
-    public static async Task<bool> ImportCatalogAsync(this WebApplication app)
+    public static async Task<bool> ImportCatalogAsync(this WebApplication app, CatalogImportMode mode = CatalogImportMode.AddMissing)
     {
         ArgumentNullException.ThrowIfNull(app);
 
@@ -66,7 +72,7 @@ internal static partial class CatalogImportExtensions
 
             CatalogImportResult result = await services
                 .GetRequiredService<ICommandHandler<ImportCatalogCommand, CatalogImportResult>>()
-                .HandleAsync(new ImportCatalogCommand(enterpriseId, definition))
+                .HandleAsync(new ImportCatalogCommand(enterpriseId, definition, mode))
                 .ConfigureAwait(false);
 
             LogImported(logger, path, result);

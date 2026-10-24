@@ -95,9 +95,11 @@ public sealed class OrderEmailFlowTests : IAsyncLifetime
             .GetRequiredService<ICommandHandler<ImportCatalogCommand, CatalogImportResult>>()
             .HandleAsync(new ImportCatalogCommand(EnterpriseId, new CatalogDefinition(
                 "CZK",
+                null,
                 [new CategoryDefinition("vouchery", new Dictionary<string, string> { ["cs"] = "Vouchery" })],
                 [new ProductDefinition("voucher-1-slot", "vouchery", new Dictionary<string, string> { ["cs"] = "Voucher pro jednoho" },
-                    new Dictionary<string, string> { ["cs"] = "20 minut" }, null, 690m, 12m)])));
+                    new Dictionary<string, string> { ["cs"] = "20 minut" }, null, 690m, 12m,
+                    ["eshop"])])));
     }
 
     public async ValueTask DisposeAsync()

@@ -1,50 +1,35 @@
 using Microsoft.EntityFrameworkCore;
 
 using WakePark.Modules.Catalog.Application.Abstractions;
-using WakePark.Modules.Catalog.Contracts;
+using WakePark.Modules.Catalog.Domain.Categories;
+using WakePark.Modules.Catalog.Domain.Pricing;
+using WakePark.Modules.Catalog.Domain.Products;
 
 namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Repositories;
 
-internal sealed class CatalogReadRepository(CatalogDbContext dbContext) : ICatalogReadRepository, ICatalogReader
+/// <summary>
+/// Celý katalog provozovatele bez sledování změn. Katalog má desítky záznamů, takže je
+/// jednodušší a bezpečnější poskládat pohledy v aplikační vrstvě než v SQL.
+/// </summary>
+internal sealed class CatalogReadRepository(CatalogDbContext dbContext) : ICatalogReadRepository
 {
-    public async Task<CatalogDto> GetPublishedCatalogAsync(
-        Guid enterpriseId,
-        CancellationToken cancellationToken = default)
+    public async Task<CatalogSnapshot> GetSnapshotAsync(Guid enterpriseId, CancellationToken cancellationToken = default)
     {
-        // Produkt bez ceny v aktivním ceníku se nenabízí — nešel by koupit.
-        var rows = await (
-                from product in dbContext.Products.AsNoTracking()
-                join category in dbContext.Categories.AsNoTracking() on product.CategoryId equals category.Id
-                join item in dbContext.PriceItems.AsNoTracking() on product.Id equals item.ProductId
-                join priceList in dbContext.PriceLists.AsNoTracking() on item.PriceListId equals priceList.Id
-                where product.EnterpriseId == enterpriseId && product.IsActive && priceList.IsActive
-                orderby category.SortOrder, product.SortOrder
-                select new { product, category, item.UnitPrice, item.VatRate, priceList.Currency })
+        List<ProductCategory> categories = await dbContext.Categories.AsNoTracking()
+            .Where(c => c.EnterpriseId == enterpriseId)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        List<CatalogCategoryDto> categories =
-        [
-            .. rows
-                .Select(r => r.category)
-                .DistinctBy(c => c.Id)
-                .Select(c => new CatalogCategoryDto(c.Code, c.Name.Translations)),
-        ];
+        List<Product> products = await dbContext.Products.AsNoTracking()
+            .Where(p => p.EnterpriseId == enterpriseId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
 
-        List<CatalogProductDto> products =
-        [
-            .. rows.Select(r => new CatalogProductDto(
-                r.product.Id,
-                r.product.Code,
-                r.category.Code,
-                r.product.Name.Translations,
-                r.product.Description.Translations,
-                r.product.ImagePath,
-                r.UnitPrice,
-                r.Currency,
-                r.VatRate)),
-        ];
+        PriceList? priceList = await dbContext.PriceLists.AsNoTracking()
+            .Include(p => p.Items)
+            .FirstOrDefaultAsync(p => p.EnterpriseId == enterpriseId && p.IsActive, cancellationToken)
+            .ConfigureAwait(false);
 
-        return new CatalogDto(categories, products);
+        return new CatalogSnapshot(categories, products, priceList);
     }
 }

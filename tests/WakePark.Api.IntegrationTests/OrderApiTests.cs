@@ -53,6 +53,7 @@ public sealed class OrderApiTests : IAsyncLifetime
             .GetRequiredService<ICommandHandler<ImportCatalogCommand, CatalogImportResult>>()
             .HandleAsync(new ImportCatalogCommand(EnterpriseId, new CatalogDefinition(
                 "CZK",
+                null,
                 [new CategoryDefinition("vouchery", new Dictionary<string, string> { ["cs"] = "Vouchery" })],
                 [new ProductDefinition(
                     "voucher-2-sloty",
@@ -61,7 +62,8 @@ public sealed class OrderApiTests : IAsyncLifetime
                     new Dictionary<string, string> { ["cs"] = "2 × 20 minut" },
                     null,
                     1290m,
-                    12m)])));
+                    12m,
+                    ["eshop"])])));
 
         _client = _factory.CreateClient();
     }

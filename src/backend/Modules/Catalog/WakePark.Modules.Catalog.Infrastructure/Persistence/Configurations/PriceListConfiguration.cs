@@ -17,6 +17,9 @@ internal sealed class PriceListConfiguration : IEntityTypeConfiguration<PriceLis
 
         builder.Property(p => p.Name).HasMaxLength(200).IsRequired();
         builder.Property(p => p.Currency).HasMaxLength(3).IsFixedLength().IsRequired();
+        builder.Property(p => p.Title)
+            .HasConversion<LocalizedTextConverter>()
+            .HasColumnType(LocalizedTextConverter.ColumnType);
 
         builder.HasMany(p => p.Items)
             .WithOne()
@@ -50,6 +53,7 @@ internal sealed class PriceItemConfiguration : IEntityTypeConfiguration<PriceIte
             .HasForeignKey(i => i.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(i => new { i.PriceListId, i.ProductId }).IsUnique();
+        // Jedna cena produktu na den platnosti; řada cen v čase = historie.
+        builder.HasIndex(i => new { i.PriceListId, i.ProductId, i.ValidFrom }).IsUnique();
     }
 }

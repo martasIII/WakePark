@@ -7,8 +7,8 @@ using WakePark.Modules.Catalog.Application.Import;
 namespace WakePark.Modules.Catalog.UnitTests.Application;
 
 /// <summary>
-/// Kontrola skutečného <c>katalog.json</c>. Dokud se nabídka mění úpravou souboru, je tohle
-/// jediná pojistka, že překlep v ceně nebo chybějící obrázek neprojde CI a nedostane se na web.
+/// Kontrola skutečného <c>katalog.json</c> — výchozích dat katalogu, která nasazení doplní
+/// do databáze. Překlep v ceně, chybějící obrázek nebo překlad tak neprojde CI.
 /// </summary>
 public sealed class CatalogFileTests
 {
@@ -44,6 +44,32 @@ public sealed class CatalogFileTests
         ];
 
         missing.ShouldBeEmpty("obrázek z katalogu chybí ve wwwroot Storefrontu");
+    }
+
+    [Fact]
+    public async Task Je_tu_sekce_vouchery_na_kterou_vedou_stare_odkazy_webu()
+    {
+        CatalogDefinition catalog = await ReadAsync();
+
+        // Stará adresa /shop/ přesměruje na /cenik#vouchery (LegacyRedirects ve Storefrontu).
+        catalog.Categories.ShouldContain(c => c.Code == "vouchery" && c.Parent == null);
+    }
+
+    [Fact]
+    public async Task Kazdy_cesky_text_ma_anglicky_preklad()
+    {
+        CatalogDefinition catalog = await ReadAsync();
+
+        IEnumerable<(string Where, IReadOnlyDictionary<string, string>? Text)> texts =
+        [
+            ("title", catalog.Title),
+            .. catalog.Categories.SelectMany(c => new[] { ($"{c.Code}.name", (IReadOnlyDictionary<string, string>?)c.Name), ($"{c.Code}.description", c.Description) }),
+            .. catalog.Products.SelectMany(p => new[] { ($"{p.Code}.name", (IReadOnlyDictionary<string, string>?)p.Name), ($"{p.Code}.description", p.Description), ($"{p.Code}.badge", p.Badge) }),
+        ];
+
+        string[] missing = [.. texts.Where(t => t.Text is not null && !t.Text.ContainsKey("en")).Select(t => t.Where)];
+
+        missing.ShouldBeEmpty("angličtina je na webu zapnutá");
     }
 
     private static async Task<CatalogDefinition> ReadAsync()

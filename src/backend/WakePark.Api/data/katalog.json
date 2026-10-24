@@ -1,53 +1,105 @@
-// Nabídka e-shopu (ADR 0006). Dokud není backoffice, mění se tady: úprava → commit → nasazení.
-// Pořadí v souboru = pořadí na webu. Kód produktu se nemění — podle něj se páruje s databází;
-// produkt, který ze souboru zmizí, se na webu skryje (nesmaže se, odkazují na něj prodané poukazy).
-// Cena je včetně DPH. Obrázky jsou ve Storefrontu ve wwwroot.
+// Výchozí katalog: ceník na webu, e-shop i pokladna (ADR 0006, 0009).
+// Od backoffice je zdrojem pravdy databáze. Nasazení odsud jen DOPLNÍ kategorie a produkty,
+// které v databázi chybí (podle kódu); existující nemění. Přepsat databázi tímto souborem jde
+// jen ručně: `import-catalog --overwrite` (přepíše i úpravy z backoffice).
 //
-// POZOR: zatím TESTOVACÍ data — ceny a texty jsou vymyšlené. Finální katalog připravuje
-// Martin s Danem. DPH 12 % potvrdila účetní (21. 10. 2026): vstup, čas na vleku, vybavení
-// a trenér jako vedlejší plnění; platí i pro permanentky.
+// Pořadí v souboru = pořadí na webu. Kód se nemění — podle něj se páruje s databází.
+// Cena je včetně DPH. "showIn": pricelist = ceník na webu, eshop, pos = pokladna.
+// Obrázky jsou ve Storefrontu ve wwwroot/img/katalog.
+//
+// POZOR: zatím TESTOVACÍ data. Ceník na místě je ze sezóny 2025 (dřívější cenik.json), vouchery
+// a permanentka v e-shopu mají vymyšlené ceny. DPH 12 % potvrdila účetní (21. 10. 2026) pro
+// vstup, čas na vleku, vybavení a trenéra jako vedlejší plnění a pro permanentky.
+// OVĚŘIT u účetní: samostatná půjčovna a samostatný instruktor — zatím 21 %.
 {
   "currency": "CZK",
+  "title": { "cs": "Sezóna 2025", "en": "Season 2025" },
   "categories": [
-    { "code": "vouchery", "name": { "cs": "Vouchery", "en": "Vouchers" } },
-    { "code": "permanentky", "name": { "cs": "Permanentky", "en": "Season passes" } }
+    { "code": "jizdne", "name": { "cs": "Jízdné", "en": "Rides" } },
+    {
+      "code": "pujcovna",
+      "name": { "cs": "Půjčovna", "en": "Equipment rental" },
+      "description": { "cs": "Po dobu jízdného.", "en": "For the duration of your ride." }
+    },
+    { "code": "permanentky", "name": { "cs": "Permanentky", "en": "Season passes" } },
+    { "code": "instruktor", "name": { "cs": "Instruktor", "en": "Instructor" } },
+    {
+      "code": "vouchery",
+      "name": { "cs": "Dárkové vouchery", "en": "Gift vouchers" },
+      "description": {
+        "cs": "Koupíte je v našem e-shopu, vouchery pošleme e-mailem v PDF hned po zaplacení.",
+        "en": "Buy them in our e-shop — we send the vouchers by e-mail as PDF right after payment."
+      }
+    },
+    {
+      "code": "firemni-akce",
+      "name": { "cs": "Firemní akce", "en": "Corporate events" },
+      "description": {
+        "cs": "Cenovou kalkulaci na skupinové a firemní akce vám rádi připravíme individuálně. Napište nám na dan@wake-dzban.cz.",
+        "en": "We will gladly prepare a quote for group and corporate events. Write to dan@wake-dzban.cz."
+      }
+    }
   ],
   "products": [
     {
-      "code": "voucher-1-slot",
-      "category": "vouchery",
-      "name": { "cs": "Voucher pro jednoho", "en": "Voucher for one" },
-      "description": {
-        "cs": "20 minut na laně pro jednu osobu včetně vybavení a instruktora. Platí v sezóně 2027.",
-        "en": "20 minutes on the cable for one person, equipment and instructor included. Valid in the 2027 season."
-      },
-      "image": "/img/katalog/voucher-1.svg",
-      "price": 1,
-      "vatRate": 12
+      "code": "jizda-20",
+      "category": "jizdne",
+      "name": { "cs": "20 minut", "en": "20 minutes" },
+      "description": { "cs": "Pro jednu osobu", "en": "For one person" },
+      "image": null, "price": 500, "vatRate": 12, "showIn": ["pricelist", "pos"]
     },
     {
-      "code": "voucher-2-sloty",
-      "category": "vouchery",
-      "name": { "cs": "Voucher pro dva", "en": "Voucher for two" },
+      "code": "jizda-20-vybaveni",
+      "category": "jizdne",
+      "name": { "cs": "20 minut včetně vybavení", "en": "20 minutes incl. equipment" },
       "description": {
-        "cs": "2 × 20 minut na laně — pro dvě osoby, nebo dvakrát pro jednu. Včetně vybavení a instruktora. Platí v sezóně 2027.",
-        "en": "2 × 20 minutes on the cable — for two people, or twice for one. Equipment and instructor included. Valid in the 2027 season."
+        "cs": "Pro jednu osobu, včetně vybavení (wakeboard, wakeskate nebo lyže)",
+        "en": "For one person, incl. equipment (wakeboard, wakeskate or water skis)"
       },
-      "image": "/img/katalog/voucher-2.svg",
-      "price": 1290,
-      "vatRate": 12
+      "image": null, "price": 570, "vatRate": 12, "showIn": ["pricelist", "pos"]
     },
     {
-      "code": "voucher-3-sloty",
-      "category": "vouchery",
-      "name": { "cs": "Voucher pro tři", "en": "Voucher for three" },
-      "description": {
-        "cs": "3 × 20 minut na laně — pro tři osoby, nebo rozdělit podle chuti. Včetně vybavení a instruktora. Platí v sezóně 2027.",
-        "en": "3 × 20 minutes on the cable — for three people, or split as you like. Equipment and instructor included. Valid in the 2027 season."
-      },
-      "image": "/img/katalog/voucher-3.svg",
-      "price": 1890,
-      "vatRate": 12
+      "code": "jizda-60-cely-vlek",
+      "category": "jizdne",
+      "name": { "cs": "60 minut (celý vlek)", "en": "60 minutes (whole cable)" },
+      "description": { "cs": "Pro max. 4 osoby", "en": "For up to 4 people" },
+      "image": null, "price": 1200, "vatRate": 12, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "helma",
+      "category": "pujcovna",
+      "name": { "cs": "Helma", "en": "Helmet" },
+      "description": null, "image": null, "price": 0, "vatRate": 21, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "vesta",
+      "category": "pujcovna",
+      "name": { "cs": "Vesta", "en": "Life vest" },
+      "description": null, "image": null, "price": 0, "vatRate": 21, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "wakeboard",
+      "category": "pujcovna",
+      "name": { "cs": "Wakeboard", "en": "Wakeboard" },
+      "description": null, "image": null, "price": 150, "vatRate": 21, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "wakeskate",
+      "category": "pujcovna",
+      "name": { "cs": "Wakeskate", "en": "Wakeskate" },
+      "description": null, "image": null, "price": 100, "vatRate": 21, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "vodni-lyze",
+      "category": "pujcovna",
+      "name": { "cs": "Vodní lyže", "en": "Water skis" },
+      "description": null, "image": null, "price": 150, "vatRate": 21, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "neopren",
+      "category": "pujcovna",
+      "name": { "cs": "Neoprén", "en": "Wetsuit" },
+      "description": null, "image": null, "price": 100, "vatRate": 21, "showIn": ["pricelist", "pos"]
     },
     {
       "code": "permanentka-10x20",
@@ -57,9 +109,100 @@
         "cs": "Deset jízd po 20 minutách, přenosná na jiné osoby. Platí v sezóně 2027.",
         "en": "Ten 20-minute rides, transferable to other people. Valid in the 2027 season."
       },
-      "image": "/img/katalog/permanentka.svg",
-      "price": 4200,
-      "vatRate": 12
+      "image": "/img/katalog/permanentka.svg", "price": 4200, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
+    },
+    {
+      "code": "permanentka-10x20-vybaveni",
+      "category": "permanentky",
+      "name": { "cs": "10 × 20 minut — včetně vybavení", "en": "10 × 20 minutes — incl. equipment" },
+      "description": { "cs": "Přenosná na jiné osoby", "en": "Transferable to other people" },
+      "image": null, "price": 5200, "vatRate": 12, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "permanentka-20x20",
+      "category": "permanentky",
+      "name": { "cs": "20 × 20 minut", "en": "20 × 20 minutes" },
+      "description": { "cs": "Přenosná na jiné osoby", "en": "Transferable to other people" },
+      "image": null, "price": 6900, "vatRate": 12, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "permanentka-20x20-vybaveni",
+      "category": "permanentky",
+      "name": { "cs": "20 × 20 minut — včetně vybavení", "en": "20 × 20 minutes — incl. equipment" },
+      "description": { "cs": "Včetně neoprenu, přenosná na jiné osoby", "en": "Incl. wetsuit, transferable to other people" },
+      "image": null, "price": 9200, "vatRate": 12, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "permanentka-10x60",
+      "category": "permanentky",
+      "name": { "cs": "10 × 60 minut", "en": "10 × 60 minutes" },
+      "description": { "cs": "Přenosná na jiné osoby", "en": "Transferable to other people" },
+      "image": null, "price": 9900, "vatRate": 12, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "permanentka-10x60-vybaveni",
+      "category": "permanentky",
+      "name": { "cs": "10 × 60 minut — včetně vybavení", "en": "10 × 60 minutes — incl. equipment" },
+      "description": { "cs": "Včetně neoprenu, přenosná na jiné osoby", "en": "Incl. wetsuit, transferable to other people" },
+      "image": null, "price": 12500, "vatRate": 12, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "permanentka-20x60",
+      "category": "permanentky",
+      "name": { "cs": "20 × 60 minut", "en": "20 × 60 minutes" },
+      "description": { "cs": "Přenosná na jiné osoby", "en": "Transferable to other people" },
+      "image": null, "price": 17500, "vatRate": 12, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "permanentka-20x60-vybaveni",
+      "category": "permanentky",
+      "name": { "cs": "20 × 60 minut — včetně vybavení", "en": "20 × 60 minutes — incl. equipment" },
+      "description": { "cs": "Včetně neoprenu, přenosná na jiné osoby", "en": "Incl. wetsuit, transferable to other people" },
+      "image": null, "price": 21000, "vatRate": 12, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "instruktor-20",
+      "category": "instruktor",
+      "name": { "cs": "20 minut", "en": "20 minutes" },
+      "description": { "cs": "Individuálně, pro začátečníky i pokročilé", "en": "One-to-one, for beginners and advanced riders" },
+      "image": null, "price": 250, "vatRate": 21, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "instruktor-60",
+      "category": "instruktor",
+      "name": { "cs": "60 minut", "en": "60 minutes" },
+      "description": { "cs": "Individuálně, pro začátečníky i pokročilé", "en": "One-to-one, for beginners and advanced riders" },
+      "image": null, "price": 450, "vatRate": 21, "showIn": ["pricelist", "pos"]
+    },
+    {
+      "code": "voucher-1-slot",
+      "category": "vouchery",
+      "name": { "cs": "Voucher pro jednoho", "en": "Voucher for one" },
+      "description": {
+        "cs": "20 minut na laně pro jednu osobu včetně vybavení a instruktora. Platí v sezóně 2027.",
+        "en": "20 minutes on the cable for one person, equipment and instructor included. Valid in the 2027 season."
+      },
+      "image": "/img/katalog/voucher-1.svg", "price": 1, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
+    },
+    {
+      "code": "voucher-2-sloty",
+      "category": "vouchery",
+      "name": { "cs": "Voucher pro dva", "en": "Voucher for two" },
+      "description": {
+        "cs": "2 × 20 minut na laně — pro dvě osoby, nebo dvakrát pro jednu. Včetně vybavení a instruktora. Platí v sezóně 2027.",
+        "en": "2 × 20 minutes on the cable — for two people, or twice for one. Equipment and instructor included. Valid in the 2027 season."
+      },
+      "image": "/img/katalog/voucher-2.svg", "price": 1290, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
+    },
+    {
+      "code": "voucher-3-sloty",
+      "category": "vouchery",
+      "name": { "cs": "Voucher pro tři", "en": "Voucher for three" },
+      "description": {
+        "cs": "3 × 20 minut na laně — pro tři osoby, nebo rozdělit podle chuti. Včetně vybavení a instruktora. Platí v sezóně 2027.",
+        "en": "3 × 20 minutes on the cable — for three people, or split as you like. Equipment and instructor included. Valid in the 2027 season."
+      },
+      "image": "/img/katalog/voucher-3.svg", "price": 1890, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     }
   ]
 }

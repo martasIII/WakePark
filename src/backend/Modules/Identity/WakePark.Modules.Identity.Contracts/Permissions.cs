@@ -24,6 +24,8 @@ public static class Permissions
 
     public const string UsersManage = "users.manage";
 
+    public const string CatalogManage = "catalog.manage";
+
     /// <summary>Všechna známá oprávnění i s popisem. Používá seeder a administrace.</summary>
     public static IReadOnlyDictionary<string, string> All { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
     {
@@ -36,6 +38,7 @@ public static class Permissions
         [ReservationsCancel] = "Stornovat rezervace",
         [PassesManage] = "Spravovat permanentky a kredit",
         [UsersManage] = "Spravovat uživatele a jejich role",
+        [CatalogManage] = "Spravovat produkty, kategorie a ceny",
     };
 }
 
@@ -62,6 +65,7 @@ public static class SystemRoles
                 Permissions.ReservationsCreate,
                 Permissions.ReservationsCancel,
                 Permissions.PassesManage,
+                Permissions.CatalogManage,
             ],
             [Employee] =
             [

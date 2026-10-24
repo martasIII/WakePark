@@ -25,9 +25,14 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired();
 
         builder.Property(p => p.Description)
-            .HasConversion(new LocalizedTextConverter())
-            .HasColumnType(LocalizedTextConverter.ColumnType)
-            .IsRequired();
+            .HasConversion<LocalizedTextConverter>()
+            .HasColumnType(LocalizedTextConverter.ColumnType);
+        builder.Property(p => p.Badge)
+            .HasConversion<LocalizedTextConverter>()
+            .HasColumnType(LocalizedTextConverter.ColumnType);
+
+        // Příznaky jako číslo (ProductChannels je [Flags]): ceník 1, e-shop 2, pokladna 4.
+        builder.Property(p => p.Channels).HasConversion<int>();
 
         // Kategorie je ve stejném modulu, takže cizí klíč smí být skutečný.
         builder.HasOne<ProductCategory>()

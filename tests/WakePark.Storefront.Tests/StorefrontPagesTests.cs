@@ -8,10 +8,9 @@ namespace WakePark.Storefront.Tests;
 public sealed class StorefrontPagesTests(WebApplicationFactory<Program> factory)
     : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly HttpClient _client = factory.CreateClient(new WebApplicationFactoryClientOptions
-    {
-        AllowAutoRedirect = false,
-    });
+    private readonly HttpClient _client = factory
+        .WithWebHostBuilder(builder => builder.UseCatalogApi(StubCatalogApi.WithPriceList()))
+        .CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
     [Theory]
     [InlineData("/", "Wake Park Džbán")]

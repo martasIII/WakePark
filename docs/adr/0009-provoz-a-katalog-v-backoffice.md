@@ -1,6 +1,6 @@
 # 0009 — Provozní doba po dnech, blokace a katalog v backoffice
 
-**Stav:** Navrženo · 24. 10. 2026
+**Stav:** Přijato · 24. 10. 2026
 
 ## Kontext
 
@@ -102,6 +102,11 @@ Produkt odkazuje na soubor jménem; oprava obrázku = přepsat soubor stejným j
 **Deploy přestane katalog přepisovat.** `import-catalog` naplní katalog jen **prázdný**
 (první spuštění, testy, vývoj). Jakmile ho spravuje backoffice, je zdrojem pravdy databáze
 a `katalog.json` je jen výchozí data. Jinak by každý deploy tiše přepsal úpravy admina.
+
+*Upřesnění při implementaci (24. 10.):* import při nasazení **doplní chybějící** kategorie
+a produkty (podle kódu) a existující nemění — ne jen „do prázdného“. Tak se na produkci
+dostanou nové položky z výchozích dat (dnešní ceník webu) a úpravy admina zůstanou.
+Srovnat databázi se souborem jde ručně: `import-catalog --overwrite`.
 
 ## Postup
 

@@ -8,11 +8,11 @@ namespace WakePark.Storefront.Content;
 
 /// <summary>
 /// Obsah webu z JSON souborů. Soubor se načte při prvním použití a drží v paměti, dokud
-/// se na disku nezmění — úprava ceníku se tak projeví bez restartu.
+/// se na disku nezmění — úprava otevírací doby se tak projeví bez restartu. Ceník už je
+/// v katalogu API (ADR 0009).
 /// </summary>
 public sealed class SiteContent : IDisposable
 {
-    public const string PriceListFile = "cenik.json";
     public const string OpeningHoursFile = "oteviraci-doba.json";
 
     private readonly IMemoryCache _cache;
@@ -27,7 +27,6 @@ public sealed class SiteContent : IDisposable
         _files = new PhysicalFileProvider(Path.Combine(environment.ContentRootPath, options.Value.ContentPath));
     }
 
-    public PriceList PriceList => Load<PriceList>(PriceListFile);
 
     public OpeningHours OpeningHours => Load<OpeningHours>(OpeningHoursFile);
 

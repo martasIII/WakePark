@@ -5,8 +5,8 @@ using WakePark.Modules.Catalog.Domain.Common;
 namespace WakePark.Modules.Catalog.Domain.Products;
 
 /// <summary>
-/// Co se prodává. Pro e-shop jen popis pro zákazníka — co produkt znamená na místě
-/// (sloty, počet jízd permanentky), se doplní s backoffice (ADR 0006, upřesnění z 21. 10. 2026).
+/// Co se prodává — na webu v ceníku, v e-shopu i na pokladně (<see cref="Channels"/>).
+/// Co produkt znamená na místě (sloty, počet jízd permanentky), přijde s pokladnou.
 /// Cena není tady, ale v ceníku.
 /// </summary>
 /// <remarks>
@@ -36,14 +36,20 @@ public sealed class Product : AggregateRoot, IAuditable, ITenantOwned
 
     public LocalizedText Name { get; private set; } = null!;
 
-    public LocalizedText Description { get; private set; } = null!;
+    /// <summary>Nepovinný — položka ceníku jako „Helma“ popis nepotřebuje.</summary>
+    public LocalizedText? Description { get; private set; }
+
+    /// <summary>Štítek v ceníku, např. „Nejvýhodnější“.</summary>
+    public LocalizedText? Badge { get; private set; }
 
     /// <summary>Cesta k obrázku na veřejném webu, např. <c>/img/katalog/voucher-1.svg</c>.</summary>
     public string? ImagePath { get; private set; }
 
     public int SortOrder { get; private set; }
 
-    /// <summary>Skrytý produkt se na webu nenabízí, ale dál existuje kvůli prodaným poukazům.</summary>
+    public ProductChannels Channels { get; private set; }
+
+    /// <summary>Skrytý produkt se nikde nenabízí, ale dál existuje kvůli prodaným poukazům.</summary>
     public bool IsActive { get; private set; }
 
     public DateTimeOffset CreatedAtUtc { get; set; }
@@ -54,14 +60,7 @@ public sealed class Product : AggregateRoot, IAuditable, ITenantOwned
 
     public string? UpdatedBy { get; set; }
 
-    public static Product Create(
-        Guid enterpriseId,
-        string code,
-        Guid categoryId,
-        LocalizedText name,
-        LocalizedText description,
-        string? imagePath,
-        int sortOrder)
+    public static Product Create(Guid enterpriseId, string code, ProductDetails details)
     {
         if (enterpriseId == Guid.Empty)
         {
@@ -69,44 +68,51 @@ public sealed class Product : AggregateRoot, IAuditable, ITenantOwned
         }
 
         Product product = new(NewId(), enterpriseId, CatalogCode.Normalize(code));
-        product.Update(categoryId, name, description, imagePath, sortOrder);
+        product.Update(details);
         return product;
     }
 
     /// <returns><c>true</c>, pokud se něco změnilo.</returns>
-    public bool Update(
-        Guid categoryId,
-        LocalizedText name,
-        LocalizedText description,
-        string? imagePath,
-        int sortOrder)
+    public bool Update(ProductDetails details)
     {
-        ArgumentNullException.ThrowIfNull(name);
-        ArgumentNullException.ThrowIfNull(description);
+        ArgumentNullException.ThrowIfNull(details);
+        ArgumentNullException.ThrowIfNull(details.Name);
 
-        if (categoryId == Guid.Empty)
+        if (details.CategoryId == Guid.Empty)
         {
             throw new DomainException("product.category_required", "Produkt musí mít kategorii.");
         }
 
-        string? image = NormalizeImagePath(imagePath);
+        if ((details.Channels & ~ProductChannels.All) != 0)
+        {
+            throw new DomainException("product.invalid_channels", "Neznámé místo zobrazení produktu.");
+        }
 
-        if (CategoryId == categoryId
-            && Name == name
-            && Description == description
+        string? image = NormalizeImagePath(details.ImagePath);
+
+        if (CategoryId == details.CategoryId
+            && Name == details.Name
+            && Description == details.Description
+            && Badge == details.Badge
             && ImagePath == image
-            && SortOrder == sortOrder)
+            && SortOrder == details.SortOrder
+            && Channels == details.Channels)
         {
             return false;
         }
 
-        CategoryId = categoryId;
-        Name = name;
-        Description = description;
+        CategoryId = details.CategoryId;
+        Name = details.Name;
+        Description = details.Description;
+        Badge = details.Badge;
         ImagePath = image;
-        SortOrder = sortOrder;
+        SortOrder = details.SortOrder;
+        Channels = details.Channels;
         return true;
     }
+
+    /// <summary>Aktivní a zobrazovaný v daném místě.</summary>
+    public bool IsOfferedIn(ProductChannels channel) => IsActive && Channels.HasFlag(channel);
 
     /// <returns><c>true</c>, pokud byl produkt dosud aktivní.</returns>
     public bool Deactivate()
@@ -153,3 +159,13 @@ public sealed class Product : AggregateRoot, IAuditable, ITenantOwned
         return path;
     }
 }
+
+/// <summary>Vše, co se na produktu dá upravit. Kód ne — ten je stálý.</summary>
+public sealed record ProductDetails(
+    Guid CategoryId,
+    LocalizedText Name,
+    LocalizedText? Description,
+    LocalizedText? Badge,
+    string? ImagePath,
+    int SortOrder,
+    ProductChannels Channels);

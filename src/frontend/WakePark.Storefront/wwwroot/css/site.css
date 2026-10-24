@@ -57,6 +57,8 @@ footer .small{font-size:12px; opacity:.8}
 .card .note{margin:0 0 10px; color:#5f5f66; font-size:14px; line-height:1.55}
 .card .row{display:flex; align-items:baseline; gap:14px; padding:11px 0; border-top:1px solid #eee}
 .card h2 + .row, .card .note + .row{border-top:0}
+.card h3.subsection{margin:18px 0 6px; font-size:15px; letter-spacing:.03em; text-transform:uppercase; color:#1d1d1f}
+.card h3.subsection + .row{border-top:0}
 .card .name{flex:1; min-width:0}
 .card .name b{font-weight:700}
 .card .desc{display:block; color:#6b6b72; font-size:13.5px; margin-top:2px; line-height:1.45}

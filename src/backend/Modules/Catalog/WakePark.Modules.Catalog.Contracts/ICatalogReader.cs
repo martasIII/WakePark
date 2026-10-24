@@ -6,6 +6,9 @@ namespace WakePark.Modules.Catalog.Contracts;
 /// </summary>
 public interface ICatalogReader
 {
-    /// <summary>Aktivní produkty s cenou, stejně jako je vidí web.</summary>
+    /// <summary>
+    /// Nabídka e-shopu s dnes platnými cenami, stejně jako ji vidí web: aktivní produkty
+    /// zobrazované v e-shopu s kladnou cenou.
+    /// </summary>
     Task<CatalogDto> GetPublishedCatalogAsync(Guid enterpriseId, CancellationToken cancellationToken = default);
 }

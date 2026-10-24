@@ -43,6 +43,10 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("created_by");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("description");
+
                     b.Property<Guid>("EnterpriseId")
                         .HasColumnType("uuid")
                         .HasColumnName("enterprise_id");
@@ -51,6 +55,10 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb")
                         .HasColumnName("name");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("parent_id");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer")
@@ -66,6 +74,9 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_product_categories");
+
+                    b.HasIndex("ParentId")
+                        .HasDatabaseName("ix_product_categories_parent_id");
 
                     b.HasIndex("EnterpriseId", "Code")
                         .IsUnique()
@@ -93,6 +104,10 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("unit_price");
 
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_from");
+
                     b.Property<decimal>("VatRate")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
@@ -104,9 +119,9 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                     b.HasIndex("ProductId")
                         .HasDatabaseName("ix_price_items_product_id");
 
-                    b.HasIndex("PriceListId", "ProductId")
+                    b.HasIndex("PriceListId", "ProductId", "ValidFrom")
                         .IsUnique()
-                        .HasDatabaseName("ix_price_items_price_list_id_product_id");
+                        .HasDatabaseName("ix_price_items_price_list_id_product_id_valid_from");
 
                     b.ToTable("price_items", "catalog");
                 });
@@ -146,6 +161,10 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
 
+                    b.Property<string>("Title")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("title");
+
                     b.Property<DateTimeOffset?>("UpdatedAtUtc")
                         .HasColumnType("timestamptz")
                         .HasColumnName("updated_at_utc");
@@ -179,9 +198,17 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("Badge")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("badge");
+
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
+
+                    b.Property<int>("Channels")
+                        .HasColumnType("integer")
+                        .HasColumnName("channels");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -198,7 +225,6 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("jsonb")
                         .HasColumnName("description");
 
@@ -243,6 +269,15 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_products_enterprise_id_code");
 
                     b.ToTable("products", "catalog");
+                });
+
+            modelBuilder.Entity("WakePark.Modules.Catalog.Domain.Categories.ProductCategory", b =>
+                {
+                    b.HasOne("WakePark.Modules.Catalog.Domain.Categories.ProductCategory", null)
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_product_categories_product_categories_parent_id");
                 });
 
             modelBuilder.Entity("WakePark.Modules.Catalog.Domain.Pricing.PriceItem", b =>

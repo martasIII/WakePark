@@ -19,7 +19,8 @@ public sealed class LanguageTests : IClassFixture<WebApplicationFactory<Program>
         _client = factory
             .WithWebHostBuilder(builder => builder
                 .UseSetting("Storefront:Languages:0", "cs")
-                .UseSetting("Storefront:Languages:1", "en"))
+                .UseSetting("Storefront:Languages:1", "en")
+                .UseCatalogApi(StubCatalogApi.WithPriceList()))
             .CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
     }
 

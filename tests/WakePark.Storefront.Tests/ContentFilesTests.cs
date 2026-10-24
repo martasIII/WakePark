@@ -3,33 +3,18 @@ using WakePark.Storefront.Content;
 namespace WakePark.Storefront.Tests;
 
 /// <summary>
-/// Kontroluje skutečné soubory s obsahem webu. Ceník a otevírací dobu upravuje vlastník
-/// ručně; když v nich bude chyba, spadne CI a rozbitý obsah se na web nedostane.
+/// Kontroluje skutečné soubory s obsahem webu. Otevírací dobu upravuje vlastník ručně; když
+/// v ní bude chyba, spadne CI a rozbitý obsah se na web nedostane. Ceník je v katalogu API
+/// a jeho výchozí data kontroluje <c>CatalogFileTests</c>.
 /// </summary>
 public sealed class ContentFilesTests
 {
-    [Fact]
-    public void Cenik_je_platny()
-    {
-        PriceList priceList = Read<PriceList>(SiteContent.PriceListFile);
-
-        priceList.Validate().ShouldBeEmpty();
-    }
-
     [Fact]
     public void Otevíraci_doba_je_platna()
     {
         OpeningHours hours = Read<OpeningHours>(SiteContent.OpeningHoursFile);
 
         hours.Validate().ShouldBeEmpty();
-    }
-
-    [Fact]
-    public void Cenik_ma_sekci_vouchery_na_kterou_odkazuje_uvodni_stranka()
-    {
-        PriceList priceList = Read<PriceList>(SiteContent.PriceListFile);
-
-        priceList.Sections.ShouldContain(s => s.Id == "vouchery");
     }
 
     private static T Read<T>(string fileName) where T : class

@@ -37,4 +37,6 @@ internal sealed class CatalogRepository(CatalogDbContext dbContext) : ICatalogRe
     public void Add(Product product) => dbContext.Products.Add(product);
 
     public void Add(PriceList priceList) => dbContext.PriceLists.Add(priceList);
+
+    public void Remove(ProductCategory category) => dbContext.Categories.Remove(category);
 }

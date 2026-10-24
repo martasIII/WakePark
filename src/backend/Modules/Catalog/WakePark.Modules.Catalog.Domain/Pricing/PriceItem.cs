@@ -2,20 +2,24 @@ using WakePark.BuildingBlocks.Domain;
 
 namespace WakePark.Modules.Catalog.Domain.Pricing;
 
-/// <summary>Cena jednoho produktu v ceníku. Mění se jen přes <see cref="PriceList"/>.</summary>
+/// <summary>
+/// Cena jednoho produktu platná od data. Produkt má v ceníku řadu cen — platí ta s nejpozdějším
+/// <see cref="ValidFrom"/>, který už nastal. Mění se jen přes <see cref="PriceList"/>.
+/// </summary>
 public sealed class PriceItem : Entity
 {
     private PriceItem()
     {
     }
 
-    internal PriceItem(Guid priceListId, Guid productId, decimal unitPrice, decimal vatRate)
+    internal PriceItem(Guid priceListId, Guid productId, decimal unitPrice, decimal vatRate, DateOnly validFrom)
         : base(NewId())
     {
         PriceListId = priceListId;
         ProductId = productId;
         UnitPrice = unitPrice;
         VatRate = vatRate;
+        ValidFrom = validFrom;
     }
 
     public Guid PriceListId { get; private set; }
@@ -27,6 +31,9 @@ public sealed class PriceItem : Entity
 
     /// <summary>Sazba DPH v procentech.</summary>
     public decimal VatRate { get; private set; }
+
+    /// <summary>První den platnosti (lokální datum areálu).</summary>
+    public DateOnly ValidFrom { get; private set; }
 
     internal bool Change(decimal unitPrice, decimal vatRate)
     {

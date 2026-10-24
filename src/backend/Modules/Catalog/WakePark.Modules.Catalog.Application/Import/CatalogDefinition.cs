@@ -4,12 +4,13 @@ using System.Text.Json.Serialization;
 namespace WakePark.Modules.Catalog.Application.Import;
 
 /// <summary>
-/// Obsah souboru <c>katalog.json</c>. Dokud není backoffice, je tohle jediný způsob, jak měnit
-/// nabídku e-shopu: úprava souboru → commit → nasazení → import (ADR 0006).
+/// Obsah souboru <c>katalog.json</c> — výchozí katalog. Od backoffice (ADR 0009) je zdrojem
+/// pravdy databáze: import při nasazení jen doplní, co v ní chybí, a nic nepřepíše.
 /// </summary>
 /// <remarks>Pořadí kategorií a produktů v souboru je pořadí na webu.</remarks>
 public sealed record CatalogDefinition(
     string Currency,
+    IReadOnlyDictionary<string, string>? Title,
     IReadOnlyList<CategoryDefinition> Categories,
     IReadOnlyList<ProductDefinition> Products)
 {
@@ -32,16 +33,24 @@ public sealed record CatalogDefinition(
     }
 }
 
+/// <summary>Kategorie. <see cref="Parent"/> = kód nadřazené kategorie (podkategorie).</summary>
 public sealed record CategoryDefinition(
     string Code,
-    IReadOnlyDictionary<string, string> Name);
+    IReadOnlyDictionary<string, string> Name,
+    IReadOnlyDictionary<string, string>? Description = null,
+    string? Parent = null);
 
-/// <summary>Produkt v souboru. Cena je včetně DPH, sazba DPH v procentech.</summary>
+/// <summary>
+/// Produkt v souboru. Cena je včetně DPH, sazba DPH v procentech. <see cref="ShowIn"/> = kde
+/// se ukazuje: <c>pricelist</c> (ceník na webu), <c>eshop</c>, <c>pos</c> (pokladna).
+/// </summary>
 public sealed record ProductDefinition(
     string Code,
     string Category,
     IReadOnlyDictionary<string, string> Name,
-    IReadOnlyDictionary<string, string> Description,
+    IReadOnlyDictionary<string, string>? Description,
     string? Image,
     decimal Price,
-    decimal VatRate);
+    decimal VatRate,
+    IReadOnlyList<string> ShowIn,
+    IReadOnlyDictionary<string, string>? Badge = null);

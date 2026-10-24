@@ -22,3 +22,24 @@ public sealed record CatalogProductDto(
     decimal UnitPrice,
     string Currency,
     decimal VatRate);
+
+/// <summary>Ceník na webu: sekce (kategorie) s podsekcemi a položkami s dnes platnou cenou.</summary>
+public sealed record PublicPriceListDto(
+    IReadOnlyDictionary<string, string>? Title,
+    string Currency,
+    IReadOnlyList<PriceListSectionDto> Sections);
+
+/// <summary>Sekce ceníku. Může být i bez položek, když má popis („Firemní akce — napište nám“).</summary>
+public sealed record PriceListSectionDto(
+    string Code,
+    IReadOnlyDictionary<string, string> Name,
+    IReadOnlyDictionary<string, string>? Description,
+    IReadOnlyList<PriceListItemDto> Items,
+    IReadOnlyList<PriceListSectionDto> Subsections);
+
+public sealed record PriceListItemDto(
+    string Code,
+    IReadOnlyDictionary<string, string> Name,
+    IReadOnlyDictionary<string, string>? Description,
+    IReadOnlyDictionary<string, string>? Badge,
+    decimal UnitPrice);

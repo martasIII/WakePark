@@ -46,7 +46,10 @@
                                     <img src="@product.ImagePath" alt="" width="400" height="250" loading="lazy">
                                 }
                                 <h3>@product.Name.Resolve(lang)</h3>
-                                <p class="desc">@product.Description.Resolve(lang)</p>
+                                @if (product.Description?.Resolve(lang) is { Length: > 0 } description)
+                                {
+                                    <p class="desc">@description</p>
+                                }
                                 <p class="price">@SiteView.Price(product.UnitPrice) <span>@T["InclVat"]</span></p>
                                 <label class="qty" for="@inputId">@T["Quantity"]
                                     <span class="stepper">

@@ -20,6 +20,15 @@ internal sealed class ProductCategoryConfiguration : IEntityTypeConfiguration<Pr
             .HasConversion(new LocalizedTextConverter())
             .HasColumnType(LocalizedTextConverter.ColumnType)
             .IsRequired();
+        builder.Property(c => c.Description)
+            .HasConversion<LocalizedTextConverter>()
+            .HasColumnType(LocalizedTextConverter.ColumnType);
+
+        // Strom ve stejné tabulce. Smazat jde jen prázdnou kategorii (hlídá aplikace), proto Restrict.
+        builder.HasOne<ProductCategory>()
+            .WithMany()
+            .HasForeignKey(c => c.ParentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(c => new { c.EnterpriseId, c.Code }).IsUnique();
 

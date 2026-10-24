@@ -1,11 +1,12 @@
 @page
 @model CenikModel
+@using WakePark.Storefront.Eshop
 @{
     ViewData["Title"] = T["PricesTitle"].Value;
     ViewData["Description"] = T["PricesDescription"].Value;
     ViewData["BodyClass"] = "page";
     ViewData["Heading"] = T["Prices"].Value;
-    ViewData["Subtitle"] = Model.PriceList?.Season?.Resolve(SiteView.Language);
+    ViewData["Subtitle"] = Model.PriceList?.Title?.Resolve(SiteView.Language);
     string lang = SiteView.Language;
 }
 <partial name="_PageHeader" />
@@ -16,43 +17,53 @@
     }
     else
     {
-        foreach (PriceSection group in Model.PriceList.Sections)
+        foreach (WebPriceSection group in Model.PriceList.Sections)
         {
-            <section class="card" id="@group.Id">
+            <section class="card" id="@group.Code">
                 <h2>@group.Name.Resolve(lang)</h2>
-                @if (group.Note is not null)
+                @{ RenderGroup(group, lang); }
+                @foreach (WebPriceSection subsection in group.Subsections)
                 {
-                    <p class="note">@SiteView.Linkify(group.Note.Resolve(lang))</p>
-                }
-                @foreach (PriceItem item in group.Items ?? [])
-                {
-                    <div class="row">
-                        <div class="name">
-                            <b>@item.Name.Resolve(lang)</b>
-                            @if (item.Tag is not null)
-                            {
-                                <span class="tag">@item.Tag.Resolve(lang)</span>
-                            }
-                            @if (item.Desc is not null)
-                            {
-                                <span class="desc">@item.Desc.Resolve(lang)</span>
-                            }
-                        </div>
-                        @if (item.PriceText is not null)
-                        {
-                            <div class="price">@item.PriceText.Resolve(lang)</div>
-                        }
-                        else if (item.Price == 0)
-                        {
-                            <div class="price free">@T["Free"]</div>
-                        }
-                        else
-                        {
-                            <div class="price">@SiteView.Price(item.Price!.Value)</div>
-                        }
-                    </div>
+                    <h3 class="subsection" id="@subsection.Code">@subsection.Name.Resolve(lang)</h3>
+                    RenderGroup(subsection, lang);
                 }
             </section>
         }
     }
 </main>
+
+@functions {
+    // Popis a položky sekce i podsekce vypadají stejně.
+    private void RenderGroup(WebPriceSection section, string lang)
+    {
+        if (section.Description is not null)
+        {
+            <p class="note">@SiteView.Linkify(section.Description.Resolve(lang))</p>
+        }
+
+        foreach (WebPriceItem item in section.Items)
+        {
+            <div class="row">
+                <div class="name">
+                    <b>@item.Name.Resolve(lang)</b>
+                    @if (item.Badge is not null)
+                    {
+                        <span class="tag">@item.Badge.Resolve(lang)</span>
+                    }
+                    @if (item.Description is not null)
+                    {
+                        <span class="desc">@item.Description.Resolve(lang)</span>
+                    }
+                </div>
+                @if (item.UnitPrice == 0)
+                {
+                    <div class="price free">@T["Free"]</div>
+                }
+                else
+                {
+                    <div class="price">@SiteView.Price(item.UnitPrice)</div>
+                }
+            </div>
+        }
+    }
+}

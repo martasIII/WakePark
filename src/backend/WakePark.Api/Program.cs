@@ -15,6 +15,7 @@ using WakePark.BuildingBlocks.Application.Abstractions;
 using WakePark.BuildingBlocks.Infrastructure;
 using WakePark.Modules.Billing.Infrastructure;
 using WakePark.Modules.Billing.Infrastructure.Endpoints;
+using WakePark.Modules.Catalog.Application.Import;
 using WakePark.Modules.Catalog.Infrastructure;
 using WakePark.Modules.Notifications.Infrastructure;
 using WakePark.Modules.Vouchers.Infrastructure;
@@ -100,6 +101,7 @@ builder.Services.AddAntiforgery(options =>
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
+builder.Services.AddExceptionHandler<NotFoundExceptionHandler>();
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 
 // Enumy jdou po drátě jako text. Čísla by v JSON API znamenala, že klient musí znát pořadí
@@ -120,7 +122,12 @@ if (args.Contains(MigrationExtensions.CommandName, StringComparer.Ordinal))
 
 if (args.Contains(CatalogImportExtensions.CommandName, StringComparer.Ordinal))
 {
-    bool imported = await app.ImportCatalogAsync().ConfigureAwait(false);
+    // Bez přepínače jen doplní chybějící; --overwrite přepíše i úpravy z backoffice (ADR 0009).
+    bool imported = await app.ImportCatalogAsync(
+            args.Contains(CatalogImportExtensions.OverwriteOption, StringComparer.Ordinal)
+                ? CatalogImportMode.Overwrite
+                : CatalogImportMode.AddMissing)
+        .ConfigureAwait(false);
     return imported ? 0 : 1;
 }
 

@@ -1,5 +1,4 @@
 using WakePark.BuildingBlocks.Application.Abstractions;
-using WakePark.Modules.Catalog.Contracts;
 using WakePark.Modules.Catalog.Domain.Categories;
 using WakePark.Modules.Catalog.Domain.Pricing;
 using WakePark.Modules.Catalog.Domain.Products;
@@ -21,13 +20,21 @@ public interface ICatalogRepository
     void Add(Product product);
 
     void Add(PriceList priceList);
+
+    void Remove(ProductCategory category);
 }
 
-/// <summary>Čtecí strana pro web.</summary>
+/// <summary>Čtecí strana: celý katalog bez sledování změn, z něj se skládají pohledy.</summary>
 public interface ICatalogReadRepository
 {
-    Task<CatalogDto> GetPublishedCatalogAsync(Guid enterpriseId, CancellationToken cancellationToken = default);
+    Task<CatalogSnapshot> GetSnapshotAsync(Guid enterpriseId, CancellationToken cancellationToken = default);
 }
+
+/// <summary>Katalog provozovatele v jednom okamžiku: kategorie, produkty a aktivní ceník.</summary>
+public sealed record CatalogSnapshot(
+    IReadOnlyList<ProductCategory> Categories,
+    IReadOnlyList<Product> Products,
+    PriceList? PriceList);
 
 /// <inheritdoc cref="IUnitOfWork" />
 /// <remarks>Vlastní rozhraní pro každý modul — sdílené by v jednom DI kontejneru přepsal poslední modul.</remarks>

@@ -1,6 +1,5 @@
 using FluentValidation;
 
-using WakePark.BuildingBlocks.Application.Abstractions;
 using WakePark.BuildingBlocks.Application.Messaging;
 using WakePark.Modules.Catalog.Application.Abstractions;
 using WakePark.Modules.Catalog.Domain.Categories;
@@ -17,10 +16,10 @@ namespace WakePark.Modules.Catalog.Application.Import;
 internal sealed class ImportCatalogCommandHandler(
     ICatalogRepository repository,
     ICatalogUnitOfWork unitOfWork,
-    IClock clock)
+    CatalogCalendar calendar)
     : ICommandHandler<ImportCatalogCommand, CatalogImportResult>
 {
-    public const string PriceListName = "E-shop";
+    public const string PriceListName = "Ceník";
 
     private readonly CatalogDefinitionValidator _validator = new();
 
@@ -33,12 +32,14 @@ internal sealed class ImportCatalogCommandHandler(
         CatalogDefinition definition = command.Definition;
         await _validator.ValidateAndThrowAsync(definition, cancellationToken).ConfigureAwait(false);
 
+        bool overwrite = command.Mode == CatalogImportMode.Overwrite;
+        DateOnly today = calendar.Today;
+
         Dictionary<string, Guid> categoryIds = await ImportCategoriesAsync(
-                command.EnterpriseId, definition.Categories, cancellationToken)
+                command.EnterpriseId, definition.Categories, overwrite, cancellationToken)
             .ConfigureAwait(false);
 
-        PriceList priceList = await GetOrCreatePriceListAsync(
-                command.EnterpriseId, definition.Currency, cancellationToken)
+        PriceList priceList = await GetOrCreatePriceListAsync(command.EnterpriseId, definition, overwrite, today, cancellationToken)
             .ConfigureAwait(false);
 
         Dictionary<string, Product> existing = (await repository
@@ -51,16 +52,28 @@ internal sealed class ImportCatalogCommandHandler(
         for (int index = 0; index < definition.Products.Count; index++)
         {
             ProductDefinition item = definition.Products[index];
-            Guid categoryId = categoryIds[item.Category];
-            LocalizedText name = LocalizedText.Create(item.Name);
-            LocalizedText description = LocalizedText.Create(item.Description);
+            ProductDetails details = new(
+                categoryIds[item.Category],
+                LocalizedText.Create(item.Name),
+                item.Description is null ? null : LocalizedText.Create(item.Description),
+                item.Badge is null ? null : LocalizedText.Create(item.Badge),
+                item.Image,
+                index,
+                Channels(item.ShowIn));
 
             if (existing.Remove(item.Code, out Product? product))
             {
-                // Bitový OR, ne ||: obě metody se musí zavolat vždy.
-                bool changed = product.Update(categoryId, name, description, item.Image, index)
+                // Existující produkt spravuje backoffice; přepíše se jen na výslovné přání.
+                if (!overwrite)
+                {
+                    unchanged++;
+                    continue;
+                }
+
+                // Bitový OR, ne ||: všechny metody se musí zavolat vždy.
+                bool changed = product.Update(details)
                     | product.Activate()
-                    | priceList.SetPrice(product.Id, item.Price, item.VatRate);
+                    | priceList.SetPrice(product.Id, item.Price, item.VatRate, today, today);
 
                 if (changed)
                 {
@@ -73,83 +86,117 @@ internal sealed class ImportCatalogCommandHandler(
             }
             else
             {
-                product = Product.Create(
-                    command.EnterpriseId, item.Code, categoryId, name, description, item.Image, index);
+                product = Product.Create(command.EnterpriseId, item.Code, details);
                 repository.Add(product);
-                priceList.SetPrice(product.Id, item.Price, item.VatRate);
+                priceList.SetPrice(product.Id, item.Price, item.VatRate, today, today);
                 created++;
             }
         }
 
-        // Co v souboru není, se jen skryje. Na produkt můžou odkazovat prodané poukazy.
-        foreach (Product missing in existing.Values)
+        // Co v souboru není, se při přepisu jen skryje. Na produkt můžou odkazovat prodané poukazy.
+        if (overwrite)
         {
-            if (missing.Deactivate())
+            foreach (Product missing in existing.Values)
             {
-                deactivated++;
+                if (missing.Deactivate())
+                {
+                    deactivated++;
+                }
             }
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        return new CatalogImportResult(created, updated, deactivated, unchanged);
+        return new CatalogImportResult(command.Mode, created, updated, deactivated, unchanged);
     }
 
     private async Task<Dictionary<string, Guid>> ImportCategoriesAsync(
         Guid enterpriseId,
         IReadOnlyList<CategoryDefinition> definitions,
+        bool overwrite,
         CancellationToken cancellationToken)
     {
-        Dictionary<string, ProductCategory> existing = (await repository
-                .GetCategoriesAsync(enterpriseId, cancellationToken)
-                .ConfigureAwait(false))
-            .ToDictionary(c => c.Code, StringComparer.Ordinal);
+        List<ProductCategory> all = [.. await repository
+            .GetCategoriesAsync(enterpriseId, cancellationToken)
+            .ConfigureAwait(false)];
 
-        Dictionary<string, Guid> ids = new(StringComparer.Ordinal);
+        Dictionary<string, ProductCategory> byCode = all.ToDictionary(c => c.Code, StringComparer.Ordinal);
+        List<(ProductCategory Category, string? Parent)> placed = [];
 
         for (int index = 0; index < definitions.Count; index++)
         {
             CategoryDefinition item = definitions[index];
             LocalizedText name = LocalizedText.Create(item.Name);
+            LocalizedText? description = item.Description is null ? null : LocalizedText.Create(item.Description);
 
-            if (existing.TryGetValue(item.Code, out ProductCategory? category))
+            if (byCode.TryGetValue(item.Code, out ProductCategory? category))
             {
-                category.Update(name, index);
+                if (!overwrite)
+                {
+                    continue;
+                }
+
+                category.Update(name, description, index);
             }
             else
             {
-                category = ProductCategory.Create(enterpriseId, item.Code, name, index);
+                category = ProductCategory.Create(enterpriseId, item.Code, name, description, index);
                 repository.Add(category);
+                all.Add(category);
+                byCode[item.Code] = category;
             }
 
-            ids[item.Code] = category.Id;
+            placed.Add((category, item.Parent));
         }
 
-        // Kategorie, která ze souboru zmizela, zůstává — bez aktivních produktů se na webu nezobrazí.
-        return ids;
+        // Rodiče až když existují všechny kategorie ze souboru — pořadí v souboru pak nehraje roli.
+        foreach ((ProductCategory category, string? parent) in placed)
+        {
+            CategoryTree.Move(category, parent is null ? null : byCode[parent].Id, all);
+        }
+
+        // Kategorie, která ze souboru zmizela, zůstává — bez produktů se na webu nezobrazí.
+        return byCode.ToDictionary(pair => pair.Key, pair => pair.Value.Id, StringComparer.Ordinal);
     }
 
     private async Task<PriceList> GetOrCreatePriceListAsync(
         Guid enterpriseId,
-        string currency,
+        CatalogDefinition definition,
+        bool overwrite,
+        DateOnly today,
         CancellationToken cancellationToken)
     {
         PriceList? priceList = await repository
             .GetActivePriceListAsync(enterpriseId, cancellationToken)
             .ConfigureAwait(false);
 
+        LocalizedText? title = definition.Title is null ? null : LocalizedText.Create(definition.Title);
+
         if (priceList is null)
         {
-            priceList = PriceList.Create(
-                enterpriseId, PriceListName, currency, DateOnly.FromDateTime(clock.UtcNow.UtcDateTime));
+            priceList = PriceList.Create(enterpriseId, PriceListName, definition.Currency, today);
+            priceList.SetTitle(title);
             repository.Add(priceList);
         }
-        else if (!string.Equals(priceList.Currency, currency, StringComparison.OrdinalIgnoreCase))
+        else if (!string.Equals(priceList.Currency, definition.Currency, StringComparison.OrdinalIgnoreCase))
         {
             throw new ValidationException(
-                $"Ceník je v {priceList.Currency}, soubor v {currency}. Změna měny není import, ale nový ceník.");
+                $"Ceník je v {priceList.Currency}, soubor v {definition.Currency}. Změna měny není import, ale nový ceník.");
+        }
+        else if (overwrite || priceList.Title is null)
+        {
+            priceList.SetTitle(title);
         }
 
         return priceList;
     }
+
+    private static ProductChannels Channels(IReadOnlyList<string> showIn) =>
+        showIn.Aggregate(ProductChannels.None, (channels, name) => channels | name switch
+        {
+            "pricelist" => ProductChannels.PriceList,
+            "eshop" => ProductChannels.Eshop,
+            "pos" => ProductChannels.Pos,
+            _ => throw new ValidationException($"Neznámé místo zobrazení '{name}'."),
+        });
 }

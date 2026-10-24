@@ -189,7 +189,8 @@ Pořadí je důležité. Odhad: hodina práce, web je nedostupný jen pár minut
 1. Ve Wedosu snížit TTL A záznamů `wake-dzban.cz` a `www` na **300 s** (dnes 3600) —
    přepnutí se pak projeví do 5 minut, ne do hodiny.
 2. V repu (commit + push, nasadí se samo):
-   - finální `src/backend/WakePark.Api/data/katalog.json` a obrázky,
+   - finální katalog a ceny: v backoffice, nebo `katalog.json` + obrázky a po nasazení
+     jednou `import-catalog --overwrite` (nasazení samo jen doplní chybějící produkty),
    - finální text obchodních podmínek na stránce `Obchodni-podminky.cshtml`,
    - `Storefront:EshopTrialMode` → `false` (zmizí pruh „Zkušební provoz“),
    - v `docker-compose.yml` u api `Notifications__PublicBaseUrl: "https://wake-dzban.cz"`
@@ -233,4 +234,5 @@ Pořadí je důležité. Odhad: hodina práce, web je nedostupný jen pár minut
 | Spotřeba paměti | `docker stats --no-stream` |
 | Databáze (psql) | `docker exec -it wakepark-db psql -U wakepark -d wakepark` |
 | Ruční záloha | `/opt/wakepark/storefront/backup-db.sh` |
-| Znovu načíst katalog | `docker compose run --rm api import-catalog` |
+| Doplnit chybějící z `katalog.json` | `docker compose run --rm api import-catalog` (dělá i každé nasazení) |
+| Přepsat katalog souborem | `docker compose run --rm api import-catalog --overwrite` — **přepíše i úpravy z backoffice** |
