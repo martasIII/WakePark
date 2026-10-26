@@ -157,7 +157,8 @@ vlastní schéma v databázi a vlastní migrace. Pravidla, která drží hranice
 - **Jeden VPS = jedno místo selhání.** Pro sezónní provoz malého areálu přiměřené, data jsou
   zálohovaná mimo server. Kubernetes ani cloud záměrně ne: náklady a složitost by tu převýšily
   přínos.
-- **YARP gateway** (`WakePark.Gateway`) je připravená pro backoffice, v produkci zatím neběží.
+- **YARP gateway** (`WakePark.Gateway`) je v kódu připravená, ale vědomě nenasazená: backoffice
+  publikuje nginx na stejném originu jako API ([ADR 0010](adr/0010-gateway-zatim-ne-backoffice-pres-nginx.md)).
 - **Dva frontendové stacky** (viz výše).
 - **Pilot pro jeden park** ([ADR 0008](adr/0008-backoffice-mapa-modulu.md)): data jsou
   oddělená po provozovatelích, ale obecná nastavení pro víc parků se začnou stavět až po

@@ -17,3 +17,4 @@ Rozhodnutí se **nepřepisují**. Když se změní, přidá se nové ADR, které
 | [0007](0007-omezeni-dat-na-provozovatele.md) | Omezení dat na provozovatele v aplikační vrstvě, ne globálním filtrem EF | Přijato |
 | [0008](0008-backoffice-mapa-modulu.md) | Backoffice: mapa modulů, dva pohledy a pořadí | Přijato |
 | [0009](0009-provoz-a-katalog-v-backoffice.md) | Provozní doba po dnech, blokace a katalog v backoffice | Přijato |
+| [0010](0010-gateway-zatim-ne-backoffice-pres-nginx.md) | Gateway zatím nenasazovat, backoffice publikovat přes nginx | Přijato |
