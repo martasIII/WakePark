@@ -4,16 +4,12 @@
 
 Rezervační, billingový a informační systém pro wakeboardingové parky, primárně dvousloupé.
 
-Stav: **jádro rezervací hotové**. Stojí architektura, sdílené stavební bloky a tři moduly:
-`Tenancy` (provozovatel a areály), `Operations` (vleky a rozvrh) a `Reservations` (sloty,
-rezervace, permanentky). Zbytek zatím existuje jen jako popsaný datový model.
+Stav (říjen 2026): **veřejný web a e-shop** (QR platba, párování plateb z Fio, daňové doklady,
+vouchery v PDF, e-maily) běží na testovací doméně [novy.wake-dzban.cz](https://novy.wake-dzban.cz).
+Backend backoffice (katalog, provozní kalendář, blokace) je hotový, obrazovky v Angularu se staví.
+Osm modulů, 323 testů, nasazení po každé zelené změně.
 
-| Modul | Odpovídá na otázku | Vlastní |
-|---|---|---|
-| `Tenancy` | Kdo systém provozuje a kde? | `Enterprise`, `Park` (vč. politiky storna) |
-| `Operations` | Kdy by se dalo jezdit? | `Cable`, `Season`, `WorkingHours`, `ScheduleOverride` |
-| `Reservations` | Co je volné a kdo to má? | `Slot`, `Reservation`, `RidePass`, `CreditTransaction` |
-| `Identity` | Kdo je to a co smí? | `UserAccount`, `Role`, `Permission`, `UserParkRole` |
+**Přehled architektury, technologií, CI/CD a kompromisů: [docs/architektura.md](docs/architektura.md).**
 
 ## Stack
 
