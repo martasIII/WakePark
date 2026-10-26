@@ -1,10 +1,10 @@
 ﻿<#
 .SYNOPSIS
-    Ruční nasazení webu a API z vývojového počítače — záloha pro případ, že nejde GitHub.
+    Ruční nasazení webu, backoffice a API z vývojového počítače — záloha pro případ, že nejde GitHub.
 
 .DESCRIPTION
     Běžně nasazuje GitHub Actions po zeleném CI (obraz z ghcr.io, deploy.sh na serveru).
-    Tenhle skript postaví oba obrazy lokálně, přenese je jako archiv a spustí je se značkou
+    Tenhle skript postaví všechny tři obrazy lokálně, přenese je jako archiv a spustí je se značkou
     „manual“ se stejnými kroky jako deploy.sh (migrace, import katalogu). Další nasazení z CI ho zase nahradí verzí z registru.
 
     Předpoklady: běžící Docker Desktop, SSH alias `dochazka` (root, klíč) a jednorázové
@@ -26,6 +26,7 @@ $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..')
 $images = @{
     'ghcr.io/martasiii/wakepark-storefront:manual' = 'src/frontend/WakePark.Storefront/Dockerfile'
     'ghcr.io/martasiii/wakepark-api:manual'        = 'src/backend/WakePark.Api/Dockerfile'
+    'ghcr.io/martasiii/wakepark-backoffice:manual' = 'src/frontend/wakepark-web/Dockerfile'
 }
 $archive = Join-Path ([IO.Path]::GetTempPath()) 'wakepark-images.tar'
 
@@ -57,17 +58,20 @@ cd $RemoteDir
 export WAKEPARK_TAG=manual
 docker compose up -d --wait db
 docker compose run --rm --no-deps api migrate
+docker compose run --rm --no-deps api import-setup
 docker compose run --rm --no-deps api import-catalog
 docker compose up -d --remove-orphans
 docker image prune -f > /dev/null
 for i in `$(seq 1 30); do
-  if curl -fsS http://127.0.0.1:5081/eshop 2> /dev/null | grep -q 'class="product"'; then echo 'web ukazuje nabídku'; exit 0; fi
+  if curl -fsS http://127.0.0.1:5081/eshop 2> /dev/null | grep -q 'class="product"'     && [ "`$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:5082/api/v1/identity/me)" = 401 ]; then
+    echo 'web ukazuje nabídku, backoffice dosáhne na API'; exit 0
+  fi
   sleep 1
 done
-echo 'web po 30 s neukazuje nabídku — docker compose logs' >&2
+echo 'web nebo backoffice po 30 s neodpovídá — docker compose logs' >&2
 docker compose logs --tail 50
 exit 1
 "@
 Invoke-Checked { $remote -replace "`r", '' | ssh $SshHost 'bash -s' } 'Spuštění na serveru'
 
-Write-Host "`nNasazeno: https://novy.wake-dzban.cz" -ForegroundColor Green
+Write-Host "`nNasazeno: https://novy.wake-dzban.cz a https://admin.wake-dzban.cz" -ForegroundColor Green

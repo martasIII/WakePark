@@ -43,9 +43,14 @@ public static class IdentityEndpoints
                 Neúspěch vrací vždy **401** se stejnou hláškou bez ohledu na to, jestli účet
                 neexistuje nebo je heslo špatné. Rozdílná odpověď by prozradila, které e-maily
                 jsou v systému zavedené.
+
+                Z jedné IP adresy jde nejvýš 10 pokusů za 10 minut, pak **429**. Po 5 špatných
+                heslech za sebou se účet zamkne a odemkne ho až `create-admin`.
                 """)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status429TooManyRequests)
+            .RequireRateLimiting(IdentityModule.SignInRateLimitPolicy)
             .AllowAnonymous();
 
         // Přetypování na Delegate je nutné: metoda s jediným parametrem HttpContext by se

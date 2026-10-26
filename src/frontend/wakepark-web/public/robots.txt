@@ -1,0 +1,3 @@
+# Backoffice — interní aplikace, do vyhledávačů nepatří.
+User-agent: *
+Disallow: /

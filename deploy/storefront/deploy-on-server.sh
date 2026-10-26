@@ -1,5 +1,5 @@
 #!/bin/sh
-# Nasazení webu, API a databáze na VPS: /opt/wakepark/storefront/deploy.sh (vlastník root, 755).
+# Nasazení webu, backoffice, API a databáze na VPS: /opt/wakepark/storefront/deploy.sh (vlastník root, 755).
 #
 # Spouští ho GitHub Actions přes SSH jako uživatel `deploy`. Klíč je v authorized_keys
 # svázaný s tímhle skriptem (command="…", restrict), takže s ním nejde spustit nic jiného
@@ -30,13 +30,14 @@ docker compose run --rm --no-deps api import-catalog
 docker compose up -d --remove-orphans
 docker image prune -f > /dev/null
 
-# Hotovo je, až web ukáže nabídku — tím se ověří celá cesta web → API → databáze.
+# Hotovo je, až web ukáže nabídku (web → API → databáze) a backoffice dosáhne na API
+# (nepřihlášenému vrátí 401, ne 502 od svého nginxu).
 for _ in $(seq 1 30); do
-    if curl -fsS http://127.0.0.1:5081/eshop 2> /dev/null | grep -q 'class="product"'; then
+    if curl -fsS http://127.0.0.1:5081/eshop 2> /dev/null | grep -q 'class="product"'         && [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:5082/api/v1/identity/me)" = 401 ]; then
         # Ruční příkazy z README (docker compose run … bez WAKEPARK_TAG) berou :latest —
         # ať je to vždy verze, která běží, ne nějaká starší.
         if [ "$tag" != latest ]; then
-            for service in api storefront; do
+            for service in api storefront backoffice; do
                 docker tag "ghcr.io/martasiii/wakepark-$service:$tag" "ghcr.io/martasiii/wakepark-$service:latest"
             done
         fi
@@ -46,7 +47,7 @@ for _ in $(seq 1 30); do
     sleep 1
 done
 
-echo "Web po 30 s neukazuje nabídku e-shopu." >&2
+echo "Web po 30 s neukazuje nabídku e-shopu, nebo backoffice nedosáhne na API." >&2
 docker compose ps >&2
-docker compose logs --tail 50 api storefront >&2
+docker compose logs --tail 50 api storefront backoffice >&2
 exit 1

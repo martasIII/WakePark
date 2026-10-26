@@ -32,6 +32,10 @@ ENV ASPNETCORE_HTTP_PORTS=8080 \
 
 COPY --from=build /app .
 
+# Složka na klíče přihlašovací cookie (v compose je na ní volume). Docker novému volume
+# převezme vlastníka ze složky v obrazu — bez ní by patřila rootovi a aplikace by do ní nezapsala.
+RUN mkdir -p /home/app/.aspnet/DataProtection-Keys && chown -R $APP_UID /home/app/.aspnet
+
 # Uživatel bez práv roota — když se aplikace nechá zneužít, útočník v kontejneru není root.
 USER $APP_UID
 EXPOSE 8080

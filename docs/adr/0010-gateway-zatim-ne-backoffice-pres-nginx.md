@@ -35,8 +35,8 @@ admin.wake-dzban.cz (nginx, TLS)
 - **API musí převzít předávané hlavičky.** Doplnit `UseForwardedHeaders` (`X-Forwarded-For`,
   `X-Forwarded-Proto`) s důvěryhodnou sítí Dockeru, stejně jako má storefront. Bez toho API
   nevidí skutečnou IP návštěvníka (log, budoucí omezení pokusů o přihlášení) a nepozná HTTPS
-  (cookie `XSRF-TOKEN` by nedostala příznak `Secure`). **Zatím chybí, je to první krok
-  nasazení backoffice.**
+  (cookie `XSRF-TOKEN` by nedostala příznak `Secure`). Doplněno při nasazení backoffice,
+  viz níž.
 - **Projekt `WakePark.Gateway` zůstává v repu** jako připravený bod pro budoucnost.
   Neodstraňuje se, ale ani nerozvíjí.
 - **Vývoj se nemění:** Angular → `proxy.conf.json` → API. Gateway při vývoji být může, nemusí.
@@ -60,3 +60,21 @@ Využívá se nginx, který na serveru už je a umí TLS i statické soubory.
 **Co ztrácíme.** Logika společná pro všechny požadavky (třeba korelační ID) se musí dát do API,
 ne do gateway. Při oddělení první služby bude potřeba gateway nasadit a frontend přesměrovat.
 Kód gateway na to je připravený.
+
+## Provedení (26. 10. 2026)
+
+Statické soubory obsluhuje vlastní obraz `wakepark-backoffice` (nginx bez práv roota), ne nginx
+hostitele — nasazuje se stejně jako ostatní obrazy a verze aplikace sedí s verzí API:
+
+```
+internet → nginx hostitele (admin.wake-dzban.cz, TLS) → 127.0.0.1:5082 wakepark-backoffice
+                                                           ├── /      → Angular (index.html bez cache)
+                                                           └── /api/  → http://api:8080 (síť Dockeru)
+```
+
+- Nginx hostitele posílá `X-Forwarded-For: $remote_addr` (hlavičku od klienta nepřebírá),
+  nginx v obrazu ji jen předá dál. API věří `X-Forwarded-*` jen ze sítě Dockeru
+  (`ForwardedHeaders:TrustedNetworks`).
+- `/api/v1/identity/login`: nejvýš 10 pokusů z jedné IP za 10 minut (429), k tomu zamčení
+  účtu po 5 špatných heslech. `create-admin` existujícímu účtu nastaví heslo a odemkne ho.
+- Klíče přihlašovací cookie jsou ve volume `api-keys`, nasazení nikoho neodhlásí.

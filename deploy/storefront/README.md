@@ -1,11 +1,12 @@
-# Nasazení webu a e-shopu na VPS
+# Nasazení webu, e-shopu a backoffice na VPS
 
 Web běží na Wedos VPS (Debian 12, 1 jádro, 2 GB RAM) vedle Docházky:
 
 ```
 internet ─► nginx (80/443, certifikáty Let's Encrypt)
               ├─ dochazka.wake-dzban.cz ─► 127.0.0.1:5080  Docházka (systemd)
-              └─ novy.wake-dzban.cz     ─► 127.0.0.1:5081  Storefront (Docker)
+              ├─ novy.wake-dzban.cz     ─► 127.0.0.1:5081  Storefront (Docker)
+              └─ admin.wake-dzban.cz    ─► 127.0.0.1:5082  Backoffice (Docker: nginx + Angular)
                                                           │ http://api:8080 (síť Dockeru)
                                                           ▼
                                                         API ─► PostgreSQL (svazek pgdata)
@@ -19,10 +20,11 @@ Heslo k databázi je jen v `/opt/wakepark/storefront/.env` (root:deploy, 640 —
 Samo, po každém pushi do `main`, když projdou testy (`.github/workflows/ci.yml`):
 
 ```
-push → CI: testy ✔ + obrazy ghcr.io/martasiii/wakepark-{storefront,api}:<commit>
+push → CI: testy ✔ + obrazy ghcr.io/martasiii/wakepark-{storefront,api,backoffice}:<commit>
      → značka latest → ssh deploy@VPS "<commit>"
      → deploy.sh: pull → databáze → migrace → import katalogu → nové kontejnery
                   → kontrola, že /eshop ukazuje nabídku (web → API → databáze)
+                    a backoffice dosáhne na API
 ```
 
 Uživatel `deploy` na serveru nemá heslo ani shell. Jeho klíč (v GitHub Secrets) je
@@ -36,7 +38,7 @@ Když selže migrace nebo import katalogu, skript skončí dřív, než spustí 
 dál běží stará verze. Migrace proto musí být zpětně kompatibilní (stará verze chvíli
 běží proti novému schématu).
 
-**Záloha, když nejde GitHub:** `.\deploy\storefront\deploy.ps1` postaví oba obrazy lokálně
+**Záloha, když nejde GitHub:** `.\deploy\storefront\deploy.ps1` postaví všechny obrazy lokálně
 a nasadí je se značkou `manual`.
 
 **Změna `docker-compose.yml` nebo `deploy-on-server.sh`** se na server nenasazuje sama
@@ -132,8 +134,9 @@ GitHub → Settings → Secrets and variables → Actions:
 | `VPS_DEPLOY_SSH_KEY` | soukromý klíč `deploy_key` (celý, včetně řádků BEGIN/END) |
 | `VPS_KNOWN_HOSTS` | výstup `ssh-keyscan 31.31.73.220`, ověřený proti známému otisku serveru |
 
-Obraz v ghcr.io musí být **veřejný** (GitHub → Packages → wakepark-storefront → Package
-settings → Change visibility), jinak by si ho server nestáhl bez přihlášení.
+Obrazy v ghcr.io musí být **veřejné** (GitHub → Packages → wakepark-storefront, -api,
+-backoffice → Package settings → Change visibility), jinak by si je server nestáhl bez přihlášení.
+Nový obraz je po prvním pushi soukromý — přepnout hned, než se na server nahraje compose, který ho chce.
 
 ### 6. Swap, heslo k databázi, zálohy
 
@@ -236,8 +239,32 @@ Pořadí je důležité. Odhad: hodina práce, web je nedostupný jen pár minut
 cd /opt/wakepark/storefront && docker compose run --rm -it --no-deps api create-admin jmeno@wake-dzban.cz
 ```
 
-První admin se stane vlastníkem provozovatele. Existujícímu účtu příkaz jen přidá roli admina,
-heslo nemění.
+První admin se stane vlastníkem provozovatele. **Existujícímu účtu příkaz nastaví nové heslo
+a odemkne ho** — tudy vede cesta zpátky po zapomenutém hesle nebo zamčeném účtu (5 špatných
+hesel za sebou). Nové heslo zároveň odhlásí všechna dosavadní přihlášení toho účtu.
+
+**Ochrana přihlášení:** z jedné IP adresy nejvýš 10 pokusů za 10 minut (pak 429), po 5 špatných
+heslech se účet zamkne. Backoffice není omezený na IP adresy, brigádníci se přihlašují odkudkoli.
+
+### Backoffice na admin.wake-dzban.cz (jednorázově)
+
+DNS záznam `admin.wake-dzban.cz` musí už ukazovat na `31.31.73.220`.
+
+1. Push do `main` — CI poprvé postaví obraz `wakepark-backoffice`. Nasazení ještě běží se
+   starým compose a backoffice nespouští.
+2. Obraz `wakepark-backoffice` v GitHubu přepnout na **veřejný** (viz výše).
+3. Na server nový compose a skript, pak nasadit a nastavit nginx (jako root):
+   ```bash
+   scp deploy/storefront/docker-compose.yml dochazka:/opt/wakepark/storefront/
+   scp deploy/storefront/deploy-on-server.sh dochazka:/opt/wakepark/storefront/deploy.sh
+   scp deploy/storefront/nginx-admin.wake-dzban.cz.conf dochazka:/etc/nginx/sites-available/backoffice
+   ssh dochazka
+   /opt/wakepark/storefront/deploy.sh latest
+   ln -s /etc/nginx/sites-available/backoffice /etc/nginx/sites-enabled/backoffice
+   nginx -t && systemctl reload nginx
+   certbot --nginx -d admin.wake-dzban.cz --redirect
+   ```
+4. https://admin.wake-dzban.cz → přihlásit se účtem z `create-admin`.
 
 **Otevírací doba z backoffice na webu:** po nahrání CSV sezóny (backoffice nebo
 `POST /api/v1/operations/parks/{id}/days/import`) přepnout v `docker-compose.yml`

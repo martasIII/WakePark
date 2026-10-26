@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Scalar.AspNetCore;
@@ -98,6 +99,17 @@ builder.Services.AddAntiforgery(options =>
 });
 
 // --- HTTP ---
+// Na VPS přicházejí požadavky přes nginx v Dockeru (ADR 0010). Hlavičkám X-Forwarded-*
+// se věří jen z bridge sítě Dockeru, jinak by si klient podvrhl IP a obešel limit přihlášení.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    foreach (string network in builder.Configuration.GetSection("ForwardedHeaders:TrustedNetworks").Get<string[]>() ?? [])
+    {
+        options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(network));
+    }
+});
+
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
@@ -141,10 +153,13 @@ if (args.Contains(CatalogImportExtensions.CommandName, StringComparer.Ordinal))
     return imported ? 0 : 1;
 }
 
+app.UseForwardedHeaders();
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
+// Za UseForwardedHeaders — limit přihlášení se počítá podle skutečné IP, ne nginxu.
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseMiddleware<AntiforgeryMiddleware>();
 app.UseAuthorization();

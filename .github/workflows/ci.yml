@@ -73,6 +73,8 @@ jobs:
             dockerfile: src/frontend/WakePark.Storefront/Dockerfile
           - name: api
             dockerfile: src/backend/WakePark.Api/Dockerfile
+          - name: backoffice
+            dockerfile: src/frontend/wakepark-web/Dockerfile
     permissions:
       contents: read
       packages: write
@@ -107,7 +109,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
   deploy:
-    name: Nasazení na VPS (web, API, databáze)
+    name: Nasazení na VPS (web, backoffice, API, databáze)
     needs: [backend, frontend, images]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -129,7 +131,7 @@ jobs:
       # Obrazy, které prošly testy, dostanou značku latest — bez nového buildu.
       - name: Značka latest
         run: |
-          for name in storefront api; do
+          for name in storefront api backoffice; do
             image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/wakepark-$name"
             docker buildx imagetools create --tag "$image:latest" "$image:$GITHUB_SHA"
           done

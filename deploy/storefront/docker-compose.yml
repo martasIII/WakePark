@@ -1,9 +1,10 @@
 # Veřejný web a e-shop na VPS. Leží v /opt/wakepark/storefront/ a nasazuje ho deploy.sh:
 #   ./deploy.sh <commit>      (to dělá GitHub Actions po zeleném CI)
 #
-# Ven je vidět jen Storefront, a to jen na loopbacku hostitele — zvenku výhradně přes nginx,
-# který drží certifikát a porty 80/443 (sdílí je s Docházkou). API a databáze nemají
-# publikovaný žádný port; dostane se k nim jen kontejner ze stejné sítě Dockeru.
+# Ven jsou vidět jen Storefront (5081) a backoffice (5082), a to jen na loopbacku hostitele —
+# zvenku výhradně přes nginx, který drží certifikáty a porty 80/443 (sdílí je s Docházkou).
+# API a databáze nemají publikovaný žádný port; dostane se k nim jen kontejner ze stejné
+# sítě Dockeru (web serverově, backoffice přes svůj nginx — ADR 0010).
 #
 # Heslo k databázi je v .env vedle tohoto souboru (root:deploy, 640), v gitu není:
 #   POSTGRES_PASSWORD=…
@@ -62,6 +63,13 @@ services:
       # nastavené (22. 10. 2026), DKIM podepisuje Wedos sdíleným klíčem.
       Notifications__Smtp__Password: ${SMTP_PASSWORD:-}
       Notifications__Enabled: "true"
+      # Backoffice chodí přes dva nginxy; hlavičkám X-Forwarded-* se věří jen z sítě Dockeru,
+      # jinak by si klient podvrhl IP a obešel limit pokusů o přihlášení.
+      ForwardedHeaders__TrustedNetworks__0: "172.16.0.0/12"
+    volumes:
+      # Klíče, kterými je podepsaná přihlašovací cookie. Bez nich by každé nasazení
+      # všechny odhlásilo a rozdělané formuláře by spadly na neplatném tokenu.
+      - api-keys:/home/app/.aspnet/DataProtection-Keys
     mem_limit: 256m
     logging: *logging
 
@@ -89,7 +97,20 @@ services:
     mem_limit: 256m
     logging: *logging
 
+  backoffice:
+    image: ghcr.io/martasiii/wakepark-backoffice:${WAKEPARK_TAG:-latest}
+    container_name: wakepark-backoffice
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:5082:8080"
+    # Jen nginx se statickými soubory.
+    mem_limit: 64m
+    logging: *logging
+
 volumes:
+  api-keys:
   storefront-keys:
   # Data databáze přežijí nové verze i restart. Zálohuje je cron (pg_dump), viz README.
   pgdata:

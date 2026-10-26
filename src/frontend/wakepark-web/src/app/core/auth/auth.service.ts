@@ -4,10 +4,10 @@ import { firstValueFrom } from 'rxjs';
 
 import { CurrentUser } from './auth.models';
 
-/** Přihlášení se nezdařilo kvůli špatným údajům, ne kvůli výpadku. */
+/** Přihlášení server odmítl (špatné údaje, zamčený účet, moc pokusů), nejde o výpadek. */
 export class InvalidCredentialsError extends Error {
-  constructor() {
-    super('Nesprávný e-mail nebo heslo.');
+  constructor(message = 'Nesprávný e-mail nebo heslo. Po 5 chybných pokusech se účet zamkne.') {
+    super(message);
     this.name = 'InvalidCredentialsError';
   }
 }
@@ -49,6 +49,10 @@ export class AuthService {
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 401) {
         throw new InvalidCredentialsError();
+      }
+
+      if (error instanceof HttpErrorResponse && error.status === 429) {
+        throw new InvalidCredentialsError('Příliš mnoho pokusů o přihlášení. Zkus to znovu za 10 minut.');
       }
 
       throw error;

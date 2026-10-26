@@ -124,7 +124,8 @@ public sealed partial class IdentitySeeder(
 
     /// <summary>
     /// Admin pro celého provozovatele (příkaz <c>create-admin</c> na serveru, ADR 0009). Opakovatelné:
-    /// existující účet jen dostane roli, heslo se mu nemění.
+    /// existujícímu účtu nastaví nové heslo a odemkne ho — tudy se admin dostane zpátky, když
+    /// heslo zapomene nebo si účet zamkne špatnými pokusy.
     /// </summary>
     /// <returns>Id účtu.</returns>
     public async Task<Guid> EnsureAdminAsync(string email, string password, Guid enterpriseId, CancellationToken cancellationToken = default)
@@ -146,6 +147,13 @@ public sealed partial class IdentitySeeder(
             account.ConfirmEmail(clock.UtcNow);
             dbContext.UserAccounts.Add(account);
             LogAdminCreated(logger, normalized);
+        }
+        else
+        {
+            // Nové heslo zároveň zneplatní všechna dosavadní přihlášení (security stamp).
+            account.SetPassword(passwordHasher.Hash(password));
+            account.Unlock();
+            LogAdminPasswordReset(logger, normalized);
         }
 
         Role adminRole = await dbContext.Roles
@@ -184,4 +192,8 @@ public sealed partial class IdentitySeeder(
     [LoggerMessage(EventId = 2101, Level = LogLevel.Warning,
         Message = "Založen bootstrap správce {Email}. Změň mu heslo hned po prvním přihlášení.")]
     private static partial void LogAdminCreated(ILogger logger, string email);
+
+    [LoggerMessage(EventId = 2102, Level = LogLevel.Warning,
+        Message = "Správci {Email} nastaveno nové heslo a účet odemčen.")]
+    private static partial void LogAdminPasswordReset(ILogger logger, string email);
 }
