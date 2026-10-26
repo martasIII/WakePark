@@ -1,28 +1,41 @@
-/* Barvy jsou proměnné, aby šel tmavý režim doplnit bez sahání do komponent. */
-:root {
-  --wp-bg: #f7f7f8;
-  --wp-surface: #ffffff;
-  --wp-border: #d9d9de;
-  --wp-text: #1b1b1f;
-  --wp-text-muted: #61616b;
-  --wp-accent: #0f766e;
-  --wp-danger-border: #e5b4b4;
-  --wp-danger-surface: #fdf1f1;
-  --wp-danger-text: #8c2f2f;
+@use '@angular/material' as mat;
+
+/*
+ * Motiv Angular Material (ADR 0011): neutrální pracovní vzhled, světlý i tmavý podle systému.
+ * Barvy webu wake-dzban.cz se případně doplní později změnou palety tady.
+ */
+html {
+  color-scheme: light dark;
+
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$cyan-palette,
+      ),
+      typography: (
+        plain-family: ('Segoe UI', system-ui, -apple-system, sans-serif),
+        brand-family: ('Segoe UI', system-ui, -apple-system, sans-serif),
+      ),
+      density: 0,
+    )
+  );
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --wp-bg: #131316;
-    --wp-surface: #1c1c20;
-    --wp-border: #33333a;
-    --wp-text: #ececf0;
-    --wp-text-muted: #a0a0ac;
-    --wp-accent: #2dd4bf;
-    --wp-danger-border: #5c3030;
-    --wp-danger-surface: #2a1a1a;
-    --wp-danger-text: #f0a8a8;
-  }
+/*
+ * Vlastní proměnné pro obrazovky, které Material nekreslí. Navázané na systémové barvy
+ * Materialu, takže tmavý režim přijde sám.
+ */
+:root {
+  --wp-bg: var(--mat-sys-surface-container-low);
+  --wp-surface: var(--mat-sys-surface);
+  --wp-border: var(--mat-sys-outline-variant);
+  --wp-text: var(--mat-sys-on-surface);
+  --wp-text-muted: var(--mat-sys-on-surface-variant);
+  --wp-accent: var(--mat-sys-primary);
+  --wp-danger-border: var(--mat-sys-error);
+  --wp-danger-surface: var(--mat-sys-error-container);
+  --wp-danger-text: var(--mat-sys-on-error-container);
 }
 
 * {
@@ -32,8 +45,18 @@
 html,
 body {
   margin: 0;
+  min-height: 100%;
   background: var(--wp-bg);
   color: var(--wp-text);
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
+  font: var(--mat-sys-body-large);
+}
+
+h1 {
+  font: var(--mat-sys-headline-small);
+  margin: 0 0 1rem;
+}
+
+h2 {
+  font: var(--mat-sys-title-large);
+  margin: 0 0 0.75rem;
 }

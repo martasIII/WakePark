@@ -2,7 +2,7 @@
   <header class="parks__header">
     <div>
       <h1>Areály</h1>
-      <p class="parks__subtitle">Přehled všech wakeparků napříč provozovateli.</p>
+      <p class="parks__subtitle">Areály vašeho provozovatele.</p>
     </div>
     <button type="button" class="button" (click)="reload()" [disabled]="parks.isLoading()">
       Načíst znovu
@@ -14,7 +14,7 @@
   } @else if (parks.error()) {
     <div class="parks__state parks__state--error" role="alert">
       <strong>Areály se nepodařilo načíst.</strong>
-      <p>Běží backend na portu 5101 a gateway na 5100?</p>
+      <p>Zkuste to prosím znovu za chvíli.</p>
     </div>
   } @else if (isEmpty()) {
     <p class="parks__state">Zatím tu není žádný areál.</p>

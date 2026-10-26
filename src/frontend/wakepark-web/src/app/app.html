@@ -1,16 +1,67 @@
-<div class="shell">
-  <header class="shell__bar">
-    <span class="shell__brand">WakePark</span>
+@if (user(); as currentUser) {
+  <mat-sidenav-container class="shell">
+    <mat-sidenav
+      #nav
+      class="shell__nav"
+      [mode]="isHandset() ? 'over' : 'side'"
+      [opened]="!isHandset()"
+    >
+      <div class="shell__brand">WakePark</div>
 
-    @if (user(); as currentUser) {
-      <div class="shell__user">
-        <span class="shell__email">{{ currentUser.email }}</span>
-        <button class="button" type="button" (click)="signOut()">Odhlásit</button>
-      </div>
-    }
-  </header>
+      <mat-nav-list>
+        @for (item of navItems(); track item.path) {
+          <a
+            mat-list-item
+            [routerLink]="item.path"
+            routerLinkActive
+            #active="routerLinkActive"
+            [activated]="active.isActive"
+            (click)="isHandset() && nav.close()"
+          >
+            {{ item.label }}
+          </a>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
 
-  <main class="shell__content">
-    <router-outlet />
-  </main>
-</div>
+    <mat-sidenav-content>
+      <mat-toolbar class="shell__bar">
+        @if (isHandset()) {
+          <button mat-icon-button type="button" aria-label="Menu" (click)="nav.toggle()">
+            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+              <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+        }
+
+        @if (park.hasChoice()) {
+          <mat-select
+            class="shell__park-select"
+            aria-label="Areál"
+            [value]="park.current()?.id"
+            (valueChange)="park.select($event)"
+          >
+            @for (option of park.parks.value(); track option.id) {
+              <mat-option [value]="option.id">{{ option.name }}</mat-option>
+            }
+          </mat-select>
+        } @else {
+          <span class="shell__park">{{ park.current()?.name }}</span>
+        }
+
+        <span class="shell__spacer"></span>
+
+        @if (!isHandset()) {
+          <span class="shell__email">{{ currentUser.email }}</span>
+        }
+        <button mat-button type="button" (click)="signOut()">Odhlásit</button>
+      </mat-toolbar>
+
+      <main class="shell__content">
+        <router-outlet />
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+} @else {
+  <router-outlet />
+}

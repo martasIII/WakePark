@@ -32,7 +32,7 @@ export class Login {
     try {
       await this.auth.signIn(this.email(), this.password());
 
-      const target = this.route.snapshot.queryParamMap.get('pokracovat') ?? '/parks';
+      const target = this.route.snapshot.queryParamMap.get('pokracovat') ?? '/';
       await this.router.navigateByUrl(target);
     } catch (error) {
       this.errorMessage.set(

@@ -1,38 +1,51 @@
 .shell {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 
-  &__bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem 1.5rem;
-    border-bottom: 1px solid var(--wp-border);
-    background: var(--wp-surface);
-  }
-
-  &__user {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  &__email {
-    font-size: 0.9rem;
-    color: var(--wp-text-muted);
+  &__nav {
+    width: 15rem;
   }
 
   &__brand {
+    padding: 1.25rem 1rem 0.5rem;
     font-weight: 600;
+    font-size: 1.1rem;
     letter-spacing: -0.01em;
   }
 
-  &__content {
+  &__bar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  &__park {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  &__park-select {
+    max-width: 16rem;
+    font-size: 1rem;
+  }
+
+  &__spacer {
     flex: 1;
+  }
+
+  &__email {
+    font-size: 0.875rem;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__content {
     width: min(72rem, 100%);
     margin: 0 auto;
     padding: 1.5rem;
+
+    @media (max-width: 599.98px) {
+      padding: 1rem;
+    }
   }
 }

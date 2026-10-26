@@ -18,3 +18,4 @@ Rozhodnutí se **nepřepisují**. Když se změní, přidá se nové ADR, které
 | [0008](0008-backoffice-mapa-modulu.md) | Backoffice: mapa modulů, dva pohledy a pořadí | Přijato |
 | [0009](0009-provoz-a-katalog-v-backoffice.md) | Provozní doba po dnech, blokace a katalog v backoffice | Přijato |
 | [0010](0010-gateway-zatim-ne-backoffice-pres-nginx.md) | Gateway zatím nenasazovat, backoffice publikovat přes nginx | Přijato |
+| [0011](0011-backoffice-angular-material-typy-z-openapi.md) | Backoffice: Angular Material, typy z OpenAPI, rozložení podle rolí | Přijato |

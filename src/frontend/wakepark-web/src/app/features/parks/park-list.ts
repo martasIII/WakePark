@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 
-import { Park } from '../../core/api/tenancy.models';
+import { ParkDto, num } from '../../core/api/api';
 
 /**
  * Přehled všech areálů.
@@ -16,8 +16,8 @@ import { Park } from '../../core/api/tenancy.models';
   styleUrl: './park-list.scss',
 })
 export class ParkList {
-  /** Cesta jde přes proxy na gateway, stejně jako v produkci. */
-  protected readonly parks = httpResource<Park[]>(() => '/api/v1/tenancy/parks', {
+  /** Areály provozovatele z přihlášení (ADR 0007). */
+  protected readonly parks = httpResource<ParkDto[]>(() => '/api/v1/tenancy/parks', {
     defaultValue: [],
   });
 
@@ -26,19 +26,20 @@ export class ParkList {
   );
 
   /** Politika storna jednou větou, ať se to v přehledu dá přečíst. */
-  protected cancellationSummary(park: Park): string {
+  protected cancellationSummary(park: ParkDto): string {
     const policy = park.cancellationPolicy;
 
     if (!policy.cancellationAllowed) {
       return 'Storno není možné';
     }
 
+    const latePercent = num(policy.lateCancellationRefundPercent);
     const late =
-      policy.lateCancellationRefundPercent > 0
-        ? `, potom ${policy.lateCancellationRefundPercent} %`
+      latePercent > 0
+        ? `, potom ${latePercent} %`
         : ', potom bez náhrady';
 
-    return `Zdarma do ${policy.freeCancellationHours} h před začátkem${late}`;
+    return `Zdarma do ${num(policy.freeCancellationHours)} h před začátkem${late}`;
   }
 
   protected reload(): void {

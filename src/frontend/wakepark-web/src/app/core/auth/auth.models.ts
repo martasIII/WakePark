@@ -1,19 +1,10 @@
-/** Přístup uživatele do jednoho areálu. */
-export interface ParkAccess {
-  readonly wakeParkId: string;
-  readonly roles: readonly string[];
-  readonly permissions: readonly string[];
-}
+import type { CurrentUserDto, ParkAccessDto } from '../api/api';
 
-/** Kdo je přihlášený a co smí. */
-export interface CurrentUser {
-  readonly userAccountId: string;
-  readonly email: string;
-  readonly enterpriseId: string | null;
-  readonly parks: readonly ParkAccess[];
-  /** Oprávnění platná ve všech areálech provozovatele. */
-  readonly globalPermissions: readonly string[];
-}
+/** Přístup uživatele do jednoho areálu. */
+export type ParkAccess = ParkAccessDto;
+
+/** Kdo je přihlášený a co smí. `globalPermissions` platí ve všech areálech provozovatele. */
+export type CurrentUser = CurrentUserDto;
 
 /** Kódy oprávnění. Musí odpovídat konstantám v Identity.Contracts na backendu. */
 export const Permissions = {
@@ -21,9 +12,13 @@ export const Permissions = {
   parksManage: 'parks.manage',
   operationsRead: 'operations.read',
   operationsManage: 'operations.manage',
+  blockingsManage: 'blockings.manage',
   reservationsRead: 'reservations.read',
   reservationsCreate: 'reservations.create',
   reservationsCancel: 'reservations.cancel',
   passesManage: 'passes.manage',
   usersManage: 'users.manage',
+  catalogManage: 'catalog.manage',
 } as const;
+
+export type Permission = (typeof Permissions)[keyof typeof Permissions];
