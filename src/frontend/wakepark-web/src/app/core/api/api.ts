@@ -17,3 +17,11 @@ export type ParkDto = Schemas['ParkDto'];
 export function num(value: number | string | null | undefined): number {
   return value === null || value === undefined ? Number.NaN : Number(value);
 }
+
+export type OperatingCalendarDto = Schemas['OperatingCalendarDto'];
+export type OperatingDayDto = Schemas['OperatingDayDto'];
+export type BlockingDto = Schemas['BlockingDto'];
+export type CableDetailDto = Schemas['CableDetailDto'];
+export type SetOperatingDayRequest = Schemas['SetOperatingDayRequest'];
+export type OperatingDaysImportDto = Schemas['OperatingDaysImportDto'];
+export type OperatingDayDiffDto = Schemas['OperatingDayDiffDto'];

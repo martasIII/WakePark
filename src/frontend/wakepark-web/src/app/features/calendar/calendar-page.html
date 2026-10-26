@@ -1,0 +1,61 @@
+<header class="calendar__header">
+  <div>
+    <h1>Provozní kalendář</h1>
+    <p class="calendar__hint">
+      Den bez otevírací doby je zavřeno.
+      @if (canEdit()) {
+        Klepnutím na den ho upravíte, celou sezónu nahrajete z CSV.
+      }
+    </p>
+  </div>
+
+  @if (canEdit()) {
+    <button mat-flat-button type="button" (click)="importCsv()">Import CSV</button>
+  }
+</header>
+
+<nav class="calendar__months" aria-label="Měsíc">
+  <button mat-stroked-button type="button" (click)="previousMonth()" aria-label="Předchozí měsíc">‹</button>
+  <h2 class="calendar__month">{{ monthTitle() }}</h2>
+  <button mat-stroked-button type="button" (click)="nextMonth()" aria-label="Další měsíc">›</button>
+  <span class="calendar__summary">otevřeno {{ openDaysText() }}</span>
+</nav>
+
+@if (calendar.isLoading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (calendar.error()) {
+  <p class="calendar__error" role="alert">Kalendář se nepodařilo načíst. Zkuste to prosím znovu.</p>
+} @else {
+  <div class="calendar__grid">
+    @for (name of weekdays; track name) {
+      <div class="calendar__weekday" aria-hidden="true">{{ name }}</div>
+    }
+    @for (blank of leadingBlanks(); track $index) {
+      <div class="calendar__blank" aria-hidden="true"></div>
+    }
+
+    @for (day of calendarDays(); track day.date) {
+      <button
+        type="button"
+        class="day"
+        [attr.aria-label]="day.label"
+        [class.day--open]="day.hours"
+        [class.day--weekend]="day.isWeekend"
+        [class.day--today]="day.isToday"
+        [disabled]="!canEdit()"
+        (click)="editDay(day)"
+      >
+        <span class="day__date">
+          <span class="day__weekday">{{ day.weekday }}</span>
+          {{ day.dayOfMonth }}.
+        </span>
+        <span class="day__hours">{{ day.hours ?? 'zavřeno' }}</span>
+        @for (blocking of day.blockings; track $index) {
+          <span class="day__blocking">{{ blocking }}</span>
+        }
+      </button>
+    }
+  </div>
+}

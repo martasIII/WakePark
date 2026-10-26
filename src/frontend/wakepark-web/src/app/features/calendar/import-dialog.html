@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>Import provozní doby z CSV</h2>
+
+<mat-dialog-content>
+  <p class="hint">
+    Každý řádek <code>datum;od;do</code>, třeba <code>1.5.2027;10:00;19:30</code>. Bez časů = ten den zavřeno.
+    Oddělovač středník, čárka i tabulátor, první řádek smí být hlavička. Dny, které v souboru nejsou, zůstanou, jak jsou.
+  </p>
+
+  <div class="source">
+    <label class="file">
+      <input type="file" accept=".csv,.txt,text/csv,text/plain" (change)="readFile($event)" />
+      <span class="file__button">Vybrat soubor</span>
+      <span class="file__name">{{ fileName() ?? 'nebo text vložte níže' }}</span>
+    </label>
+  </div>
+
+  <mat-form-field class="text">
+    <mat-label>Obsah CSV</mat-label>
+    <textarea matInput rows="6" [ngModel]="csv()" (ngModelChange)="setCsv($event)"></textarea>
+  </mat-form-field>
+
+  @if (busy()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+
+  @if (preview(); as result) {
+    @if (result.errors.length > 0) {
+      <div class="errors" role="alert">
+        <strong>V souboru jsou chyby, nic se neuloží:</strong>
+        <ul>
+          @for (message of result.errors; track $index) {
+            <li>{{ message }}</li>
+          }
+        </ul>
+      </div>
+    } @else {
+      <p class="summary">{{ summary() }}</p>
+
+      @if (changes().length > 0) {
+        <table class="changes">
+          <thead>
+            <tr><th>Den</th><th>Změna</th><th>Teď</th><th>Po importu</th></tr>
+          </thead>
+          <tbody>
+            @for (row of changes(); track row.date) {
+              <tr><td>{{ row.date }}</td><td>{{ row.change }}</td><td>{{ row.before }}</td><td>{{ row.after }}</td></tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p>Kalendář už odpovídá souboru, není co ukládat.</p>
+      }
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Zavřít</button>
+  @if (canApply()) {
+    <button mat-flat-button type="button" [disabled]="busy()" (click)="apply()">Uložit změny</button>
+  } @else {
+    <button mat-stroked-button type="button" [disabled]="busy() || !csv().trim()" (click)="showPreview()">Náhled</button>
+  }
+</mat-dialog-actions>
