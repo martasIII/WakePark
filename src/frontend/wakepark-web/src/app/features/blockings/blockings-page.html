@@ -1,0 +1,56 @@
+<header class="blockings__header">
+  <div>
+    <h1>Blokace</h1>
+    <p class="blockings__hint">V zablokovaném čase nejdou online rezervace. Poznámku vidí jen obsluha.</p>
+  </div>
+  <button mat-flat-button type="button" class="blockings__add" (click)="block()">Zablokovat</button>
+</header>
+
+@if (calendar.isLoading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (calendar.error()) {
+  <p class="blockings__error" role="alert">Blokace se nepodařilo načíst. Zkuste to prosím znovu.</p>
+} @else if (!calendar.isLoading() && days().length === 0) {
+  <p class="blockings__empty">Na příštích 30 dní není nic zablokované.</p>
+} @else {
+  @for (day of days(); track day.date) {
+    <section class="day" [attr.aria-label]="day.title">
+      <h2 class="day__title">{{ day.title }}</h2>
+
+      <ul class="day__list">
+        @for (row of day.rows; track row.id) {
+          <li class="blocking" [class.blocking--active]="row.isActive">
+            <div class="blocking__main">
+              <span class="blocking__time">{{ row.time }}</span>
+              @if (row.isActive) {
+                <span class="blocking__badge">právě teď</span>
+              }
+            </div>
+            <div class="blocking__what">
+              <strong>{{ row.where }}</strong> · {{ row.category }}
+            </div>
+            @if (row.note) {
+              <p class="blocking__note">{{ row.note }}</p>
+            }
+
+            <div class="blocking__actions">
+              @if (confirming() === row.id) {
+                <span>Opravdu zrušit?</span>
+                <button mat-button type="button" (click)="confirming.set(null)">Ne</button>
+                <button mat-flat-button type="button" class="blocking__confirm" [disabled]="removing()" (click)="remove(row)">
+                  Ano, zrušit
+                </button>
+              } @else {
+                <button mat-stroked-button type="button" [attr.aria-label]="'Zrušit blokaci ' + row.where + ' ' + row.time" (click)="confirming.set(row.id)">
+                  Zrušit
+                </button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+}

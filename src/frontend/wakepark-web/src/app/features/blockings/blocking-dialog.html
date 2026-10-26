@@ -1,0 +1,81 @@
+<h2 mat-dialog-title>Zablokovat</h2>
+
+<mat-dialog-content>
+  <section class="field">
+    <h3 class="field__label" id="blocking-where">Co</h3>
+    <mat-chip-listbox aria-labelledby="blocking-where" [value]="where()" (change)="where.set($event.value ?? where())">
+      <mat-chip-option [value]="wholePark">Celý areál</mat-chip-option>
+      @for (cable of data.cables; track cable.id) {
+        <mat-chip-option [value]="cable.id">{{ cable.name }}</mat-chip-option>
+      }
+    </mat-chip-listbox>
+  </section>
+
+  <section class="field">
+    <h3 class="field__label" id="blocking-why">Důvod</h3>
+    <mat-chip-listbox aria-labelledby="blocking-why" [value]="category()" (change)="category.set($event.value)">
+      @for (option of categories; track option.value) {
+        <mat-chip-option [value]="option.value">{{ option.label }}</mat-chip-option>
+      }
+    </mat-chip-listbox>
+  </section>
+
+  <section class="field">
+    <h3 class="field__label">Kdy</h3>
+    <div class="quick">
+      <button mat-stroked-button type="button" (click)="fromNow(60)">Teď na hodinu</button>
+      <button mat-stroked-button type="button" (click)="fromNow(120)">Teď na 2 h</button>
+      @if (closingToday(); as closing) {
+        <button mat-stroked-button type="button" (click)="untilClosing()">Teď do {{ closing }}</button>
+      }
+      <button mat-stroked-button type="button" (click)="wholeDay()">Celý den</button>
+    </div>
+
+    <div class="range">
+      <span class="range__label">Od</span>
+      <mat-form-field subscriptSizing="dynamic">
+        <mat-label>Den</mat-label>
+        <input matInput type="date" [ngModel]="startDate()" (ngModelChange)="setStartDate($event)" required />
+      </mat-form-field>
+      <mat-form-field subscriptSizing="dynamic">
+        <mat-label>Čas</mat-label>
+        <input matInput type="time" step="300" [ngModel]="startTime()" (ngModelChange)="startTime.set($event)" required />
+      </mat-form-field>
+
+      <span class="range__label">Do</span>
+      <mat-form-field subscriptSizing="dynamic">
+        <mat-label>Den</mat-label>
+        <input matInput type="date" [min]="startDate()" [ngModel]="endDate()" (ngModelChange)="endDate.set($event)" required />
+      </mat-form-field>
+      <mat-form-field subscriptSizing="dynamic">
+        <mat-label>Čas</mat-label>
+        <input matInput type="time" step="300" [ngModel]="endTime()" (ngModelChange)="endTime.set($event)" required />
+      </mat-form-field>
+    </div>
+
+    @if (endTime() && !rangeValid()) {
+      <p class="error">Konec musí být po začátku.</p>
+    }
+  </section>
+
+  <mat-form-field class="note" subscriptSizing="dynamic">
+    <mat-label>Poznámka pro obsluhu</mat-label>
+    <textarea
+      matInput
+      rows="2"
+      [maxlength]="noteMaxLength"
+      [ngModel]="note()"
+      (ngModelChange)="note.set($event)"
+    ></textarea>
+    <mat-hint>Na webu se neukáže, zákazníci uvidí jen důvod.</mat-hint>
+  </mat-form-field>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Zrušit</button>
+  <button mat-flat-button type="button" [disabled]="!canSave()" (click)="save()">Zablokovat</button>
+</mat-dialog-actions>

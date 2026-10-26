@@ -15,6 +15,25 @@ export function localTime(instant: string | Date, timeZone: string): string {
   return new Intl.DateTimeFormat('cs-CZ', { timeZone, hour: 'numeric', minute: '2-digit' }).format(new Date(instant));
 }
 
+/** `HH:mm` daného okamžiku v pásmu areálu — hodnota pro `<input type="time">`. */
+export function localClock(instant: string | Date, timeZone: string): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(
+    new Date(instant),
+  );
+}
+
+/** `YYYY-MM-DD` posunuté o dny — bez časového pásma, ať se nic neposune. */
+export function addDays(date: string, days: number): string {
+  const [y, m, d] = date.split('-').map(Number);
+  const shifted = new Date(Date.UTC(y, m - 1, d + days));
+  return isoDate(shifted.getUTCFullYear(), shifted.getUTCMonth() + 1, shifted.getUTCDate());
+}
+
+/** Datum pro lidi: „út 27. 10.“ */
+export function shortDate(date: string): string {
+  return `${weekdayName(date)} ${Number(date.slice(8))}. ${Number(date.slice(5, 7))}.`;
+}
+
 /** `10:00:00` z API → `10:00`. */
 export function shortTime(time: string | null | undefined): string {
   if (!time) {

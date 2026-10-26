@@ -10,6 +10,7 @@ import { num } from '../../core/api/api';
 import { Permissions } from '../../core/auth/auth.models';
 import { AuthService } from '../../core/auth/auth.service';
 import { ParkContext } from '../../core/park/park-context';
+import { blockingCategory } from '../../shared/blockings';
 import { daysOfMonth, localDate, localTime, shortTime, weekdayIndex, weekdayName } from '../../shared/park-time';
 import { DayDialog, DayDialogData } from './day-dialog';
 import { ImportDialog, ImportDialogData } from './import-dialog';
@@ -28,13 +29,6 @@ interface CalendarDay {
   /** Celý popis pro čtečku obrazovky: „sobota 31. 10., 10:00–19:00“. */
   readonly label: string;
 }
-
-const BLOCKING_LABELS: Record<string, string> = {
-  TechnicalFault: 'závada',
-  PrivateEvent: 'akce',
-  Weather: 'počasí',
-  Other: 'mimo provoz',
-};
 
 const MONTHS = [
   'leden', 'únor', 'březen', 'duben', 'květen', 'červen',
@@ -182,6 +176,6 @@ function touches(blocking: BlockingDto, date: string, timeZone: string): boolean
 
 function describe(blocking: BlockingDto, cableNames: Map<string, string>, timeZone: string): string {
   const where = blocking.cableId ? (cableNames.get(blocking.cableId) ?? 'vlek') : 'celý areál';
-  const why = BLOCKING_LABELS[blocking.category] ?? blocking.category;
+  const why = blockingCategory(blocking.category).short;
   return `${localTime(blocking.startUtc, timeZone)}–${localTime(blocking.endUtc, timeZone)} ${where}: ${why}`;
 }

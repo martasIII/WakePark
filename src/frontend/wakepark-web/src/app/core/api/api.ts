@@ -21,6 +21,7 @@ export function num(value: number | string | null | undefined): number {
 export type OperatingCalendarDto = Schemas['OperatingCalendarDto'];
 export type OperatingDayDto = Schemas['OperatingDayDto'];
 export type BlockingDto = Schemas['BlockingDto'];
+export type CreateBlockingRequest = Schemas['CreateBlockingRequest'];
 export type CableDetailDto = Schemas['CableDetailDto'];
 export type SetOperatingDayRequest = Schemas['SetOperatingDayRequest'];
 export type OperatingDaysImportDto = Schemas['OperatingDaysImportDto'];
