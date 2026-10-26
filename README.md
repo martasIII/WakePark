@@ -157,12 +157,17 @@ cd src/frontend/wakepark-web
 npm start
 ```
 
-Běží na `http://localhost:4200`. Požadavky na `/api/**` proxuje `proxy.conf.json` na gateway
-(`http://localhost:5100`), takže se ve vývoji neřeší CORS a frontend volá stejné cesty jako
-v produkci.
+Běží na `http://localhost:4200`. Požadavky na `/api/**` proxuje `proxy.conf.json` rovnou na API
+(`http://localhost:5101`, gateway zatím nenasazujeme — [ADR 0010](docs/adr/0010-gateway-zatim-ne-backoffice-pres-nginx.md)),
+takže se ve vývoji neřeší CORS a frontend volá stejné cesty jako v produkci.
 
-Aby stránka ukázala data, musí běžet **všechno tři**: databáze, `WakePark.Api` (5101)
-a `WakePark.Gateway` (5100). Když něco z toho chybí, přehled to řekne místo prázdné stránky.
+Aby stránka ukázala data, musí běžet databáze a `WakePark.Api` (5101). Když něco z toho chybí,
+stránka to řekne místo prázdné obrazovky.
+
+**Ve Visual Studiu** je backoffice v solution jako `wakepark-web.esproj`. Ve *Configure Startup
+Projects* zvol více spouštěných projektů (`WakePark.Api` + `wakepark-web`) a F5 nahodí obojí;
+VS pak spustí `npm start` a otevře prohlížeč na :4200. Build v konfiguraci Release (CI) projekt
+přeskakuje, v Debugu jen doinstaluje balíčky, když se změní `package.json`.
 
 Stránky se načítají líně (`loadComponent`), stav dotazu drží `httpResource` — načítání i chyba
 jsou signály, takže se v komponentách nedrží žádné ruční `isLoading`.

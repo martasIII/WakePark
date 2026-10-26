@@ -1,0 +1,15 @@
+<!--
+  Backoffice (Angular) jako projekt solution, ať ho Visual Studio spustí spolu s API jedním F5.
+  Jen pro vývoj ve VS — CI ani Docker ho nestaví (v solution nemá Build v konfiguraci Release),
+  produkční build dělá `npm run build`.
+-->
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.6887863">
+  <PropertyGroup>
+    <!-- F5 = ng serve na :4200, /api jde přes proxy.conf.json na API (:5101). -->
+    <StartupCommand>npm start</StartupCommand>
+    <!-- Build ve VS jen doinstaluje balíčky, Angular nestaví — dev server si kompiluje sám. -->
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
+    <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
+    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\wakepark-web\browser\</BuildOutputFolder>
+  </PropertyGroup>
+</Project>

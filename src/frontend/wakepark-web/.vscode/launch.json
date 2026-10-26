@@ -2,6 +2,23 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+    // Visual Studio (wakepark-web.esproj): dev server spouští samo přes StartupCommand,
+    // tady jen otevře prohlížeč.
+    {
+      "name": "Backoffice (Edge)",
+      "type": "edge",
+      "request": "launch",
+      "url": "http://localhost:4200/",
+      "webRoot": "${workspaceFolder}/src"
+    },
+    {
+      "name": "Backoffice (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:4200/",
+      "webRoot": "${workspaceFolder}/src"
+    },
+    // VS Code
     {
       "name": "ng serve",
       "type": "chrome",

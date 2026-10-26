@@ -149,6 +149,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakePark.Modules.Vouchers.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakePark.Modules.Vouchers.Infrastructure", "src\backend\Modules\Vouchers\WakePark.Modules.Vouchers.Infrastructure\WakePark.Modules.Vouchers.Infrastructure.csproj", "{45B82BA7-F067-4CBB-A500-B9E15181B45B}"
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "wakepark-web", "src\frontend\wakepark-web\wakepark-web.esproj", "{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -771,6 +773,18 @@ Global
 		{45B82BA7-F067-4CBB-A500-B9E15181B45B}.Release|x64.Build.0 = Release|Any CPU
 		{45B82BA7-F067-4CBB-A500-B9E15181B45B}.Release|x86.ActiveCfg = Release|Any CPU
 		{45B82BA7-F067-4CBB-A500-B9E15181B45B}.Release|x86.Build.0 = Release|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Debug|x64.Build.0 = Debug|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Debug|x86.Build.0 = Debug|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Release|x64.ActiveCfg = Release|Any CPU
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -847,5 +861,6 @@ Global
 		{4C42435D-9E9B-4C6D-9B28-177EFE3A53FB} = {DAC24D92-CE4B-DE39-ED92-8F7A214C5FBC}
 		{507905EA-F94C-48E6-92B8-567077FA3F1F} = {DAC24D92-CE4B-DE39-ED92-8F7A214C5FBC}
 		{45B82BA7-F067-4CBB-A500-B9E15181B45B} = {DAC24D92-CE4B-DE39-ED92-8F7A214C5FBC}
+		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90} = {42299874-777B-F2D0-9D08-D24097ABCE7E}
 	EndGlobalSection
 EndGlobal
