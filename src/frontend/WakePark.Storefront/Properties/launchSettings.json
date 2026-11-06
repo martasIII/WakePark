@@ -7,7 +7,9 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7200;http://localhost:5200",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Storefront__ApiBaseUrl": "http://localhost:5101",
+        "Storefront__EnterpriseId": "01990000-0000-7000-8000-000000000001"
       }
     }
   }
