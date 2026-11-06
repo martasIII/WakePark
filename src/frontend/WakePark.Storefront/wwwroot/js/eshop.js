@@ -29,8 +29,60 @@
         }
     };
 
+    // Věnování: jedno pole na každý kus voucheru. Text z pole, do kterého zákazník psal jako
+    // první (lead), se předvyplní do ostatních, dokud je sám nezmění (pak má pole data-own).
+    const dedicationFields = () => [...form.querySelectorAll('.dedications textarea')];
+    let lead = null;
+
+    const syncDedications = (input) => {
+        const box = input.closest('.product').querySelector('.dedications');
+        if (!box) {
+            return;
+        }
+        const quantity = Number(input.value) || 0;
+        let fields = [...box.querySelectorAll('label')];
+        while (fields.length > quantity) {
+            fields.pop().remove();
+        }
+        while (fields.length < quantity) {
+            const index = fields.length;
+            const label = document.createElement('label');
+            label.append(box.dataset.label.replace('{0}', index + 1));
+            const area = Object.assign(document.createElement('textarea'), {
+                name: `${box.dataset.name}[${index}]`, rows: 2, maxLength: 120,
+            });
+            area.value = lead?.isConnected ? lead.value : '';
+            label.append(area);
+            box.insertBefore(label, box.querySelector('.hint'));
+            fields.push(label);
+        }
+        let hint = box.querySelector('.hint');
+        if (quantity > 0 && !hint) {
+            hint = Object.assign(document.createElement('p'), { className: 'hint', textContent: box.dataset.hint });
+            box.append(hint);
+        }
+        hint?.toggleAttribute('hidden', quantity === 0);
+    };
+
+    form.addEventListener('input', (event) => {
+        if (!event.target.matches('.dedications textarea')) {
+            return;
+        }
+        if (!lead?.isConnected) {
+            lead = event.target;
+        }
+        if (event.target === lead) {
+            for (const field of dedicationFields().filter((f) => f !== lead && !f.dataset.own)) {
+                field.value = lead.value;
+            }
+        } else {
+            event.target.dataset.own = 'true';
+        }
+    });
+
     const change = (input, delta) => {
         input.value = clamp(input, (Number(input.value) || 0) + delta);
+        syncDedications(input);
         update();
     };
 
@@ -44,7 +96,10 @@
         plus.addEventListener('click', () => change(input, +1));
         input.before(minus);
         input.after(plus);
-        input.addEventListener('input', update);
+        input.addEventListener('input', () => {
+            syncDedications(input);
+            update();
+        });
 
         // Klepnutí na obrázek nebo název přidá kus — na mobilu nejrychlejší cesta.
         for (const target of product.querySelectorAll('img, h3')) {

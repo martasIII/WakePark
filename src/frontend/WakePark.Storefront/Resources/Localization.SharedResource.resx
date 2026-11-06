@@ -18,6 +18,9 @@
   <data name="InclVat" xml:space="preserve"><value>vč. DPH</value></data>
   <data name="OrderSoon" xml:space="preserve"><value>Objednávku přes web právě dokončujeme. Do té doby vám voucher rádi připravíme na</value></data>
   <data name="OrderErrors" xml:space="preserve"><value>Objednávku zatím nejde odeslat</value></data>
+  <data name="Dedication" xml:space="preserve"><value>Věnování</value></data>
+  <data name="DedicationFor" xml:space="preserve"><value>Věnování na voucher {0}</value></data>
+  <data name="DedicationHint" xml:space="preserve"><value>Nepovinné, vytiskne se na voucher. Nejvýš 120 znaků, bez emoji. Text prvního se předvyplní i ostatním.</value></data>
   <data name="Quantity" xml:space="preserve"><value>Počet kusů</value></data>
   <data name="Contact" xml:space="preserve"><value>Kontaktní údaje</value></data>
   <data name="Name" xml:space="preserve"><value>Jméno a příjmení</value></data>

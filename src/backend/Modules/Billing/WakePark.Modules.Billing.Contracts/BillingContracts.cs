@@ -20,7 +20,8 @@ public sealed record PlaceOrderCustomer(
 /// <summary>Firma z registru ARES. DIČ jen u plátce DPH.</summary>
 public sealed record CompanyDto(string CompanyId, string Name, string? VatId, string? Address);
 
-public sealed record PlaceOrderLine(Guid ProductId, int Quantity);
+/// <summary>Položka objednávky. Věnování pro jednotlivé kusy je nepovinné, nejvýš tolik jako kusů.</summary>
+public sealed record PlaceOrderLine(Guid ProductId, int Quantity, IReadOnlyList<string?>? Dedications = null);
 
 /// <summary>Založená objednávka. Token je klíč do adresy stránky objednávky.</summary>
 public sealed record PlacedOrderDto(long Number, string AccessToken);
@@ -48,7 +49,8 @@ public sealed record OrderLineDto(
     decimal UnitPrice,
     decimal VatRate,
     decimal LineGross,
-    Guid ProductId);
+    Guid ProductId,
+    IReadOnlyList<string> Dedications);
 
 /// <summary>Daňový doklad — pro PDF v e-mailu a později pro backoffice.</summary>
 public sealed record InvoiceDto(

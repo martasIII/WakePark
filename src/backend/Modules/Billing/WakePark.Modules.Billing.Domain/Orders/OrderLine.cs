@@ -25,6 +25,7 @@ public sealed class OrderLine : Entity
         Quantity = draft.Quantity;
         UnitPrice = draft.UnitPrice;
         VatRate = draft.VatRate;
+        Dedications = [.. Enumerable.Range(0, Quantity).Select(i => Dedication.Normalize(draft.Dedications?.ElementAtOrDefault(i)))];
 
         LineGross = UnitPrice * Quantity;
         LineVat = VatFromGross(LineGross, VatRate);
@@ -53,6 +54,12 @@ public sealed class OrderLine : Entity
 
     public decimal LineGross { get; private set; }
 
+    /// <summary>
+    /// Věnování pro každý kus zvlášť (index = kus − 1), prázdný text = bez věnování. Vždy
+    /// přesně <see cref="Quantity"/> položek. Při vystavení se zamrazí do poukazu.
+    /// </summary>
+    public string[] Dedications { get; private set; } = [];
+
     public decimal LineVat { get; private set; }
 
     public decimal LineNet { get; private set; }
@@ -73,4 +80,5 @@ public sealed record OrderLineDraft(
     string DisplayName,
     int Quantity,
     decimal UnitPrice,
-    decimal VatRate);
+    decimal VatRate,
+    IReadOnlyList<string?>? Dedications = null);

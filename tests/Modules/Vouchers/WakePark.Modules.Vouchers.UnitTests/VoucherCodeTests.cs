@@ -33,15 +33,15 @@ public sealed class VoucherCodeTests
     }
 
     [Fact]
-    public async Task Jizdni_poukaz_dostane_typ_z_nastaveni_ostatni_puvodni_kod()
+    public async Task Jizdni_poukaz_dostane_typ_z_nastaveni_ostatni_puvodni_kod_a_venovani_se_zamrazi()
     {
         Guid orderId = Guid.CreateVersion7();
         IOrderDirectory orders = Substitute.For<IOrderDirectory>();
         orders.GetOrderAsync("token", Arg.Any<CancellationToken>()).Returns(new OrderDto(
             261001, "Paid", "cs", "Jan Novák", "jan@example.cz", null,
             [
-                new OrderLineDto("voucher-2-sloty", "Voucher pro dva", 2, 1290m, 12m, 2580m, Guid.CreateVersion7()),
-                new OrderLineDto("permanentka-10x20", "Permanentka", 1, 4200m, 12m, 4200m, Guid.CreateVersion7()),
+                new OrderLineDto("voucher-2-sloty", "Voucher pro dva", 2, 1290m, 12m, 2580m, Guid.CreateVersion7(), ["Pro Kristýnku", ""]),
+                new OrderLineDto("permanentka-10x20", "Permanentka", 1, 4200m, 12m, 4200m, Guid.CreateVersion7(), [""]),
             ],
             6780m, 726.43m, 6053.57m, "CZK", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null));
 
@@ -67,6 +67,7 @@ public sealed class VoucherCodeTests
         issued.Count.ShouldBe(3);
         issued.Where(v => v.ProductCode == "voucher-2-sloty").ShouldAllBe(v => v.Code.StartsWith("V40-2027-", StringComparison.Ordinal));
         issued.Where(v => v.ProductCode == "voucher-2-sloty").Select(v => v.Code).Distinct().Count().ShouldBe(2);
+        issued.Where(v => v.ProductCode == "voucher-2-sloty").Select(v => v.Dedication).ShouldBe(["Pro Kristýnku", null]);
         issued.Single(v => v.ProductCode == "permanentka-10x20").Code.ShouldMatch("^WD-[A-Z2-9]{4}-[A-Z2-9]{4}$");
     }
 }

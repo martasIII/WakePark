@@ -25,6 +25,14 @@ public sealed partial class EshopModel(
     [BindProperty]
     public Dictionary<Guid, int> Quantities { get; set; } = [];
 
+    /// <summary>
+    /// Věnování podle Id produktu, pro každý kus zvlášť (ADR 0006). Objednávka bez voucheru
+    /// pole pro věnování nemá: proto nullable (jinak by bylo povinné) a s explicitním jménem —
+    /// bez něj by binder zkusil slovník naplnit ze všech polí formuláře („Form.Name“ jako Guid).
+    /// </summary>
+    [BindProperty(Name = nameof(Dedications))]
+    public Dictionary<Guid, List<string?>>? Dedications { get; set; }
+
     [BindProperty]
     public OrderForm Form { get; set; } = new();
 
@@ -71,7 +79,7 @@ public sealed partial class EshopModel(
 
         List<OrderRequestLine> lines =
         [
-            .. Quantities.Where(q => q.Value > 0).Select(q => new OrderRequestLine(q.Key, q.Value)),
+            .. Quantities.Where(q => q.Value > 0).Select(q => new OrderRequestLine(q.Key, q.Value, DedicationsFor(q.Key, q.Value))),
         ];
 
         List<string> errors = [.. ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)];
@@ -137,6 +145,20 @@ public sealed partial class EshopModel(
 
     public int QuantityOf(EshopProduct product) =>
         Quantities.TryGetValue(product.Id, out int quantity) ? quantity : 0;
+
+    /// <summary>Věnování jde jen na dárkové vouchery; permanentky zatím zůstávají beze změny.</summary>
+    public static bool AllowsDedication(EshopProduct product) => product.CategoryCode == DedicationCategory;
+
+    public string? DedicationOf(EshopProduct product, int index) =>
+        Dedications?.TryGetValue(product.Id, out List<string?>? texts) == true ? texts.ElementAtOrDefault(index) : null;
+
+    private const string DedicationCategory = "vouchery";
+
+    /// <summary>Jen tolik věnování, kolik je kusů — po snížení počtu mohou ve formuláři zbýt navíc.</summary>
+    private List<string?>? DedicationsFor(Guid productId, int quantity) =>
+        Dedications?.TryGetValue(productId, out List<string?>? texts) == true && texts.Any(t => !string.IsNullOrWhiteSpace(t))
+            ? [.. texts.Take(quantity)]
+            : null;
 
     [GeneratedRegex("^[0-9]{8}$", RegexOptions.CultureInvariant)]
     private static partial Regex CompanyIdPattern();

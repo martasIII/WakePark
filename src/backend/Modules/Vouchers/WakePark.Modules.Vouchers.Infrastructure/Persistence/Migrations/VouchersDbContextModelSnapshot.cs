@@ -91,6 +91,11 @@ namespace WakePark.Modules.Vouchers.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("created_by");
 
+                    b.Property<string>("Dedication")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("dedication");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(500)

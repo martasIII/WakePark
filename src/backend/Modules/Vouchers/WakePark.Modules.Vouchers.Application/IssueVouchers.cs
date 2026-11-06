@@ -76,6 +76,7 @@ internal sealed class OrderPaidConsumer(
                     product,
                     order.Language,
                     piece,
+                    line.Dedications.ElementAtOrDefault(piece - 1),
                     options.ValidFrom,
                     options.ValidTo,
                     now));
@@ -103,5 +104,5 @@ internal sealed class VoucherDirectory(IVoucherRepository vouchers) : IVoucherDi
         [.. (await vouchers.GetByOrderAsync(orderId, cancellationToken).ConfigureAwait(false))
             .Select(v => new VoucherDto(
                 v.Code, v.OrderNumber, v.ProductCode, v.Name, v.DisplayName, v.Language, v.Price, v.Piece,
-                v.ValidFrom, v.ValidTo, v.Status.ToString()))];
+                v.ValidFrom, v.ValidTo, v.Status.ToString(), v.Dedication))];
 }

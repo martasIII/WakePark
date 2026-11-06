@@ -205,6 +205,18 @@ public sealed class Order : AggregateRoot, ITenantOwned, IAuditable
                 $"Počet kusů jedné položky musí být 1 až {MaxQuantityPerLine}.");
         }
 
+        if (lines.Any(l => l.Dedications is { } d && d.Count > l.Quantity))
+        {
+            throw new DomainException("order.too_many_dedications", "Věnování je víc než kusů.");
+        }
+
+        if (lines.Any(l => l.Dedications?.Any(d => !Dedication.IsValid(Dedication.Normalize(d))) == true))
+        {
+            throw new DomainException(
+                "order.invalid_dedication",
+                $"Věnování může mít nejvýš {Dedication.MaxLength} znaků a jen písmena, číslice a běžnou interpunkci.");
+        }
+
         if (lines.Any(l => l.UnitPrice <= 0m))
         {
             throw new DomainException("order.invalid_price", "Cena položky musí být kladná.");

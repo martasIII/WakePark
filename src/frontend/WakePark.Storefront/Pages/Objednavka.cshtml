@@ -62,7 +62,12 @@
         {
             <div class="row">
                 <div class="name"><b>@line.Quantity × @line.Name</b>
-                    <span class="desc">@SiteView.Price(line.UnitPrice) @T["PerPiece"]</span></div>
+                    <span class="desc">@SiteView.Price(line.UnitPrice) @T["PerPiece"]</span>
+                    @foreach (string dedication in (line.Dedications ?? []).Where(d => d.Length > 0))
+                    {
+                        <span class="desc dedication">@T["Dedication"]: „@dedication“</span>
+                    }
+                </div>
                 <div class="price">@SiteView.Price(line.LineGross)</div>
             </div>
         }

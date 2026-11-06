@@ -69,6 +69,9 @@ internal sealed class OrderLineConfiguration : IEntityTypeConfiguration<OrderLin
         builder.Property(l => l.Description).HasMaxLength(OrderLine.DescriptionMaxLength).IsRequired();
         builder.Property(l => l.DisplayName).HasMaxLength(OrderLine.DescriptionMaxLength).IsRequired();
 
+        // Pole textů v PostgreSQL (text[]); staré řádky bez věnování dostanou prázdné pole.
+        builder.Property(l => l.Dedications).IsRequired().HasDefaultValueSql("'{}'::text[]");
+
         // Na produkt jen odkaz bez cizího klíče — produkt žije v jiném modulu (a jiném schématu).
         builder.HasIndex(l => l.ProductId);
     }

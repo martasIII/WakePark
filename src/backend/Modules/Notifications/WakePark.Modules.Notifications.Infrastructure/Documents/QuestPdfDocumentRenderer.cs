@@ -67,6 +67,11 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentRenderer
                     column.Item().Text(en ? "GIFT VOUCHER" : "DÁRKOVÝ VOUCHER").FontColor(color).Bold().FontSize(13).LetterSpacing(0.1f);
                     column.Item().PaddingTop(6).Text(voucher.DisplayName).Bold().FontSize(26);
 
+                    if (voucher.Dedication is { Length: > 0 } dedication)
+                    {
+                        column.Item().PaddingTop(8).Text($"„{dedication}“").Italic().FontSize(13);
+                    }
+
                     column.Item().PaddingTop(18).Row(inner =>
                     {
                         inner.RelativeItem().Column(details =>

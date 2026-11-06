@@ -18,6 +18,9 @@
   <data name="InclVat" xml:space="preserve"><value>incl. VAT</value></data>
   <data name="OrderSoon" xml:space="preserve"><value>Online ordering is coming soon. Until then, we will gladly prepare a voucher for you at</value></data>
   <data name="OrderErrors" xml:space="preserve"><value>We can't send the order yet</value></data>
+  <data name="Dedication" xml:space="preserve"><value>Dedication</value></data>
+  <data name="DedicationFor" xml:space="preserve"><value>Dedication on voucher {0}</value></data>
+  <data name="DedicationHint" xml:space="preserve"><value>Optional, printed on the voucher. Up to 120 characters, no emoji. The first one is copied to the others.</value></data>
   <data name="Quantity" xml:space="preserve"><value>Quantity</value></data>
   <data name="Contact" xml:space="preserve"><value>Your details</value></data>
   <data name="Name" xml:space="preserve"><value>Full name</value></data>

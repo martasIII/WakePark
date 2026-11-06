@@ -100,7 +100,7 @@ public sealed class OrderPlacedEmailTests
         "Jana",
         "jana@example.cz",
         null,
-        [new OrderLineDto("voucher-2-sloty", "Voucher pro dva", 1, 1290m, 12m, 1290m, Guid.CreateVersion7())],
+        [new OrderLineDto("voucher-2-sloty", "Voucher pro dva", 1, 1290m, 12m, 1290m, Guid.CreateVersion7(), [""])],
         1290m,
         138.21m,
         1151.79m,

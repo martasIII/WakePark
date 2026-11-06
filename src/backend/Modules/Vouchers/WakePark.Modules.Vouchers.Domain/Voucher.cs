@@ -26,6 +26,9 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
 
     public const int CodeMaxLength = 20;
 
+    /// <summary>Stejné jako v objednávce — tam se věnování ověřuje, sem se jen zamrazí.</summary>
+    public const int DedicationMaxLength = 120;
+
     private Voucher()
     {
     }
@@ -67,6 +70,9 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
     /// <summary>Pořadí kusu v rámci položky objednávky (3 kusy = 1, 2, 3).</summary>
     public int Piece { get; private set; }
 
+    /// <summary>Věnování z objednávky, vytiskne se na poukaz. <c>null</c> = bez věnování.</summary>
+    public string? Dedication { get; private set; }
+
     public DateOnly ValidFrom { get; private set; }
 
     public DateOnly ValidTo { get; private set; }
@@ -91,6 +97,7 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
         VoucherProduct product,
         string language,
         int piece,
+        string? dedication,
         DateOnly validFrom,
         DateOnly validTo,
         DateTimeOffset issuedAtUtc)
@@ -104,6 +111,11 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
         }
 
         ArgumentOutOfRangeException.ThrowIfLessThan(piece, 1);
+
+        if (dedication?.Length > DedicationMaxLength)
+        {
+            throw new DomainException("voucher.dedication_too_long", $"Věnování může mít nejvýš {DedicationMaxLength} znaků.");
+        }
 
         return new Voucher(NewId())
         {
@@ -119,6 +131,7 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
             Price = product.Price,
             VatRate = product.VatRate,
             Piece = piece,
+            Dedication = string.IsNullOrWhiteSpace(dedication) ? null : dedication,
             ValidFrom = validFrom,
             ValidTo = validTo,
             Status = VoucherStatus.Issued,

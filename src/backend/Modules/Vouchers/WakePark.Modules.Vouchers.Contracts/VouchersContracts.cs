@@ -17,7 +17,8 @@ public sealed record VoucherDto(
     int Piece,
     DateOnly ValidFrom,
     DateOnly ValidTo,
-    string Status);
+    string Status,
+    string? Dedication);
 
 /// <summary>Čtení poukazů pro ostatní moduly.</summary>
 public interface IVoucherDirectory

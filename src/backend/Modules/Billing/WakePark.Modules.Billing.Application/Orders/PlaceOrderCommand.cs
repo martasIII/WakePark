@@ -29,8 +29,20 @@ internal sealed class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderC
             .WithMessage("Objednávka má příliš mnoho položek.");
 
         RuleForEach(c => c.Request.Lines).ChildRules(line =>
+        {
             line.RuleFor(l => l.Quantity).InclusiveBetween(1, Order.MaxQuantityPerLine)
-                .WithMessage($"Počet kusů jedné položky musí být 1 až {Order.MaxQuantityPerLine}."));
+                .WithMessage($"Počet kusů jedné položky musí být 1 až {Order.MaxQuantityPerLine}.");
+
+            line.RuleFor(l => l.Dedications!.Count).LessThanOrEqualTo(l => l.Quantity)
+                .When(l => l.Dedications is not null)
+                .WithMessage("Věnování je víc než kusů.");
+
+            line.RuleForEach(l => l.Dedications)
+                .Must(d => Dedication.Normalize(d).Length <= Dedication.MaxLength)
+                .WithMessage($"Věnování může mít nejvýš {Dedication.MaxLength} znaků.")
+                .Must(d => Dedication.IsValid(Dedication.Normalize(d)) || Dedication.Normalize(d).Length > Dedication.MaxLength)
+                .WithMessage("Věnování smí obsahovat jen písmena, číslice a běžnou interpunkci — bez emoji.");
+        });
 
         RuleFor(c => c.Request.Language).Matches("^[a-z]{2}$")
             .WithMessage("Neznámý jazyk.");
@@ -92,7 +104,8 @@ internal sealed class PlaceOrderCommandHandler(
                 Text(product.Name, request.Language),
                 line.Quantity,
                 product.UnitPrice,
-                product.VatRate));
+                product.VatRate,
+                line.Dedications));
         }
 
         DateTimeOffset now = clock.UtcNow;

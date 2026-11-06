@@ -43,6 +43,7 @@ internal sealed class VoucherConfiguration : IEntityTypeConfiguration<Voucher>
         builder.HasKey(v => v.Id);
 
         builder.Property(v => v.Code).HasMaxLength(Voucher.CodeMaxLength).IsRequired();
+        builder.Property(v => v.Dedication).HasMaxLength(Voucher.DedicationMaxLength);
         builder.Property(v => v.ProductCode).HasMaxLength(100).IsRequired();
         builder.Property(v => v.Name).HasMaxLength(500).IsRequired();
         builder.Property(v => v.DisplayName).HasMaxLength(500).IsRequired();

@@ -71,6 +71,39 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
     }
 
     [Fact]
+    public async Task Venovani_se_posle_pro_kazdy_kus_a_navic_se_zahodi()
+    {
+        FakeApi api = new() { PlaceResponse = (HttpStatusCode.Created, $$"""{ "number": 261000, "accessToken": "{{Token}}" }""") };
+
+        await PostOrderAsync(CreateClient(api), 2, "", null, "Pro Janu", "Pro Petra", "zbylo po snížení počtu");
+
+        api.PlacedBodies.Single().ShouldContain("\"dedications\":[\"Pro Janu\",\"Pro Petra\"]");
+    }
+
+    [Fact]
+    public async Task Bez_venovani_se_pole_neposila()
+    {
+        FakeApi api = new() { PlaceResponse = (HttpStatusCode.Created, $$"""{ "number": 261000, "accessToken": "{{Token}}" }""") };
+
+        await PostOrderAsync(CreateClient(api), 2, "", null, "", " ");
+
+        api.PlacedBodies.Single().ShouldContain("\"dedications\":null");
+    }
+
+    [Fact]
+    public async Task Po_chybe_zustane_venovani_ve_formulari()
+    {
+        FakeApi api = new() { PlaceResponse = (HttpStatusCode.UnprocessableEntity, """{ "status": 422, "detail": "Věnování smí obsahovat jen písmena." }""") };
+
+        HttpResponseMessage response = await PostOrderAsync(CreateClient(api), 2, "", null, "Pro Janu 🎉");
+
+        string html = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        html.ShouldContain("Věnování smí obsahovat jen písmena.");
+        html.ShouldContain("Pro Janu 🎉</textarea>");
+        html.ShouldContain($"name=\"Dedications[{ProductId}][1]\"");
+    }
+
+    [Fact]
     public async Task Chyby_z_API_se_zakaznikovi_vypisou_a_vyplnene_udaje_zustanou()
     {
         FakeApi api = new()
@@ -271,7 +304,8 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
     }
 
     private static async Task<HttpResponseMessage> PostOrderAsync(
-        HttpClient client, int quantity, string honeypot = "", (string IsCompany, string CompanyId)? company = null)
+        HttpClient client, int quantity, string honeypot = "", (string IsCompany, string CompanyId)? company = null,
+        params string[] dedications)
     {
         // Formulář nese antiforgery token — vezme se z vykreslené stránky, jako v prohlížeči.
         string page = await client.GetStringAsync(new Uri("/eshop", UriKind.Relative), TestContext.Current.CancellationToken);
@@ -286,6 +320,11 @@ public sealed partial class OrderFlowTests(WebApplicationFactory<Program> factor
             ["Form.Website"] = honeypot,
             ["__RequestVerificationToken"] = antiforgery,
         };
+
+        for (int i = 0; i < dedications.Length; i++)
+        {
+            fields[$"Dedications[{ProductId}][{i}]"] = dedications[i];
+        }
 
         if (company is { } c)
         {

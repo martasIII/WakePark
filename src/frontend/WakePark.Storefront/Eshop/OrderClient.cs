@@ -11,7 +11,7 @@ public sealed record OrderRequest(string Language, OrderCustomer Customer, IRead
 
 public sealed record OrderCustomer(string Name, string Email, string? Phone, string? CompanyId);
 
-public sealed record OrderRequestLine(Guid ProductId, int Quantity);
+public sealed record OrderRequestLine(Guid ProductId, int Quantity, IReadOnlyList<string?>? Dedications = null);
 
 public sealed record PlacedOrder(long Number, string AccessToken);
 
@@ -34,7 +34,8 @@ public sealed record OrderView(
     public bool IsAwaitingPayment => Status == "AwaitingPayment";
 }
 
-public sealed record OrderViewLine(string ProductCode, string Name, int Quantity, decimal UnitPrice, decimal VatRate, decimal LineGross);
+public sealed record OrderViewLine(
+    string ProductCode, string Name, int Quantity, decimal UnitPrice, decimal VatRate, decimal LineGross, IReadOnlyList<string>? Dedications = null);
 
 public sealed record PaymentInstructions(
     string AccountNumber,

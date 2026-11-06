@@ -294,6 +294,13 @@ namespace WakePark.Modules.Billing.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.PrimitiveCollection<string[]>("Dedications")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text[]")
+                        .HasColumnName("dedications")
+                        .HasDefaultValueSql("'{}'::text[]");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)

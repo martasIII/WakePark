@@ -59,6 +59,24 @@
                                                data-less="@T["Less"]" data-more="@T["More"]">
                                     </span>
                                 </label>
+                                @if (EshopModel.AllowsDedication(product))
+                                {
+                                    @* Pole pro každý kus vykreslí server po návratu do formuláře, jinak je přidává
+                                       eshop.js podle počtu kusů. Text prvního se předvyplní ostatním. *@
+                                    <div class="dedications" data-name="Dedications[@product.Id]" data-label="@T["DedicationFor"]"
+                                         data-hint="@T["DedicationHint"]">
+                                        @for (int i = 0; i < Model.QuantityOf(product); i++)
+                                        {
+                                            <label>@string.Format(System.Globalization.CultureInfo.CurrentCulture, T["DedicationFor"].Value, i + 1)
+                                                <textarea name="Dedications[@product.Id][@i]" rows="2" maxlength="120">@Model.DedicationOf(product, i)</textarea>
+                                            </label>
+                                        }
+                                        @if (Model.QuantityOf(product) > 0)
+                                        {
+                                            <p class="hint">@T["DedicationHint"]</p>
+                                        }
+                                    </div>
+                                }
                             </li>
                         }
                     </ul>
