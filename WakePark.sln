@@ -151,6 +151,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakePark.Modules.Vouchers.I
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "wakepark-web", "src\frontend\wakepark-web\wakepark-web.esproj", "{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Vouchers", "Vouchers", "{7CB354D5-67F7-21FC-4304-5D5988F27B5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakePark.Modules.Vouchers.UnitTests", "tests\Modules\Vouchers\WakePark.Modules.Vouchers.UnitTests\WakePark.Modules.Vouchers.UnitTests.csproj", "{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -785,6 +789,18 @@ Global
 		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Release|x64.ActiveCfg = Release|Any CPU
 		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90}.Release|x86.ActiveCfg = Release|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Debug|x64.Build.0 = Debug|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Debug|x86.Build.0 = Debug|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Release|x64.ActiveCfg = Release|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Release|x64.Build.0 = Release|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Release|x86.ActiveCfg = Release|Any CPU
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -862,5 +878,7 @@ Global
 		{507905EA-F94C-48E6-92B8-567077FA3F1F} = {DAC24D92-CE4B-DE39-ED92-8F7A214C5FBC}
 		{45B82BA7-F067-4CBB-A500-B9E15181B45B} = {DAC24D92-CE4B-DE39-ED92-8F7A214C5FBC}
 		{9C1E3B6A-4F2D-4E8B-A7C5-2D6F8E1B3A90} = {42299874-777B-F2D0-9D08-D24097ABCE7E}
+		{7CB354D5-67F7-21FC-4304-5D5988F27B5A} = {D7DC9B74-6BC4-2470-2038-1E57C2DCB73B}
+		{CC11D6ED-12D5-4636-BD6C-CE81FF1984D3} = {7CB354D5-67F7-21FC-4304-5D5988F27B5A}
 	EndGlobalSection
 EndGlobal

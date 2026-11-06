@@ -19,6 +19,11 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
     /// <summary>Znaky kódu bez zaměnitelných (0/O, 1/I/L) — kód se diktuje do telefonu.</summary>
     public const string CodeAlphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
+    /// <summary>Náhodná část kódu jízdního poukazu — jen písmena, bez zaměnitelných I, L, O.</summary>
+    public const string RideCodeAlphabet = "ABCDEFGHJKMNPQRSTUVWXYZ";
+
+    public const int RideCodeRandomLength = 5;
+
     public const int CodeMaxLength = 20;
 
     private Voucher()
@@ -32,7 +37,10 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
 
     public Guid EnterpriseId { get; private set; }
 
-    /// <summary>Kód na poukazu, např. <c>WD-7KQ9-M3XT</c>. Podle něj se poukaz uplatní.</summary>
+    /// <summary>
+    /// Kód na poukazu, např. <c>V40-2027-KXRTM</c> (jízdy) nebo <c>WD-7KQ9-M3XT</c> (ostatní,
+    /// zatím permanentky). Podle něj se poukaz uplatní.
+    /// </summary>
     public string Code { get; private set; } = string.Empty;
 
     public Guid OrderId { get; private set; }
@@ -119,7 +127,29 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
     }
 
     /// <summary>
-    /// Nový náhodný kód: prefix a 2 × 4 znaky, např. <c>WD-7KQ9-M3XT</c>. 31^8 ≈ 850 miliard
+    /// Kód jízdního poukazu <c>V{typ}-{rok sezóny}-{5 písmen}</c>, např. <c>V40-2027-KXRTM</c>.
+    /// Typ i rok jsou z kódu vidět, náhodných je jen 5 písmen: 23^5 ≈ 6,4 milionu kombinací na
+    /// typ a rok — při stovkách prodaných kusů je šance uhodnout platný kód zhruba 1 : 20 000.
+    /// Stačí to jen proto, že se kód ověřuje u pokladny; veřejné ověření kódu přes web by
+    /// potřebovalo omezení počtu pokusů. Jedinečnost hlídá unikátní index.
+    /// </summary>
+    public static string NewRideCode(string type, int seasonYear)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(type);
+        ArgumentOutOfRangeException.ThrowIfLessThan(seasonYear, 2000);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(seasonYear, 9999);
+
+        Span<char> random = stackalloc char[RideCodeRandomLength];
+        for (int i = 0; i < random.Length; i++)
+        {
+            random[i] = RideCodeAlphabet[RandomNumberGenerator.GetInt32(RideCodeAlphabet.Length)];
+        }
+
+        return $"V{type}-{seasonYear}-{random}";
+    }
+
+    /// <summary>
+    /// Kód ostatních poukazů (zatím permanentky, ty zůstávají beze změny): prefix a 2 × 4 znaky, např. <c>WD-7KQ9-M3XT</c>. 31^8 ≈ 850 miliard
     /// kombinací — kód nejde uhodnout. Jedinečnost hlídá i unikátní index.
     /// </summary>
     public static string NewCode(string prefix)

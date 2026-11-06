@@ -205,7 +205,7 @@ public sealed class OrderEmailFlowTests : IAsyncLifetime
             new Uri($"/api/v1/message/{paid.GetProperty("ID").GetString()}", UriKind.Relative), TestContext.Current.CancellationToken));
         string[] files = [.. detail.RootElement.GetProperty("Attachments").EnumerateArray().Select(a => a.GetProperty("FileName").GetString()!)];
 
-        files.Count(f => f.StartsWith("voucher-WD-", StringComparison.Ordinal)).ShouldBe(2, "jeden voucher na kus");
+        files.Count(f => f.StartsWith("voucher-V20-2027-", StringComparison.Ordinal)).ShouldBe(2, "jeden voucher na kus");
         files.ShouldContain($"doklad-FV_E_{DateTime.UtcNow.Year}-000001.pdf");
         detail.RootElement.GetProperty("Text").GetString()!.ShouldContain("Platí od 1. 5. 2027 do 30. 9. 2027.");
 

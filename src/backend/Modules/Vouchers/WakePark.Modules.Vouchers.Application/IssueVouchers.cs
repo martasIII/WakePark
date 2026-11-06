@@ -12,7 +12,18 @@ public sealed class VouchersOptions
 {
     public const string SectionName = "Vouchers";
 
+    /// <summary>Prefix kódu poukazů, které nejsou jízdní (zatím permanentky): <c>WD-XXXX-XXXX</c>.</summary>
     public string CodePrefix { get; init; } = "WD";
+
+    /// <summary>
+    /// Typ jízdního poukazu podle kódu produktu — minuty na laně, v kódu poukazu jako
+    /// <c>V{typ}-…</c>. Produkt tu neuvedený dostane kód s <see cref="CodePrefix"/>.
+    /// </summary>
+    /// <remarks>
+    /// Patří to k produktu, jenže produkt zatím délku jízdy nezná (přijde s pokladnou). Až ji
+    /// znát bude, typ se odvodí z produktu a tohle nastavení zmizí.
+    /// </remarks>
+    public IReadOnlyDictionary<string, string> RideCodeTypes { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
 
     /// <summary>Platnost vystavovaných poukazů — zatím pevné období, sezóna 2027 (ADR 0006).</summary>
     public DateOnly ValidFrom { get; init; } = new(2027, 5, 1);
@@ -59,7 +70,7 @@ internal sealed class OrderPaidConsumer(
             {
                 vouchers.Add(Voucher.Issue(
                     integrationEvent.EnterpriseId,
-                    Voucher.NewCode(options.CodePrefix),
+                    NewCode(line.ProductCode),
                     integrationEvent.OrderId,
                     order.Number,
                     product,
@@ -75,6 +86,15 @@ internal sealed class OrderPaidConsumer(
             Guid.CreateVersion7(), now, integrationEvent.EnterpriseId, integrationEvent.OrderId, integrationEvent.AccessToken));
         await unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
+
+    /// <remarks>
+    /// Rok sezóny = rok začátku platnosti. Shodu dvou kódů (šance zanedbatelná) zarazí unikátní
+    /// index, uložení selže celé a outbox událost doručí znovu — vystaví se nové kódy.
+    /// </remarks>
+    private string NewCode(string productCode) =>
+        options.RideCodeTypes.TryGetValue(productCode, out string? type)
+            ? Voucher.NewRideCode(type, options.ValidFrom.Year)
+            : Voucher.NewCode(options.CodePrefix);
 }
 
 internal sealed class VoucherDirectory(IVoucherRepository vouchers) : IVoucherDirectory

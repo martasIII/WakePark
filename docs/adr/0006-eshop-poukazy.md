@@ -300,7 +300,7 @@ vlastní ochranu (klíč webu, rate limit).
   při chybě se vrátí i číslo, řada je **bez mezer**. DUZP = den zaúčtování platby, doklad je
   neměnný (prodávající, kupující i řádky zamrazené). Údaje prodávajícího zatím z konfigurace.
 - **Modul Vouchers** konzumuje `OrderPaid` z outboxu Billingu a vystaví **jeden poukaz na
-  kus** (kód `WD-XXXX-XXXX` z 31 nezaměnitelných znaků), platnost z konfigurace
+  kus** (kód `WD-XXXX-XXXX` z 31 nezaměnitelných znaků — od 6. 11. jen permanentky, viz níže), platnost z konfigurace
   (1. 5. – 30. 9. 2027). Vystavení i událost `VouchersIssued` jdou do vlastního outboxu
   v jedné transakci; idempotence přes UNIQUE (objednávka, produkt, kus).
 - **Notifications** na `VouchersIssued` pošle e-mail s PDF poukazů a dokladu.
@@ -308,6 +308,29 @@ vlastní ochranu (klíč webu, rate limit).
   WakeParku dalším parkům by licenci řešil každý zvlášť — knihovna je proto za rozhraním
   `IDocumentRenderer`. Vzhled je provizorní, finální navrhne grafik.
 - Poznámku o jednoúčelovém poukazu na dokladu (přesné znění, případně paragraf) potvrdí účetní.
+
+## Poukazy podle grafika: kód, věnování, šablony (6. 11. 2026)
+
+- **Kód jízdního poukazu `V{typ}-{rok sezóny}-{5 písmen}`**, např. `V40-2027-KXRTM`. Typ =
+  minuty na laně (1/2/3 sloty = 20/40/60), rok = rok začátku platnosti. Náhodná část jen
+  z velkých písmen bez I, L, O (23^5 ≈ 6,4 mil. na typ a rok). Typ a rok jsou z kódu vidět,
+  takže **veřejné ověření kódu přes web nesmí existovat bez omezení počtu pokusů**; u pokladny
+  to stačí. Typ je zatím v konfiguraci (`Vouchers:RideCodeTypes`, kód produktu → typ), protože
+  produkt délku jízdy ještě nezná — až ji znát bude (pokladna), odvodí se z produktu.
+  Permanentky zůstávají `WD-XXXX-XXXX` i s obecným PDF; propojení se systémem WakeAreály
+  je nápad do budoucna.
+- **Věnování** — nepovinný text **u každého poukazu zvlášť**, max. 120 znaků, jen písmena
+  (i s diakritikou a evropskými jazyky), číslice a běžná interpunkce — bez emoji, které
+  v písmu poukazu nejsou. Ve formuláři se text prvního poukazu předvyplní ostatním,
+  dokud je zákazník sám nezmění. Zadává se při objednávce, uloží se u položky objednávky
+  a při vystavení se zamrazí do poukazu. Oprava překlepu po nákupu zatím ručně (e-mail
+  na info@, poukaz se přegeneruje se stejným kódem), tlačítko přijde s backoffice.
+  Věnování často obsahuje jméno obdarovaného → doplnit do zásad ochrany osobních údajů.
+- **Šablony PDF od grafika** — jedna na druh poukazu, liší se jen barvou a názvem; kód,
+  věnování, platnost a QR jsou na všech na stejném místě. Šablona je **podklad** a přes ni
+  se položí vrstva s údaji vykreslená QuestPDF (`DocumentOperation.Overlay`) — grafika
+  zůstane vektorová. Šablony jsou v repu (veřejném — prázdný poukaz bez platného kódu nic
+  neznamená). Dokud k produktu šablona není, vykreslí se dosavadní obecná podoba.
 
 ## Otevřené otázky
 
