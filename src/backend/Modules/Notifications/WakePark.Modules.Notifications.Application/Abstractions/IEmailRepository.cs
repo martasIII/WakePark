@@ -34,6 +34,9 @@ public interface IDocumentRenderer
 {
     byte[] VoucherPdf(Vouchers.Contracts.VoucherDto voucher);
 
+    /// <summary>Návod k tisku a složení poukazů ze šablony, nebo <c>null</c>, když žádný ze šablony není.</summary>
+    EmailAttachment? VoucherPrintGuide(IReadOnlyList<Vouchers.Contracts.VoucherDto> vouchers);
+
     byte[] InvoicePdf(Billing.Contracts.InvoiceDto invoice);
 }
 

@@ -9,7 +9,10 @@ using QuestPDF.Infrastructure;
 using WakePark.Modules.Billing.Contracts;
 using WakePark.Modules.Notifications.Application;
 using WakePark.Modules.Notifications.Application.Abstractions;
+using WakePark.Modules.Notifications.Domain.Emails;
 using WakePark.Modules.Vouchers.Contracts;
+
+using RectangleF = System.Drawing.RectangleF;
 
 namespace WakePark.Modules.Notifications.Infrastructure.Documents;
 
@@ -34,6 +37,15 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentRenderer
     {
         // Community licence: zdarma pro firmy s obratem pod 1 mil. USD (ADR 0006).
         QuestPDF.Settings.License = LicenseType.Community;
+
+        // Šablony poukazů mají kód a platnost v Arialu. Na serveru Arial není, Liberation Sans
+        // má stejné rozměry písmen (licence SIL OFL, soubor vedle písma).
+        System.Reflection.Assembly assembly = typeof(QuestPdfDocumentRenderer).Assembly;
+        foreach (string name in assembly.GetManifestResourceNames().Where(n => n.EndsWith(".ttf", StringComparison.Ordinal)))
+        {
+            using Stream font = assembly.GetManifestResourceStream(name)!;
+            QuestPDF.Drawing.FontManager.RegisterFontFromStream(font);
+        }
     }
 
     public QuestPdfDocumentRenderer(NotificationsOptions options)
@@ -44,7 +56,92 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentRenderer
     public byte[] VoucherPdf(VoucherDto voucher)
     {
         ArgumentNullException.ThrowIfNull(voucher);
+        return TemplatePath(voucher.ProductCode) is { } template ? TemplateVoucherPdf(voucher, template) : GenericVoucherPdf(voucher);
+    }
 
+    public EmailAttachment? VoucherPrintGuide(IReadOnlyList<VoucherDto> vouchers)
+    {
+        ArgumentNullException.ThrowIfNull(vouchers);
+        if (_options.VoucherPrintGuide is not { } guide || !vouchers.Any(v => TemplatePath(v.ProductCode) is not null))
+        {
+            return null;
+        }
+
+        string path = Path.Combine(AppContext.BaseDirectory, _options.VoucherTemplateDirectory, guide);
+        return new EmailAttachment(guide, MediaType(guide), File.ReadAllBytes(path));
+    }
+
+    /// <summary>Šablona k produktu, nebo <c>null</c> — pak se poukaz vykreslí obecně.</summary>
+    private string? TemplatePath(string productCode) =>
+        _options.VoucherTemplates.TryGetValue(productCode, out string? file)
+            ? Path.Combine(AppContext.BaseDirectory, _options.VoucherTemplateDirectory, file)
+            : null;
+
+    /// <summary>
+    /// Poukaz ze šablony od grafika (ADR 0006): přes první stranu A4 se položí průhledná vrstva
+    /// s kódem, koncem platnosti a věnováním, grafika zůstane vektorová. Místa jsou na všech
+    /// šablonách stejná. Prostřední pruh se při skládání otáčí — kód a platnost jsou proto
+    /// vzhůru nohama jako ostatní texty v něm.
+    /// </summary>
+    private static byte[] TemplateVoucherPdf(VoucherDto voucher, string templatePath)
+    {
+        string layer = Path.GetTempFileName();
+        string output = Path.GetTempFileName();
+        try
+        {
+            Document.Create(document => document.Page(page =>
+            {
+                page.Size(new PageSize(TemplateLayout.PageWidth, TemplateLayout.PageHeight));
+                page.Margin(0);
+                page.PageColor(Colors.Transparent);
+                page.DefaultTextStyle(t => t.FontFamily(TemplateLayout.Font).FontColor(Colors.White));
+
+                page.Content().Layers(layers =>
+                {
+                    layers.PrimaryLayer();
+
+                    // Texty vzhůru nohama: převrácení vodorovně i svisle = otočení o 180° uvnitř
+                    // místa prvku. Zarovnání vlevo/nahoře platí při čtení.
+                    Place(layers.Layer(), TemplateLayout.CodeBox).FlipHorizontal().FlipVertical()
+                        .AlignCenter().AlignMiddle().Text(voucher.Code).FontSize(18);
+
+                    Place(layers.Layer(), TemplateLayout.ValidToLine).FlipHorizontal().FlipVertical()
+                        .AlignLeft().AlignTop().Text(voucher.ValidTo.ToString("d. M. yyyy", Czech)).FontSize(10);
+
+                    if (voucher.Dedication is { Length: > 0 } dedication)
+                    {
+                        Place(layers.Layer(), TemplateLayout.Dedication)
+                            .AlignCenter().Text($"„{dedication}“").FontSize(10.5f).Italic().FontColor(Brand).AlignCenter();
+                    }
+                });
+            })).GeneratePdf(layer);
+
+            DocumentOperation.LoadFile(templatePath)
+                .OverlayFile(new DocumentOperation.LayerConfiguration { FilePath = layer, TargetPages = "1" })
+                .Save(output);
+            return File.ReadAllBytes(output);
+        }
+        finally
+        {
+            File.Delete(layer);
+            File.Delete(output);
+        }
+    }
+
+    private static IContainer Place(IContainer layer, RectangleF area) =>
+        layer.OffsetX(area.Left).OffsetY(area.Top).Width(area.Width).Height(area.Height);
+
+    private static string MediaType(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
+    {
+        ".pdf" => "application/pdf",
+        ".png" => "image/png",
+        ".jpg" or ".jpeg" => "image/jpeg",
+        _ => "application/octet-stream",
+    };
+
+    /// <summary>Obecný poukaz — pro produkty, ke kterým grafik šablonu nedodal (zatím permanentky).</summary>
+    private byte[] GenericVoucherPdf(VoucherDto voucher)
+    {
         bool en = voucher.Language == "en";
         string color = _options.VoucherColors.TryGetValue(voucher.ProductCode, out string? c) ? c : Brand;
         CultureInfo culture = CultureInfo.GetCultureInfo(en ? "en" : "cs");
@@ -278,5 +375,31 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentRenderer
         using QRCodeData data = generator.CreateQrCode(content, QRCodeGenerator.ECCLevel.M);
         using PngByteQRCode qr = new(data);
         return qr.GetGraphic(10);
+    }
+
+    /// <summary>
+    /// Místa na první straně šablony v bodech (A4, počátek vlevo nahoře), změřená v PDF od
+    /// grafika (VOUCHER20-2027). Platí pro všechny šablony — liší se jen barvou a textem.
+    /// </summary>
+    private static class TemplateLayout
+    {
+        public const float PageWidth = 595.276f;
+        public const float PageHeight = 841.89f;
+        public const string Font = "Liberation Sans";
+
+        /// <summary>Černý rámeček pro kód.</summary>
+        public static readonly RectangleF CodeBox = RectangleF.FromLTRB(340.91f, 431.15f, 538.58f, 458.75f);
+
+        /// <summary>
+        /// Řádek pod „Voucher je možné využít do“ (vzhůru nohama). Pravý okraj je začátek řádku
+        /// při čtení, zarovnaný s textem nad ním.
+        /// </summary>
+        public static readonly RectangleF ValidToLine = RectangleF.FromLTRB(338.58f, 385.9f, 538.58f, 398.3f);
+
+        /// <summary>
+        /// Volné místo pod úvodním odstavcem „Gratulujeme!“, mezi černou vlnou a fotkou —
+        /// 120 znaků se vejde na 4–5 řádků.
+        /// </summary>
+        public static readonly RectangleF Dedication = RectangleF.FromLTRB(92f, 190f, 255f, 276f);
     }
 }

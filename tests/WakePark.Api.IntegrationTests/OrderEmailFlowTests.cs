@@ -207,6 +207,7 @@ public sealed class OrderEmailFlowTests : IAsyncLifetime
 
         files.Count(f => f.StartsWith("voucher-V20-2027-", StringComparison.Ordinal)).ShouldBe(2, "jeden voucher na kus");
         files.ShouldContain($"doklad-FV_E_{DateTime.UtcNow.Year}-000001.pdf");
+        files.ShouldContain("navod-tisk-voucheru.png", "voucher ze šablony má v e-mailu návod k tisku");
         detail.RootElement.GetProperty("Text").GetString()!.ShouldContain("Platí od 1. 5. 2027 do 30. 9. 2027.");
 
         // PDF si test uloží, ať jde vzhled zkontrolovat očima.

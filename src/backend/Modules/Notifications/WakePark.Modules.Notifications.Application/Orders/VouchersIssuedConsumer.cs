@@ -48,6 +48,11 @@ internal sealed class VouchersIssuedConsumer(
             new EmailAttachment($"doklad-{invoice.Number}.pdf", "application/pdf", documents.InvoicePdf(invoice)),
         ];
 
+        if (documents.VoucherPrintGuide(issued) is { } guide)
+        {
+            attachments.Add(guide);
+        }
+
         Uri orderUrl = new(options.PublicBaseUrl, order.Language == "cs"
             ? $"/objednavka/{integrationEvent.AccessToken}"
             : $"/{order.Language}/objednavka/{integrationEvent.AccessToken}");

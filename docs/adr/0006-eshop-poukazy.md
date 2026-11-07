@@ -331,6 +331,13 @@ vlastní ochranu (klíč webu, rate limit).
   se položí vrstva s údaji vykreslená QuestPDF (`DocumentOperation.Overlay`) — grafika
   zůstane vektorová. Šablony jsou v repu (veřejném — prázdný poukaz bez platného kódu nic
   neznamená). Dokud k produktu šablona není, vykreslí se dosavadní obecná podoba.
+- **7. 11. 2026 — první šablona** (`data/poukazy/voucher-20.pdf`, A4 na přeložení, 2 strany):
+  dopisuje se kód (černý rámeček) a konec platnosti, obojí vzhůru nohama jako zbytek
+  prostředního pruhu, a věnování pod úvodní odstavec. Písmo **Liberation Sans** (metricky
+  shodné s Arialem v šabloně, SIL OFL, vložené do sestavení) — Gotham z grafiky se do PDF
+  ze serveru nesmí. QR kód na šabloně není (kód se zadává ručně). K e-mailu s poukazem ze
+  šablony se přikládá **návod k tisku a složení** (`navod-tisk-voucheru.png`). Šablony jsou
+  zatím jen česky. Místa jsou změřená v šabloně a platí pro všechny (třída `TemplateLayout`).
 
 ## Otevřené otázky
 

@@ -14,6 +14,8 @@
     <!-- Nabídka e-shopu, dokud není backoffice (ADR 0006). Import: dotnet WakePark.Api.dll import-catalog -->
     <Content Update="data\katalog.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Update="data\provoz.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <!-- Šablony poukazů od grafika a návod k tisku (ADR 0006). -->
+    <None Update="data\poukazy\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />

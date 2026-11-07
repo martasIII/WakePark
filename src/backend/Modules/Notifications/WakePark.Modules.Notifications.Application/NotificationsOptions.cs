@@ -39,6 +39,21 @@ public sealed class NotificationsOptions
         ["voucher-3-sloty"] = "#00a651",
         ["permanentka-10x20"] = "#222222",
     };
+
+    /// <summary>
+    /// Složka se šablonami poukazů, relativně ke složce aplikace (ADR 0006). Šablona je PDF od
+    /// grafika, přes první stranu se dopíše kód, platnost a věnování.
+    /// </summary>
+    public string VoucherTemplateDirectory { get; init; } = Path.Combine("data", "poukazy");
+
+    /// <summary>
+    /// Šablona podle kódu produktu (název souboru ve <see cref="VoucherTemplateDirectory"/>).
+    /// Produkt bez šablony dostane obecné PDF.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> VoucherTemplates { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
+
+    /// <summary>Návod k tisku a složení — příloha e-mailu, když je v něm aspoň jeden poukaz ze šablony.</summary>
+    public string? VoucherPrintGuide { get; init; }
 }
 
 public sealed class SmtpOptions

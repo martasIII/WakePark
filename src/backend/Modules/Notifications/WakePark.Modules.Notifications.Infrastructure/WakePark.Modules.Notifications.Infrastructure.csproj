@@ -16,6 +16,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <!-- Liberation Sans: metricky shodný s Arialem (písmo šablon poukazů), licence SIL OFL. -->
+    <EmbeddedResource Include="Documents\Fonts\*.ttf" />
+  </ItemGroup>
+  <ItemGroup>
     <InternalsVisibleTo Include="WakePark.Api.IntegrationTests" />
   </ItemGroup>
 </Project>
