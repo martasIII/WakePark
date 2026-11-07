@@ -210,16 +210,17 @@ public sealed class OrderEmailFlowTests : IAsyncLifetime
         files.ShouldContain("navod-tisk-voucheru.png", "voucher ze šablony má v e-mailu návod k tisku");
         detail.RootElement.GetProperty("Text").GetString()!.ShouldContain("Platí od 1. 5. 2027 do 30. 9. 2027.");
 
-        // PDF si test uloží, ať jde vzhled zkontrolovat očima.
+        // Přílohy si test uloží, ať jde vzhled zkontrolovat očima. Návod k tisku je obrázek.
         string outputDirectory = Path.Combine(Path.GetTempPath(), "wakepark-pdf");
         Directory.CreateDirectory(outputDirectory);
         foreach (JsonElement attachment in detail.RootElement.GetProperty("Attachments").EnumerateArray())
         {
-            byte[] pdf = await mailpit.GetByteArrayAsync(
+            string fileName = attachment.GetProperty("FileName").GetString()!;
+            byte[] content = await mailpit.GetByteArrayAsync(
                 new Uri($"/api/v1/message/{paid.GetProperty("ID").GetString()}/part/{attachment.GetProperty("PartID").GetString()}", UriKind.Relative),
                 TestContext.Current.CancellationToken);
-            pdf[..4].ShouldBe("%PDF"u8.ToArray());
-            await File.WriteAllBytesAsync(Path.Combine(outputDirectory, attachment.GetProperty("FileName").GetString()!), pdf, TestContext.Current.CancellationToken);
+            content[..4].ShouldBe(fileName.EndsWith(".png", StringComparison.Ordinal) ? [0x89, (byte)'P', (byte)'N', (byte)'G'] : "%PDF"u8.ToArray(), fileName);
+            await File.WriteAllBytesAsync(Path.Combine(outputDirectory, fileName), content, TestContext.Current.CancellationToken);
         }
     }
 
