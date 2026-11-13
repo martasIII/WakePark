@@ -12,19 +12,27 @@ body{
   font-family:"Montserrat",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
 }
 main{flex:1; display:grid; place-items:center; padding:clamp(16px,4vw,56px)}
+/* ---- úvod: logo, dlaždice 3 × 3 na fotce (návrh WPD_web2026_n01, varianta 4) ---- */
+body.home{background:var(--brand) url("../img/hp/pozadi.jpg") center top / cover no-repeat}
+.home-head{text-align:center; padding:clamp(24px,3.5vw,48px) 16px 0}
+.home-head h1{margin:0; line-height:0}
+.home-head svg{width:clamp(96px,8.5vw,160px); height:auto; color:var(--ink)}
+.home main{padding-top:clamp(16px,3vw,40px)}
 .tiles{
-  list-style:none; margin:0; padding:0; width:100%; max-width:1120px;
-  display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(12px,2.2vw,28px);
+  list-style:none; margin:0; padding:0; width:100%;
+  max-width:min(830px, max(480px, calc(100svh - 200px)));   /* na nízkém displeji ať je vidět celá mřížka */
+  display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(10px,1.6vw,28px);
 }
 .tile{
-  aspect-ratio:1; display:grid; place-items:center;
-  border:2px solid var(--line); border-radius:4px;
-  color:var(--ink); text-decoration:none;
-  transition:background-color .18s, color .18s, transform .18s;
+  aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  background:#fff; color:#111; border-radius:4px; text-decoration:none;
+  transition:color .18s, transform .18s, box-shadow .18s;
 }
-.tile svg{width:64%; height:64%; overflow:visible}
-.tile .lbl{fill:currentColor; stroke:none; font-family:inherit; font-weight:700; font-size:12.6px; letter-spacing:3.6px}
-a.tile:hover, a.tile:focus-visible{background:var(--ink); color:var(--brand); transform:translateY(-3px); outline:none}
+.tile svg{width:66%; height:auto; overflow:visible}
+.tile .lbl{font-weight:700; font-size:clamp(10px,1.4vw,16px); letter-spacing:.1em; text-transform:uppercase; text-align:center; line-height:1.2; padding:0 4px}
+/* Vlek 1/2 (mimo úvod) mají popisek přímo v SVG */
+.tile svg .lbl{fill:currentColor; stroke:none; font-family:inherit; font-size:12.6px; letter-spacing:3.6px}
+a.tile:hover, a.tile:focus-visible{color:var(--brand); transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.18); outline:none}
 .tile.soon{cursor:default}
 footer .languages{margin-top:8px; font-size:13px}
 footer .languages a{margin:0 4px; text-decoration:none; opacity:.75}
@@ -35,7 +43,8 @@ footer a{color:inherit}
 footer .small{font-size:12px; opacity:.8}
 .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 @media (max-width:760px){
-  .tiles{grid-template-columns:repeat(2,1fr); max-width:480px}
+  body.home{background-image:url("../img/hp/pozadi-m.jpg")}
+  .tile .lbl{letter-spacing:.04em}
   footer .sep{display:none}
   footer p a{display:block}
 }
@@ -158,3 +167,6 @@ footer .small{font-size:12px; opacity:.8}
   text-decoration:none; transition:transform .18s, background-color .18s;
 }
 .card .btn:hover{background:#c40046; transform:translateY(-2px)}
+
+/* úzké telefony: 3 sloupce už jsou moc malé */
+@media (max-width:340px){ .tiles{grid-template-columns:repeat(2,1fr)} }

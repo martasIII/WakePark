@@ -16,6 +16,7 @@ public sealed class StorefrontPagesTests(WebApplicationFactory<Program> factory)
     [InlineData("/", "Wake Park Džbán")]
     [InlineData("/cenik", "1 200 Kč")]
     [InlineData("/kontakt", "Otevírací doba")]
+    [InlineData("/o-nas", "Vlek 2")]
     public async Task Stranky_se_zobrazi(string path, string expected)
     {
         HttpResponseMessage response = await _client.GetAsync(new Uri(path, UriKind.Relative), TestContext.Current.CancellationToken);
@@ -28,12 +29,14 @@ public sealed class StorefrontPagesTests(WebApplicationFactory<Program> factory)
     }
 
     [Fact]
-    public async Task Uvodni_stranka_ma_osm_dlazdic()
+    public async Task Uvodni_stranka_ma_devet_dlazdic()
     {
         string html = await _client.GetStringAsync(new Uri("/", UriKind.Relative), TestContext.Current.CancellationToken);
 
-        (CountOccurrences(html, "class=\"tile\"") + CountOccurrences(html, "class=\"tile soon\"")).ShouldBe(8);
+        (CountOccurrences(html, "class=\"tile\"") + CountOccurrences(html, "class=\"tile soon\"")).ShouldBe(9);
         html.ShouldContain("href=\"/eshop\"");
+        html.ShouldContain("href=\"/o-nas\"");
+        html.ShouldContain("href=\"/cenik\"");
     }
 
     [Theory]
@@ -42,6 +45,8 @@ public sealed class StorefrontPagesTests(WebApplicationFactory<Program> factory)
     [InlineData("/index.html", "/")]
     [InlineData("/novy/cenik.html", "/cenik.html")]
     [InlineData("/shop/", "/cenik#vouchery")]
+    [InlineData("/o-parku/", "/o-nas")]
+    [InlineData("/zakladni-informace/", "/o-nas")]
     public async Task Stare_adresy_se_trvale_presmeruji(string oldPath, string newPath)
     {
         HttpResponseMessage response = await _client.GetAsync(new Uri(oldPath, UriKind.Relative), TestContext.Current.CancellationToken);

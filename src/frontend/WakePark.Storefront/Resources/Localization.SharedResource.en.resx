@@ -133,4 +133,16 @@
   <data name="ValidationEmail" xml:space="preserve"><value>The e-mail address does not look valid.</value></data>
   <data name="ValidationNoProduct" xml:space="preserve"><value>Please choose at least one product.</value></data>
   <data name="OrderUnavailable" xml:space="preserve"><value>We could not send your order right now. Please try again in a moment, or call us.</value></data>
+  <data name="TileAbout" xml:space="preserve"><value>About us</value></data>
+  <data name="TileContact" xml:space="preserve"><value>Contact</value></data>
+  <data name="TileCorporate" xml:space="preserve"><value>Corporate events</value></data>
+  <data name="TileReservation" xml:space="preserve"><value>Booking</value></data>
+  <data name="AboutTitle" xml:space="preserve"><value>About us — Wake Park Džbán</value></data>
+  <data name="AboutDescription" xml:space="preserve"><value>Wake Park Džbán in Prague-Vokovice: two Wakemaster cables for beginners and advanced riders, since 2016.</value></data>
+  <data name="AboutIntro" xml:space="preserve"><value>You will find Wake Park Džbán at the Džbán natural swimming lake in Prague's Vokovice district. The wakeboarding and water-skiing park has been here since spring 2016 and offers a great ride on two Wakemaster cables. Both cables have soft start and speed control, so the cable adapts to you rather than the other way round, as on large multi-tower cables. That makes these 2.0 cables ideal for your first try at wakeboarding — and a great tool for experienced riders to learn and polish tricks.</value></data>
+  <data name="AboutCable1Title" xml:space="preserve"><value>Cable 1 — the “small” one (6 m)</value></data>
+  <data name="AboutCable1Text" xml:space="preserve"><value>Suited to beginners. Its towers are 6 metres high, and the course has a small kicker and a low bench for your first contact with obstacles. Experienced riders use it too, to practise air tricks — falling from lower down hurts a bit less.</value></data>
+  <data name="AboutCable2Title" xml:space="preserve"><value>Cable 2 — the “big” one (9 m)</value></data>
+  <data name="AboutCable2Text" xml:space="preserve"><value>Made for more advanced riders. Its towers are 9 metres high, so you fly about 3 metres higher. For even more fun it has 4 obstacles: a double-sided funbox, two kickers and a pipe with ramps on both sides.</value></data>
+  <data name="AboutMore" xml:space="preserve"><value>Where next:</value></data>
 </root>

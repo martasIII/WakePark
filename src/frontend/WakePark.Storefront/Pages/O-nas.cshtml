@@ -1,0 +1,29 @@
+@page
+@{
+    ViewData["Title"] = T["AboutTitle"].Value;
+    ViewData["Description"] = T["AboutDescription"].Value;
+    ViewData["BodyClass"] = "page";
+    ViewData["Heading"] = T["TileAbout"].Value;
+    ViewData["Subtitle"] = T["Location"].Value;
+}
+@* Zatím texty ze starého webu (WordPress, 2021). Nové dodá Dan. *@
+<partial name="_PageHeader" />
+<main class="page-body">
+    <section class="card">
+        <h2>Wake Park Džbán</h2>
+        <p>@T["AboutIntro"]</p>
+    </section>
+    <section class="card">
+        <h2>@T["AboutCable1Title"]</h2>
+        <p>@T["AboutCable1Text"]</p>
+    </section>
+    <section class="card">
+        <h2>@T["AboutCable2Title"]</h2>
+        <p>@T["AboutCable2Text"]</p>
+    </section>
+    <section class="card">
+        <p>@T["AboutMore"] <a asp-page="/Cenik" asp-route-lang="@Site.LanguageRoute">@T["Prices"]</a>
+            · <a href="@Site.Options.ReservationUrl">@T["TileReservation"]</a>
+            · <a asp-page="/Kontakt" asp-route-lang="@Site.LanguageRoute">@T["TileContact"]</a></p>
+    </section>
+</main>

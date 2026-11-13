@@ -133,4 +133,16 @@
   <data name="ValidationEmail" xml:space="preserve"><value>E-mail nevypadá platně.</value></data>
   <data name="ValidationNoProduct" xml:space="preserve"><value>Vyberte aspoň jeden produkt.</value></data>
   <data name="OrderUnavailable" xml:space="preserve"><value>Objednávku se teď nepodařilo odeslat. Zkuste to prosím za chvíli, nebo nám zavolejte.</value></data>
+  <data name="TileAbout" xml:space="preserve"><value>O nás</value></data>
+  <data name="TileContact" xml:space="preserve"><value>Kontakt</value></data>
+  <data name="TileCorporate" xml:space="preserve"><value>Firemní akce</value></data>
+  <data name="TileReservation" xml:space="preserve"><value>Rezervace</value></data>
+  <data name="AboutTitle" xml:space="preserve"><value>O nás — Wake Park Džbán</value></data>
+  <data name="AboutDescription" xml:space="preserve"><value>Wake Park Džbán ve Vokovicích: dva vleky Wakemaster pro začátečníky i pokročilé, od roku 2016.</value></data>
+  <data name="AboutIntro" xml:space="preserve"><value>Wake Park Džbán najdete v areálu přírodního koupaliště Džbán v pražské čtvrti Vokovice. Areál pro wakeboarding a vodní lyžování zde stojí od jara 2016 a nabízí parádní svezení na dvou vlecích značky Wakemaster. Oba vleky jsou vybaveny systémem plynulého rozjezdu a regulace rychlosti, což v praxi znamená, že vlek se přizpůsobí vám a ne obráceně, jak je tomu na velkých vícesloupých vlecích. Díky tomu jsou vleky typu 2.0 ideální pro první kontakt s wakeboardingem. Pro zkušené jezdce jsou pak skvělým nástrojem pro učení a zdokonalování triků.</value></data>
+  <data name="AboutCable1Title" xml:space="preserve"><value>Vlek 1 — „malý“ (6 m)</value></data>
+  <data name="AboutCable1Text" xml:space="preserve"><value>Je vhodný pro začátečníky. Jeho sloupy měří 6 metrů a na trati stojí malý skokánek (kicker) a nízká lavice pro první kontakty s překážkami. Využívají ho ale i zkušení jezdci, kteří na něm trénují tzv. air triky. Ono to z nižší výšky trochu méně bolí.</value></data>
+  <data name="AboutCable2Title" xml:space="preserve"><value>Vlek 2 — „velký“ (9 m)</value></data>
+  <data name="AboutCable2Text" xml:space="preserve"><value>Je určen pokročilejším riderům. Sloupy má vysoké 9 metrů, takže na něm létáme ještě o zhruba 3 metry výše. Navíc je pro ještě větší zábavu osazen 4 překážkami – oboustranným funboxem, dvěma kickery a rourou s nájezdy na obou stranách.</value></data>
+  <data name="AboutMore" xml:space="preserve"><value>Kam dál:</value></data>
 </root>
