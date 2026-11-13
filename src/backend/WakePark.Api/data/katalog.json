@@ -182,7 +182,7 @@
         "cs": "20 minut na laně pro jednu osobu včetně vybavení a instruktora. Platí v sezóně 2027.",
         "en": "20 minutes on the cable for one person, equipment and instructor included. Valid in the 2027 season."
       },
-      "image": "/img/katalog/voucher-1.svg", "price": 1, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
+      "image": "/img/katalog/voucher-20.jpg", "price": 1, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     },
     {
       "code": "voucher-2-sloty",
@@ -192,7 +192,7 @@
         "cs": "2 × 20 minut na laně — pro dvě osoby, nebo dvakrát pro jednu. Včetně vybavení a instruktora. Platí v sezóně 2027.",
         "en": "2 × 20 minutes on the cable — for two people, or twice for one. Equipment and instructor included. Valid in the 2027 season."
       },
-      "image": "/img/katalog/voucher-2.svg", "price": 1290, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
+      "image": "/img/katalog/voucher-40.jpg", "price": 1290, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     },
     {
       "code": "voucher-3-sloty",
@@ -202,7 +202,7 @@
         "cs": "3 × 20 minut na laně — pro tři osoby, nebo rozdělit podle chuti. Včetně vybavení a instruktora. Platí v sezóně 2027.",
         "en": "3 × 20 minutes on the cable — for three people, or split as you like. Equipment and instructor included. Valid in the 2027 season."
       },
-      "image": "/img/katalog/voucher-3.svg", "price": 1890, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
+      "image": "/img/katalog/voucher-60.jpg", "price": 1890, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     }
   ]
 }
