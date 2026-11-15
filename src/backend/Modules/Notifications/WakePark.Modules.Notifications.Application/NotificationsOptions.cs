@@ -52,6 +52,15 @@ public sealed class NotificationsOptions
     /// </summary>
     public IReadOnlyDictionary<string, string> VoucherTemplates { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
 
+    /// <summary>
+    /// Šablona permanentky podle kódu produktu (soubor ve <see cref="VoucherTemplateDirectory"/>):
+    /// kartička o dvou stranách, kód se dopíše do políčka KÓD na zadní straně.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> PassTemplates { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
+
+    /// <summary>Permanentka (ne voucher) — podle toho se jmenuje příloha a zní e-mail.</summary>
+    public bool IsPass(string productCode) => PassTemplates.ContainsKey(productCode);
+
     /// <summary>Návod k tisku a složení — příloha e-mailu, když je v něm aspoň jeden poukaz ze šablony.</summary>
     public string? VoucherPrintGuide { get; init; }
 }

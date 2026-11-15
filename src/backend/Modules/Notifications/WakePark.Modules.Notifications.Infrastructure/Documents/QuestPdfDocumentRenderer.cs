@@ -56,7 +56,9 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentRenderer
     public byte[] VoucherPdf(VoucherDto voucher)
     {
         ArgumentNullException.ThrowIfNull(voucher);
-        return TemplatePath(voucher.ProductCode) is { } template ? TemplateVoucherPdf(voucher, template) : GenericVoucherPdf(voucher);
+        return PassTemplatePath(voucher.ProductCode) is { } pass ? TemplatePassPdf(voucher, pass)
+            : TemplatePath(voucher.ProductCode) is { } template ? TemplateVoucherPdf(voucher, template)
+            : GenericVoucherPdf(voucher);
     }
 
     public EmailAttachment? VoucherPrintGuide(IReadOnlyList<VoucherDto> vouchers)
@@ -76,6 +78,54 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentRenderer
         _options.VoucherTemplates.TryGetValue(productCode, out string? file)
             ? Path.Combine(AppContext.BaseDirectory, _options.VoucherTemplateDirectory, file)
             : null;
+
+    /// <summary>Šablona permanentky k produktu, nebo <c>null</c>.</summary>
+    private string? PassTemplatePath(string productCode) =>
+        _options.PassTemplates.TryGetValue(productCode, out string? file)
+            ? Path.Combine(AppContext.BaseDirectory, _options.VoucherTemplateDirectory, file)
+            : null;
+
+    /// <summary>
+    /// Permanentka ze šablony od grafika: kartička o dvou stranách, kód se dopíše do políčka
+    /// KÓD na zadní straně. Ostatní (sezóna, přenosnost) má šablona natištěné.
+    /// </summary>
+    /// <remarks>
+    /// Strany šablony jsou uložené na výšku a otočené (<c>/Rotate 270</c>). Vrstvu ale překrytí
+    /// položí do strany tak, jak se zobrazuje (na šířku) — proto se kreslí na šířku a kód se
+    /// otočí o 90° doprava, ať se čte shora dolů jako ostatní texty v ústřižku.
+    /// </remarks>
+    private static byte[] TemplatePassPdf(VoucherDto voucher, string templatePath)
+    {
+        string layer = Path.GetTempFileName();
+        string output = Path.GetTempFileName();
+        try
+        {
+            Document.Create(document => document.Page(page =>
+            {
+                page.Size(new PageSize(PassLayout.PageWidth, PassLayout.PageHeight));
+                page.Margin(0);
+                page.PageColor(Colors.Transparent);
+                page.DefaultTextStyle(t => t.FontFamily(TemplateLayout.Font).FontColor(Colors.Black));
+
+                page.Content().Layers(layers =>
+                {
+                    layers.PrimaryLayer();
+                    Place(layers.Layer(), PassLayout.CodeBox).RotateLayoutClockwise()
+                        .AlignCenter().AlignMiddle().Text(voucher.Code).FontSize(12).Bold().LetterSpacing(0.05f);
+                });
+            })).GeneratePdf(layer);
+
+            DocumentOperation.LoadFile(templatePath)
+                .OverlayFile(new DocumentOperation.LayerConfiguration { FilePath = layer, TargetPages = PassLayout.CodePage, SourcePages = "1" })
+                .Save(output);
+            return File.ReadAllBytes(output);
+        }
+        finally
+        {
+            File.Delete(layer);
+            File.Delete(output);
+        }
+    }
 
     /// <summary>
     /// Poukaz ze šablony od grafika (ADR 0006): přes první stranu A4 se položí průhledná vrstva
@@ -401,5 +451,19 @@ internal sealed class QuestPdfDocumentRenderer : IDocumentRenderer
         /// 120 znaků se vejde na 4–5 řádků.
         /// </summary>
         public static readonly RectangleF Dedication = RectangleF.FromLTRB(92f, 190f, 255f, 276f);
+    }
+
+    /// <summary>
+    /// Zadní strana permanentky, jak se zobrazuje (210 × 85,6 mm na šířku, počátek vlevo
+    /// nahoře), změřená v PDF od grafika (permice 10x20, 11/2026). Stejné na všech osmi.
+    /// </summary>
+    private static class PassLayout
+    {
+        public const float PageWidth = 595.276f;
+        public const float PageHeight = 242.646f;
+        public const string CodePage = "2";
+
+        /// <summary>Svislý tečkovaný rámeček na ústřižku vpravo (477,9–501,5 × 11,5–231); popisek „KÓD“ je vedle něj.</summary>
+        public static readonly RectangleF CodeBox = RectangleF.FromLTRB(479f, 13f, 500.5f, 229.5f);
     }
 }

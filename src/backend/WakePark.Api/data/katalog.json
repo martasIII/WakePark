@@ -109,56 +109,56 @@
         "cs": "Deset jízd po 20 minutách, přenosná na jiné osoby. Platí v sezóně 2027.",
         "en": "Ten 20-minute rides, transferable to other people. Valid in the 2027 season."
       },
-      "image": "/img/katalog/permanentka.svg", "price": 4200, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
+      "image": "/img/katalog/permice-10x20.jpg", "price": 4200, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     },
     {
       "code": "permanentka-10x20-vybaveni",
       "category": "permanentky",
       "name": { "cs": "10 × 20 minut — včetně vybavení", "en": "10 × 20 minutes — incl. equipment" },
       "description": { "cs": "Přenosná na jiné osoby", "en": "Transferable to other people" },
-      "image": null, "price": 5200, "vatRate": 12, "showIn": ["pricelist", "pos"]
+      "image": "/img/katalog/permice-10x20-vv.jpg", "price": 5200, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     },
     {
       "code": "permanentka-20x20",
       "category": "permanentky",
       "name": { "cs": "20 × 20 minut", "en": "20 × 20 minutes" },
       "description": { "cs": "Přenosná na jiné osoby", "en": "Transferable to other people" },
-      "image": null, "price": 6900, "vatRate": 12, "showIn": ["pricelist", "pos"]
+      "image": "/img/katalog/permice-20x20.jpg", "price": 6900, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     },
     {
       "code": "permanentka-20x20-vybaveni",
       "category": "permanentky",
       "name": { "cs": "20 × 20 minut — včetně vybavení", "en": "20 × 20 minutes — incl. equipment" },
       "description": { "cs": "Včetně neoprenu, přenosná na jiné osoby", "en": "Incl. wetsuit, transferable to other people" },
-      "image": null, "price": 9200, "vatRate": 12, "showIn": ["pricelist", "pos"]
+      "image": "/img/katalog/permice-20x20-vv.jpg", "price": 9200, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     },
     {
       "code": "permanentka-10x60",
       "category": "permanentky",
       "name": { "cs": "10 × 60 minut", "en": "10 × 60 minutes" },
       "description": { "cs": "Přenosná na jiné osoby", "en": "Transferable to other people" },
-      "image": null, "price": 9900, "vatRate": 12, "showIn": ["pricelist", "pos"]
+      "image": "/img/katalog/permice-10x60.jpg", "price": 9900, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     },
     {
       "code": "permanentka-10x60-vybaveni",
       "category": "permanentky",
       "name": { "cs": "10 × 60 minut — včetně vybavení", "en": "10 × 60 minutes — incl. equipment" },
       "description": { "cs": "Včetně neoprenu, přenosná na jiné osoby", "en": "Incl. wetsuit, transferable to other people" },
-      "image": null, "price": 12500, "vatRate": 12, "showIn": ["pricelist", "pos"]
+      "image": "/img/katalog/permice-10x60-vv.jpg", "price": 12500, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     },
     {
       "code": "permanentka-20x60",
       "category": "permanentky",
       "name": { "cs": "20 × 60 minut", "en": "20 × 60 minutes" },
       "description": { "cs": "Přenosná na jiné osoby", "en": "Transferable to other people" },
-      "image": null, "price": 17500, "vatRate": 12, "showIn": ["pricelist", "pos"]
+      "image": "/img/katalog/permice-20x60.jpg", "price": 17500, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     },
     {
       "code": "permanentka-20x60-vybaveni",
       "category": "permanentky",
       "name": { "cs": "20 × 60 minut — včetně vybavení", "en": "20 × 60 minutes — incl. equipment" },
       "description": { "cs": "Včetně neoprenu, přenosná na jiné osoby", "en": "Incl. wetsuit, transferable to other people" },
-      "image": null, "price": 21000, "vatRate": 12, "showIn": ["pricelist", "pos"]
+      "image": "/img/katalog/permice-20x60-vv.jpg", "price": 21000, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     },
     {
       "code": "instruktor-20",

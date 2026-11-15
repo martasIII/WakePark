@@ -79,8 +79,8 @@ namespace WakePark.Modules.Vouchers.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
                         .HasColumnName("code");
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")

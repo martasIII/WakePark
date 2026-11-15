@@ -44,7 +44,8 @@ internal sealed class VouchersIssuedConsumer(
 
         List<EmailAttachment> attachments =
         [
-            .. issued.Select(v => new EmailAttachment($"voucher-{v.Code}.pdf", "application/pdf", documents.VoucherPdf(v))),
+            .. issued.Select(v => new EmailAttachment(
+                $"{(options.IsPass(v.ProductCode) ? "permanentka" : "voucher")}-{v.Code}.pdf", "application/pdf", documents.VoucherPdf(v))),
             new EmailAttachment($"doklad-{invoice.Number}.pdf", "application/pdf", documents.InvoicePdf(invoice)),
         ];
 

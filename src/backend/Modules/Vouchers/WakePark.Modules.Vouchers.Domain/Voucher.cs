@@ -24,7 +24,8 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
 
     public const int RideCodeRandomLength = 5;
 
-    public const int CodeMaxLength = 20;
+    /// <summary>Nejdelší je kód permanentky s vybavením: <c>PD2027-20x60-VV-KXRTM</c> (21 znaků).</summary>
+    public const int CodeMaxLength = 24;
 
     /// <summary>Stejné jako v objednávce — tam se věnování ověřuje, sem se jen zamrazí.</summary>
     public const int DedicationMaxLength = 120;
@@ -41,8 +42,8 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
     public Guid EnterpriseId { get; private set; }
 
     /// <summary>
-    /// Kód na poukazu, např. <c>V40-2027-KXRTM</c> (jízdy) nebo <c>WD-7KQ9-M3XT</c> (ostatní,
-    /// zatím permanentky). Podle něj se poukaz uplatní.
+    /// Kód na poukazu, např. <c>V40-2027-KXRTM</c> (jízdy), <c>PD2027-10x20-KXRTM</c> (permanentky)
+    /// nebo <c>WD-7KQ9-M3XT</c> (ostatní). Podle něj se poukaz uplatní.
     /// </summary>
     public string Code { get; private set; } = string.Empty;
 
@@ -152,17 +153,37 @@ public sealed class Voucher : AggregateRoot, ITenantOwned, IAuditable
         ArgumentOutOfRangeException.ThrowIfLessThan(seasonYear, 2000);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(seasonYear, 9999);
 
+        return $"V{type}-{seasonYear}-{RandomLetters()}";
+    }
+
+    /// <summary>
+    /// Kód permanentky <c>PD{rok sezóny}-{typ}-{5 písmen}</c>, např. <c>PD2027-10x20-KXRTM</c>
+    /// nebo s vybavením <c>PD2027-20x60-VV-KXRTM</c>. Odhadnutelnost stejná jako u jízdního
+    /// poukazu — ověřuje se u pokladny, jízdy se odepisují v systému (zákazník si je na kartě
+    /// může odškrtávat jen pro sebe).
+    /// </summary>
+    public static string NewPassCode(string type, int seasonYear)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(type);
+        ArgumentOutOfRangeException.ThrowIfLessThan(seasonYear, 2000);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(seasonYear, 9999);
+
+        return $"PD{seasonYear}-{type}-{RandomLetters()}";
+    }
+
+    private static string RandomLetters()
+    {
         Span<char> random = stackalloc char[RideCodeRandomLength];
         for (int i = 0; i < random.Length; i++)
         {
             random[i] = RideCodeAlphabet[RandomNumberGenerator.GetInt32(RideCodeAlphabet.Length)];
         }
 
-        return $"V{type}-{seasonYear}-{random}";
+        return random.ToString();
     }
 
     /// <summary>
-    /// Kód ostatních poukazů (zatím permanentky, ty zůstávají beze změny): prefix a 2 × 4 znaky, např. <c>WD-7KQ9-M3XT</c>. 31^8 ≈ 850 miliard
+    /// Kód ostatních poukazů (produkt bez typu jízdy ani permanentky): prefix a 2 × 4 znaky, např. <c>WD-7KQ9-M3XT</c>. 31^8 ≈ 850 miliard
     /// kombinací — kód nejde uhodnout. Jedinečnost hlídá i unikátní index.
     /// </summary>
     public static string NewCode(string prefix)

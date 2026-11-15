@@ -28,13 +28,26 @@ internal static class VouchersIssuedEmail
         CultureInfo culture = CultureInfo.GetCultureInfo(en ? "en" : "cs");
         string Date(DateOnly date) => date.ToString(en ? "d MMM yyyy" : "d. M. yyyy", culture);
 
+        // Co zákazník koupil: vouchery, permanentky, nebo obojí — podle toho zní předmět a úvod.
+        bool anyPass = vouchers.Any(v => options.IsPass(v.ProductCode));
+        bool anyVoucher = vouchers.Any(v => !options.IsPass(v.ProductCode));
+        (string what, string What) = (anyPass, anyVoucher, en) switch
+        {
+            (true, true, true) => ("vouchers and season passes", "Vouchers and season passes"),
+            (true, false, true) => ("season passes", "Season passes"),
+            (_, _, true) => ("vouchers", "Vouchers"),
+            (true, true, false) => ("vouchery a permanentky", "Vouchery a permanentky"),
+            (true, false, false) => ("permanentky", "Permanentky"),
+            _ => ("vouchery", "Vouchery"),
+        };
+
         string subject = en
-            ? $"Your vouchers — order {order.Number}"
-            : $"Vaše vouchery — objednávka {order.Number}";
+            ? $"Your {what} — order {order.Number}"
+            : $"Vaše {what} — objednávka {order.Number}";
 
         string intro = en
-            ? "thank you for your payment. Your vouchers are attached as PDF — print them or show them on your phone at the park."
-            : "děkujeme za platbu. Vouchery máte v příloze jako PDF — vytiskněte si je, nebo je v parku ukažte v mobilu.";
+            ? $"thank you for your payment. Your {what} are attached as PDF — print them or show them on your phone at the park."
+            : $"děkujeme za platbu. {What} máte v příloze jako PDF — vytiskněte si je, nebo je v parku ukažte v mobilu.";
 
         string invoiceNote = invoice is null
             ? string.Empty

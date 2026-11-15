@@ -23,6 +23,19 @@ public sealed class VoucherCodeTests
         }
     }
 
+    [Theory]
+    [InlineData("10x20", "^PD2027-10x20-[ABCDEFGHJKMNPQRSTUVWXYZ]{5}$")]
+    [InlineData("20x60-VV", "^PD2027-20x60-VV-[ABCDEFGHJKMNPQRSTUVWXYZ]{5}$")]
+    public void Kod_permanentky_ma_rok_sezony_typ_a_5_velkych_pismen(string type, string pattern)
+    {
+        for (int i = 0; i < 200; i++)
+        {
+            string code = Voucher.NewPassCode(type, 2027);
+            code.ShouldMatch(pattern);
+            code.Length.ShouldBeLessThanOrEqualTo(Voucher.CodeMaxLength);
+        }
+    }
+
     [Fact]
     public void Nahodna_cast_nema_zamenitelna_pismena()
     {
@@ -33,7 +46,7 @@ public sealed class VoucherCodeTests
     }
 
     [Fact]
-    public async Task Jizdni_poukaz_dostane_typ_z_nastaveni_ostatni_puvodni_kod_a_venovani_se_zamrazi()
+    public async Task Jizdni_poukaz_a_permanentka_dostanou_typ_z_nastaveni_ostatni_puvodni_kod_a_venovani_se_zamrazi()
     {
         Guid orderId = Guid.CreateVersion7();
         IOrderDirectory orders = Substitute.For<IOrderDirectory>();
@@ -42,8 +55,10 @@ public sealed class VoucherCodeTests
             [
                 new OrderLineDto("voucher-2-sloty", "Voucher pro dva", 2, 1290m, 12m, 2580m, Guid.CreateVersion7(), ["Pro Kristýnku", ""]),
                 new OrderLineDto("permanentka-10x20", "Permanentka", 1, 4200m, 12m, 4200m, Guid.CreateVersion7(), [""]),
+                new OrderLineDto("permanentka-20x60-vybaveni", "Permanentka s vybavením", 1, 21500m, 12m, 21500m, Guid.CreateVersion7(), [""]),
+                new OrderLineDto("tricko", "Tričko", 1, 400m, 21m, 400m, Guid.CreateVersion7(), [""]),
             ],
-            6780m, 726.43m, 6053.57m, "CZK", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null));
+            28680m, 726.43m, 6053.57m, "CZK", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null));
 
         List<Voucher> issued = [];
         IVoucherRepository vouchers = Substitute.For<IVoucherRepository>();
@@ -54,6 +69,7 @@ public sealed class VoucherCodeTests
         VouchersOptions options = new()
         {
             RideCodeTypes = new Dictionary<string, string> { ["voucher-2-sloty"] = "40" },
+            PassCodeTypes = new Dictionary<string, string> { ["permanentka-10x20"] = "10x20", ["permanentka-20x60-vybaveni"] = "20x60-VV" },
             ValidFrom = new DateOnly(2027, 5, 1),
             ValidTo = new DateOnly(2027, 9, 30),
         };
@@ -64,10 +80,12 @@ public sealed class VoucherCodeTests
             new OrderPaidIntegrationEvent(Guid.CreateVersion7(), clock.UtcNow, Guid.CreateVersion7(), orderId, "token"),
             TestContext.Current.CancellationToken);
 
-        issued.Count.ShouldBe(3);
+        issued.Count.ShouldBe(5);
         issued.Where(v => v.ProductCode == "voucher-2-sloty").ShouldAllBe(v => v.Code.StartsWith("V40-2027-", StringComparison.Ordinal));
         issued.Where(v => v.ProductCode == "voucher-2-sloty").Select(v => v.Code).Distinct().Count().ShouldBe(2);
         issued.Where(v => v.ProductCode == "voucher-2-sloty").Select(v => v.Dedication).ShouldBe(["Pro Kristýnku", null]);
-        issued.Single(v => v.ProductCode == "permanentka-10x20").Code.ShouldMatch("^WD-[A-Z2-9]{4}-[A-Z2-9]{4}$");
+        issued.Single(v => v.ProductCode == "permanentka-10x20").Code.ShouldMatch("^PD2027-10x20-[A-Z]{5}$");
+        issued.Single(v => v.ProductCode == "permanentka-20x60-vybaveni").Code.ShouldMatch("^PD2027-20x60-VV-[A-Z]{5}$");
+        issued.Single(v => v.ProductCode == "tricko").Code.ShouldMatch("^WD-[A-Z2-9]{4}-[A-Z2-9]{4}$");
     }
 }
