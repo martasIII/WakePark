@@ -5,8 +5,7 @@
     ViewData["BodyClass"] = "home";
     string reservation = Site.Options.ReservationUrl.ToString();
 }
-@* Úvod podle návrhu od grafika (WPD_web2026_n01, varianta 4): logo, dlaždice 3 × 3, fotka v pozadí.
-   Firemní akce, Džbán Park, Minirampa a Wake Bar zatím nemají stránku. *@
+@* Úvod podle návrhu od grafika (WPD_web2026_n01): logo, průhledné dlaždice 3 × 3, fotka v pozadí. *@
 <header class="home-head">
     <h1><span class="sr-only">Wake Park Džbán</span><partial name="Icons/_WakeDzban" /></h1>
 </header>
@@ -15,11 +14,11 @@
         <li><a class="tile" asp-page="/O-nas" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_ONas" /><span class="lbl">@T["TileAbout"]</span></a></li>
         <li><a class="tile" asp-page="/Eshop" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_WakeShop" /><span class="lbl">Wake Shop</span></a></li>
         <li><a class="tile" asp-page="/Kontakt" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_Kontakt" /><span class="lbl">@T["TileContact"]</span></a></li>
-        <li><div class="tile soon" title="@T["ComingSoon"]"><partial name="Icons/_FiremniAkce" /><span class="lbl">@T["TileCorporate"]</span><span class="sr-only"> — @T["ComingSoonLower"]</span></div></li>
+        <li><a class="tile" asp-page="/Firemni-akce" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_FiremniAkce" /><span class="lbl">@T["TileCorporate"]</span></a></li>
         <li><a class="tile" asp-page="/Cenik" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_Cenik" /><span class="lbl">@T["Prices"]</span></a></li>
         <li><a class="tile" href="@reservation"><partial name="Icons/_Rezervace" /><span class="lbl">@T["TileReservation"]</span></a></li>
-        <li><div class="tile soon" title="@T["ComingSoon"]"><partial name="Icons/_DzbanPark" /><span class="lbl">Džbán Park</span><span class="sr-only"> — @T["ComingSoonLower"]</span></div></li>
-        <li><div class="tile soon" title="@T["ComingSoon"]"><partial name="Icons/_Minirampa" /><span class="lbl">@T["TileMiniRamp"]</span><span class="sr-only"> — @T["ComingSoonLower"]</span></div></li>
-        <li><div class="tile soon" title="@T["ComingSoon"]"><partial name="Icons/_WakeBar" /><span class="lbl">Wake Bar</span><span class="sr-only"> — @T["ComingSoonLower"]</span></div></li>
+        <li><a class="tile" asp-page="/Dzban-park" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_DzbanPark" /><span class="lbl">Džbán Park</span></a></li>
+        <li><a class="tile" asp-page="/Minirampa" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_Minirampa" /><span class="lbl">@T["TileMiniRamp"]</span></a></li>
+        <li><a class="tile" asp-page="/Wake-bar" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_WakeBar" /><span class="lbl">Wake Bar</span></a></li>
     </ul>
 </main>

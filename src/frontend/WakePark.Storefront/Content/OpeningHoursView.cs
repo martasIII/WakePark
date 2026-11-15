@@ -4,12 +4,14 @@ namespace WakePark.Storefront.Content;
 
 /// <summary>
 /// Otevírací doba připravená k zobrazení pro konkrétní den a jazyk: názvy dnů v jazyce
-/// stránky, zvýrazněný dnešek a jen dnešní a budoucí výjimky.
+/// stránky, zvýrazněný dnešek a jen dnešní a budoucí výjimky. <c>IsOffSeason</c>: v API není
+/// v příštích dnech žádný provozní den — web místo tabulky samých „Zavřeno“ ukáže pozvánku na sezónu.
 /// </summary>
 public sealed record OpeningHoursView(
     IReadOnlyList<OpeningHoursView.DayRow> Days,
     IReadOnlyList<OpeningHoursView.ExceptionRow> Exceptions,
-    string? Note)
+    string? Note,
+    bool IsOffSeason = false)
 {
     /// <summary>Řádek dne. <c>Blockings</c> = omezení provozu v ten den („Vlek 1 14:00–17:00: soukromá akce“).</summary>
     public sealed record DayRow(string Day, string Hours, bool IsToday, IReadOnlyList<string>? Blockings = null);
@@ -38,7 +40,7 @@ public sealed record OpeningHoursView(
             day.Date == today,
             [.. day.Blockings.Select(b => $"{b.CableName ?? text("WholePark")} {Time(b.From)}–{Time(b.To)}: {text("Blocking" + b.Category)}")]))];
 
-        return new OpeningHoursView(days, [], note);
+        return new OpeningHoursView(days, [], note, hours.Days.All(day => day.OpensAt is null));
     }
 
     private static string Time(TimeOnly time) => time.ToString("H:mm", CultureInfo.InvariantCulture);
@@ -71,7 +73,7 @@ public sealed record OpeningHoursView(
             e.Hours.Resolve(language),
             e.Note?.Resolve(language)))];
 
-        return new OpeningHoursView(days, exceptions, hours.Note?.Resolve(language));
+        return new OpeningHoursView(days, exceptions, hours.Note?.Resolve(language), hours.OffSeason);
     }
 
     /// <summary>Krátký den v týdnu a datum bez roku: „st 28. 10.“, „Wed 28/10“.</summary>

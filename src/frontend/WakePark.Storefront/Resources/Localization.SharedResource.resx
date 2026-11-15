@@ -74,13 +74,9 @@
   <data name="CancelledText" xml:space="preserve"><value>Platba nedorazila do splatnosti. Pokud jste ji už odeslali, nic se neděje — jakmile dorazí se správným variabilním symbolem, voucher vám pošleme e-mailem.</value></data>
   <data name="HomeTitle" xml:space="preserve"><value>Wake Park Džbán — Praha 6-Vokovice</value></data>
   <data name="HomeDescription" xml:space="preserve"><value>Wake Park Džbán, Praha 6-Vokovice. Dva vodní vleky, minirampa, Wake Bar a dárkové vouchery.</value></data>
-  <data name="TileWakeDzban" xml:space="preserve"><value>Wake Džbán — ceník jízd</value></data>
-  <data name="TileCable1" xml:space="preserve"><value>Vlek 1 — rezervace</value></data>
-  <data name="TileCable2" xml:space="preserve"><value>Vlek 2 — rezervace</value></data>
   <data name="ComingSoonLower" xml:space="preserve"><value>připravujeme</value></data>
   <data name="ComingSoon" xml:space="preserve"><value>Připravujeme</value></data>
   <data name="TileMiniRamp" xml:space="preserve"><value>Minirampa</value></data>
-  <data name="TileShop" xml:space="preserve"><value>Wake Shop — dárkové vouchery a permanentky</value></data>
   <data name="PricesTitle" xml:space="preserve"><value>Ceník — Wake Park Džbán</value></data>
   <data name="PricesDescription" xml:space="preserve"><value>Ceník Wake Parku Džbán — jízdné, permanentky, půjčovna vybavení, instruktor a dárkové vouchery.</value></data>
   <data name="Prices" xml:space="preserve"><value>Ceník</value></data>
@@ -115,7 +111,6 @@
   <data name="BookingSystem" xml:space="preserve"><value>Rezervační systém</value></data>
   <data name="ContactPeople" xml:space="preserve"><value>Kontaktní osoby</value></data>
   <data name="RoleDan" xml:space="preserve"><value>Firemní akce, marketing, spolupráce</value></data>
-  <data name="RoleKaterina" xml:space="preserve"><value>Rezervace, firemní akce, spolupráce</value></data>
   <data name="HowToGetHere" xml:space="preserve"><value>Jak se k nám dostat</value></data>
   <data name="HowToGetHereNote" xml:space="preserve"><value>Jednoduše — tramvají, metrem nebo autem, všechny cesty k nám vedou.</value></data>
   <data name="ByTram" xml:space="preserve"><value>Tramvají</value></data>
@@ -125,7 +120,6 @@
   <data name="ByCar" xml:space="preserve"><value>Autem</value></data>
   <data name="ByCarText" xml:space="preserve"><value>Velké veřejné parkoviště na konci ulice Nad Lávkou, odtud pár minut pěšky podél vody.</value></data>
   <data name="Operator" xml:space="preserve"><value>Provozovatel</value></data>
-  <data name="ParkOperator" xml:space="preserve"><value>Provozovatel areálu</value></data>
   <data name="CompanyIdShort" xml:space="preserve"><value>IČ</value></data>
   <data name="ParkManager" xml:space="preserve"><value>Správce areálu</value></data>
   <data name="ValidationName" xml:space="preserve"><value>Vyplňte jméno.</value></data>
@@ -138,11 +132,43 @@
   <data name="TileCorporate" xml:space="preserve"><value>Firemní akce</value></data>
   <data name="TileReservation" xml:space="preserve"><value>Rezervace</value></data>
   <data name="AboutTitle" xml:space="preserve"><value>O nás — Wake Park Džbán</value></data>
-  <data name="AboutDescription" xml:space="preserve"><value>Wake Park Džbán ve Vokovicích: dva vleky Wakemaster pro začátečníky i pokročilé, od roku 2016.</value></data>
-  <data name="AboutIntro" xml:space="preserve"><value>Wake Park Džbán najdete v areálu přírodního koupaliště Džbán v pražské čtvrti Vokovice. Areál pro wakeboarding a vodní lyžování zde stojí od jara 2016 a nabízí parádní svezení na dvou vlecích značky Wakemaster. Oba vleky jsou vybaveny systémem plynulého rozjezdu a regulace rychlosti, což v praxi znamená, že vlek se přizpůsobí vám a ne obráceně, jak je tomu na velkých vícesloupých vlecích. Díky tomu jsou vleky typu 2.0 ideální pro první kontakt s wakeboardingem. Pro zkušené jezdce jsou pak skvělým nástrojem pro učení a zdokonalování triků.</value></data>
-  <data name="AboutCable1Title" xml:space="preserve"><value>Vlek 1 — „malý“ (6 m)</value></data>
-  <data name="AboutCable1Text" xml:space="preserve"><value>Je vhodný pro začátečníky. Jeho sloupy měří 6 metrů a na trati stojí malý skokánek (kicker) a nízká lavice pro první kontakty s překážkami. Využívají ho ale i zkušení jezdci, kteří na něm trénují tzv. air triky. Ono to z nižší výšky trochu méně bolí.</value></data>
-  <data name="AboutCable2Title" xml:space="preserve"><value>Vlek 2 — „velký“ (9 m)</value></data>
-  <data name="AboutCable2Text" xml:space="preserve"><value>Je určen pokročilejším riderům. Sloupy má vysoké 9 metrů, takže na něm létáme ještě o zhruba 3 metry výše. Navíc je pro ještě větší zábavu osazen 4 překážkami – oboustranným funboxem, dvěma kickery a rourou s nájezdy na obou stranách.</value></data>
-  <data name="AboutMore" xml:space="preserve"><value>Kam dál:</value></data>
+  <data name="AboutDescription" xml:space="preserve"><value>Wake Park Džbán ve Vokovicích: dvě dráhy Wakemaster pro začátečníky i pokročilé, převlékárny, teplé sprchy a horká káď.</value></data>
+  <data name="AboutIntro" xml:space="preserve"><value>Wake Park Džbán najdete na jižním břehu vodní nádrže Džbán v pražské čtvrti Vokovice. Areál pro wakeboarding nabízí parádní svezení na dvou vlecích značky Wakemaster. Oba vleky jsou vybaveny systémem plynulého rozjezdu a regulace rychlosti, což v praxi znamená, že vlek se přizpůsobí vám a ne obráceně, jak je tomu na okruhových vícesloupých vlecích. Díky tomu jsou vleky typu 2.0 ideální pro první kontakt s wakeboardingem. Pro zkušené jezdce jsou pak skvělým nástrojem pro učení a zdokonalování triků.</value></data>
+  <data name="AboutCable1Title" xml:space="preserve"><value>Dráha 1 — pro pokročilé</value></data>
+  <data name="AboutCable1Text" xml:space="preserve"><value>Je osazena celkem 7 překážkami – třemi kickery (skokánky 50, 70 a 100 cm), dvěma boxy (12 m a 16 m), 18metrovým railem a velkým funboxem.</value></data>
+  <data name="AboutCable2Title" xml:space="preserve"><value>Dráha 2 — pro začátečníky</value></data>
+  <data name="AboutCable2Text" xml:space="preserve"><value>Nejsou na ní žádné překážky, nehrozí tedy žádné nebezpečí nárazu. Navíc má kratší lanko, díky kterému je o něco snazší průjezd otočkou. Současně je ideální pro učení triků z vody (ollie, raley, backroll apod.) a hodí se i pro foilboard.</value></data>
+  <data name="AboutHeading" xml:space="preserve"><value>O nás</value></data>
+  <data name="AboutFacilitiesTitle" xml:space="preserve"><value>Zázemí</value></data>
+  <data name="AboutFacilitiesText" xml:space="preserve"><value>Pro jezdce i ostatní návštěvníky jsou v areálu k dispozici převlékárny, sprchy s teplou vodou a horká káď, díky které si užijete wakeboarding i v chladnějších dnech.</value></data>
+  <data name="Gallery" xml:space="preserve"><value>Fotogalerie</value></data>
+  <data name="Close" xml:space="preserve"><value>Zavřít</value></data>
+  <data name="Previous" xml:space="preserve"><value>Předchozí</value></data>
+  <data name="Next" xml:space="preserve"><value>Další</value></data>
+  <data name="CorporateTitle" xml:space="preserve"><value>Firemní akce — Wake Park Džbán</value></data>
+  <data name="CorporateDescription" xml:space="preserve"><value>Teambuilding, prezentace či školení u vody v Praze 6: akce na klíč včetně cateringu, až pro 50 osob.</value></data>
+  <data name="CorporateHeading" xml:space="preserve"><value>Firemní akce</value></data>
+  <data name="CorporateText1" xml:space="preserve"><value>Wake Park Džbán je mimo jiné skvělé místo i pro váš teambuilding, prezentaci, školení a další firemní akce, které pořádáte v letních měsících (druhá polovina května až konec září).</value></data>
+  <data name="CorporateText2" xml:space="preserve"><value>Připravíme vám celou akci na klíč včetně cateringu a dalších doprovodných služeb.</value></data>
+  <data name="CorporateText3" xml:space="preserve"><value>Kapacita areálu je zhruba 50 osob a garantujeme vám, že se ani jedna nebude nudit.</value></data>
+  <data name="CorporateContact" xml:space="preserve"><value>Pro nabídku pište Danovi na</value></data>
+  <data name="CorporateAsk" xml:space="preserve"><value>Napsat o nabídku</value></data>
+  <data name="DzbanParkTitle" xml:space="preserve"><value>Džbán Park — Wake Park Džbán</value></data>
+  <data name="DzbanParkDescription" xml:space="preserve"><value>Rekreační plocha Džbán Park ve Vokovicích: koupání, opalování, lehátka a bistro u vody.</value></data>
+  <data name="DzbanParkHeading" xml:space="preserve"><value>Džbán Park</value></data>
+  <data name="DzbanParkText1" xml:space="preserve"><value>Ve spolupráci s MČ Praha 6 provozujeme rekreační plochu Džbán Park, kde si můžete jednoduše odpočinout, vykoupat se, opalovat nebo se občerstvit v našem bistru.</value></data>
+  <data name="DzbanParkText2" xml:space="preserve"><value>K dispozici jsou toalety (mobilní, včetně bezbariérové), sprcha, lehátka a pár slunečníků. Na recepci Wake Parku si můžete půjčit plážové hry (pétanque, spikeball, badminton…).</value></data>
+  <data name="MiniRampTitle" xml:space="preserve"><value>Minirampa — Wake Park Džbán</value></data>
+  <data name="MiniRampDescription" xml:space="preserve"><value>Malá a bezpečná U-rampa pro skateboardisty ve Wake Parku Džbán.</value></data>
+  <data name="MiniRampHeading" xml:space="preserve"><value>Minirampa</value></data>
+  <data name="MiniRampText" xml:space="preserve"><value>Opravdu malá a bezpečná U-rampa pro skateboardisty. Ideální pro začátečníky i pohodové poježdění po wakeboardingu.</value></data>
+  <data name="MiniRampRule" xml:space="preserve"><value>Pro děti je přilba a chrániče povinné!</value></data>
+  <data name="WakeBarTitle" xml:space="preserve"><value>Wake Bar — Wake Park Džbán</value></data>
+  <data name="WakeBarDescription" xml:space="preserve"><value>Bistro Wake Bar u vody: nealko i alko, domácí hot dog s farmářským párkem a další.</value></data>
+  <data name="WakeBarHeading" xml:space="preserve"><value>Wake Bar</value></data>
+  <data name="WakeBarText" xml:space="preserve"><value>Osvěžení i posilnění se vám dostane v našem bistru Wake Bar. Nabízíme celou řadu nealkoholických i alkoholických nápojů, domácí hot dog s farmářským párkem a mnoho dalšího.</value></data>
+  <data name="RoleMartin" xml:space="preserve"><value>Rezervace, e-shop, gastro</value></data>
+  <data name="Operations" xml:space="preserve"><value>Provoz a rezervace</value></data>
+  <data name="OperationsNote" xml:space="preserve"><value>Dotazy k provozu, rezervacím a voucherům</value></data>
+  <data name="OffSeason" xml:space="preserve"><value>Těšíme se na vás v sezóně {0}.</value></data>
 </root>

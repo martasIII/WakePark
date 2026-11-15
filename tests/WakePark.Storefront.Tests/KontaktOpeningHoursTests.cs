@@ -50,7 +50,21 @@ public sealed class KontaktOpeningHoursTests(WebApplicationFactory<Program> fact
         string html = await GetAsync(api, fromApi: false);
 
         api.Calls.ShouldBe(0);
-        html.ShouldContain("Pondělí");
+        // soubor je buď v sezóně (tabulka dnů), nebo mimo ni (pozvánka) — přepíná se ručně
+        (html.Contains("Pondělí", StringComparison.Ordinal) || html.Contains("Těšíme se na vás v sezóně", StringComparison.Ordinal)).ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Kdyz_v_API_neni_zadny_provozni_den_ukaze_pozvanku_na_sezonu()
+    {
+        const string closed = """
+            { "timeZoneId": "Europe/Prague", "days": [ { "date": "2026-11-16", "opensAt": null, "closesAt": null, "blockings": [] } ] }
+            """;
+
+        string html = await GetAsync(new StubCatalogApi(HttpStatusCode.OK, closed), fromApi: true);
+
+        html.ShouldContain("Těšíme se na vás v sezóně");
+        html.ShouldNotContain("Zavřeno");
     }
 
     [Fact]

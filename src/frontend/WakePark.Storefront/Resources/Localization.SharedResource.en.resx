@@ -74,13 +74,9 @@
   <data name="CancelledText" xml:space="preserve"><value>The payment did not arrive by the due date. If you have already sent it, don't worry — once it arrives with the right variable symbol, we will e-mail you the voucher.</value></data>
   <data name="HomeTitle" xml:space="preserve"><value>Wake Park Džbán — Prague 6-Vokovice</value></data>
   <data name="HomeDescription" xml:space="preserve"><value>Wake Park Džbán, Prague 6-Vokovice. Two cable systems, a mini ramp, Wake Bar and gift vouchers.</value></data>
-  <data name="TileWakeDzban" xml:space="preserve"><value>Wake Džbán — ride prices</value></data>
-  <data name="TileCable1" xml:space="preserve"><value>Cable 1 — booking</value></data>
-  <data name="TileCable2" xml:space="preserve"><value>Cable 2 — booking</value></data>
   <data name="ComingSoonLower" xml:space="preserve"><value>coming soon</value></data>
   <data name="ComingSoon" xml:space="preserve"><value>Coming soon</value></data>
   <data name="TileMiniRamp" xml:space="preserve"><value>Mini ramp</value></data>
-  <data name="TileShop" xml:space="preserve"><value>Wake Shop — gift vouchers and passes</value></data>
   <data name="PricesTitle" xml:space="preserve"><value>Prices — Wake Park Džbán</value></data>
   <data name="PricesDescription" xml:space="preserve"><value>Wake Park Džbán prices — rides, passes, equipment rental, instructor and gift vouchers.</value></data>
   <data name="Prices" xml:space="preserve"><value>Prices</value></data>
@@ -115,7 +111,6 @@
   <data name="BookingSystem" xml:space="preserve"><value>Booking system</value></data>
   <data name="ContactPeople" xml:space="preserve"><value>Contact people</value></data>
   <data name="RoleDan" xml:space="preserve"><value>Corporate events, marketing, partnerships</value></data>
-  <data name="RoleKaterina" xml:space="preserve"><value>Bookings, corporate events, partnerships</value></data>
   <data name="HowToGetHere" xml:space="preserve"><value>How to get here</value></data>
   <data name="HowToGetHereNote" xml:space="preserve"><value>Easily — by tram, metro or car, all roads lead here.</value></data>
   <data name="ByTram" xml:space="preserve"><value>By tram</value></data>
@@ -125,7 +120,6 @@
   <data name="ByCar" xml:space="preserve"><value>By car</value></data>
   <data name="ByCarText" xml:space="preserve"><value>Large public car park at the end of Nad Lávkou street, then a few minutes’ walk along the water.</value></data>
   <data name="Operator" xml:space="preserve"><value>Operator</value></data>
-  <data name="ParkOperator" xml:space="preserve"><value>Park operator</value></data>
   <data name="CompanyIdShort" xml:space="preserve"><value>company ID</value></data>
   <data name="ParkManager" xml:space="preserve"><value>Park manager</value></data>
   <data name="ValidationName" xml:space="preserve"><value>Please fill in your name.</value></data>
@@ -138,11 +132,43 @@
   <data name="TileCorporate" xml:space="preserve"><value>Corporate events</value></data>
   <data name="TileReservation" xml:space="preserve"><value>Booking</value></data>
   <data name="AboutTitle" xml:space="preserve"><value>About us — Wake Park Džbán</value></data>
-  <data name="AboutDescription" xml:space="preserve"><value>Wake Park Džbán in Prague-Vokovice: two Wakemaster cables for beginners and advanced riders, since 2016.</value></data>
-  <data name="AboutIntro" xml:space="preserve"><value>You will find Wake Park Džbán at the Džbán natural swimming lake in Prague's Vokovice district. The wakeboarding and water-skiing park has been here since spring 2016 and offers a great ride on two Wakemaster cables. Both cables have soft start and speed control, so the cable adapts to you rather than the other way round, as on large multi-tower cables. That makes these 2.0 cables ideal for your first try at wakeboarding — and a great tool for experienced riders to learn and polish tricks.</value></data>
-  <data name="AboutCable1Title" xml:space="preserve"><value>Cable 1 — the “small” one (6 m)</value></data>
-  <data name="AboutCable1Text" xml:space="preserve"><value>Suited to beginners. Its towers are 6 metres high, and the course has a small kicker and a low bench for your first contact with obstacles. Experienced riders use it too, to practise air tricks — falling from lower down hurts a bit less.</value></data>
-  <data name="AboutCable2Title" xml:space="preserve"><value>Cable 2 — the “big” one (9 m)</value></data>
-  <data name="AboutCable2Text" xml:space="preserve"><value>Made for more advanced riders. Its towers are 9 metres high, so you fly about 3 metres higher. For even more fun it has 4 obstacles: a double-sided funbox, two kickers and a pipe with ramps on both sides.</value></data>
-  <data name="AboutMore" xml:space="preserve"><value>Where next:</value></data>
+  <data name="AboutDescription" xml:space="preserve"><value>Wake Park Džbán in Prague-Vokovice: two Wakemaster cables for beginners and advanced riders, changing rooms, warm showers and a hot tub.</value></data>
+  <data name="AboutIntro" xml:space="preserve"><value>You will find Wake Park Džbán on the south shore of the Džbán reservoir in Prague's Vokovice district. The park offers a great ride on two Wakemaster cables. Both have soft start and speed control, which means the cable adapts to you rather than the other way round, as on multi-tower loop cables. That makes these 2.0 cables ideal for your first try at wakeboarding — and a great tool for experienced riders to learn and polish tricks.</value></data>
+  <data name="AboutCable1Title" xml:space="preserve"><value>Cable 1 — for advanced riders</value></data>
+  <data name="AboutCable1Text" xml:space="preserve"><value>It has 7 obstacles in total: three kickers (50, 70 and 100 cm), two boxes (12 m and 16 m), an 18-metre rail and a big funbox.</value></data>
+  <data name="AboutCable2Title" xml:space="preserve"><value>Cable 2 — for beginners</value></data>
+  <data name="AboutCable2Text" xml:space="preserve"><value>There are no obstacles, so there is nothing to crash into. It also has a shorter rope, which makes the turns a little easier. It is ideal for learning tricks from the water (ollie, raley, backroll and so on) and suits foilboarding too.</value></data>
+  <data name="AboutHeading" xml:space="preserve"><value>About us</value></data>
+  <data name="AboutFacilitiesTitle" xml:space="preserve"><value>Facilities</value></data>
+  <data name="AboutFacilitiesText" xml:space="preserve"><value>Riders and other visitors can use changing rooms, warm showers and a hot tub, so you can enjoy wakeboarding even on cooler days.</value></data>
+  <data name="Gallery" xml:space="preserve"><value>Photo gallery</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="Next" xml:space="preserve"><value>Next</value></data>
+  <data name="CorporateTitle" xml:space="preserve"><value>Corporate events — Wake Park Džbán</value></data>
+  <data name="CorporateDescription" xml:space="preserve"><value>Team building, presentations or training by the water in Prague 6: turnkey events including catering, for up to 50 people.</value></data>
+  <data name="CorporateHeading" xml:space="preserve"><value>Corporate events</value></data>
+  <data name="CorporateText1" xml:space="preserve"><value>Wake Park Džbán is a great place for your team building, presentation, training or any other company event in the summer months (from the second half of May to the end of September).</value></data>
+  <data name="CorporateText2" xml:space="preserve"><value>We will prepare the whole event for you, including catering and other services.</value></data>
+  <data name="CorporateText3" xml:space="preserve"><value>The park holds about 50 people, and we guarantee that none of them will be bored.</value></data>
+  <data name="CorporateContact" xml:space="preserve"><value>For an offer, write to Dan at</value></data>
+  <data name="CorporateAsk" xml:space="preserve"><value>Ask for an offer</value></data>
+  <data name="DzbanParkTitle" xml:space="preserve"><value>Džbán Park — Wake Park Džbán</value></data>
+  <data name="DzbanParkDescription" xml:space="preserve"><value>Džbán Park recreation area in Prague-Vokovice: swimming, sunbathing, deckchairs and a bistro by the water.</value></data>
+  <data name="DzbanParkHeading" xml:space="preserve"><value>Džbán Park</value></data>
+  <data name="DzbanParkText1" xml:space="preserve"><value>Together with the Prague 6 district we run the Džbán Park recreation area, where you can simply relax, swim, sunbathe or grab a bite in our bistro.</value></data>
+  <data name="DzbanParkText2" xml:space="preserve"><value>There are toilets (mobile, including a wheelchair-accessible one), a shower, deckchairs and a few parasols. At the Wake Park reception you can borrow beach games (pétanque, spikeball, badminton…).</value></data>
+  <data name="MiniRampTitle" xml:space="preserve"><value>Mini ramp — Wake Park Džbán</value></data>
+  <data name="MiniRampDescription" xml:space="preserve"><value>A small, safe U-ramp for skateboarders at Wake Park Džbán.</value></data>
+  <data name="MiniRampHeading" xml:space="preserve"><value>Mini ramp</value></data>
+  <data name="MiniRampText" xml:space="preserve"><value>A really small and safe U-ramp for skateboarders. Ideal for beginners and for an easy-going session after wakeboarding.</value></data>
+  <data name="MiniRampRule" xml:space="preserve"><value>Helmets and pads are compulsory for children!</value></data>
+  <data name="WakeBarTitle" xml:space="preserve"><value>Wake Bar — Wake Park Džbán</value></data>
+  <data name="WakeBarDescription" xml:space="preserve"><value>Wake Bar bistro by the water: soft drinks and alcohol, homemade hot dogs with farm sausages and more.</value></data>
+  <data name="WakeBarHeading" xml:space="preserve"><value>Wake Bar</value></data>
+  <data name="WakeBarText" xml:space="preserve"><value>Refresh and refuel at our Wake Bar bistro. We offer a wide range of soft and alcoholic drinks, homemade hot dogs with farm sausages and much more.</value></data>
+  <data name="RoleMartin" xml:space="preserve"><value>Bookings, e-shop, food &amp; drinks</value></data>
+  <data name="Operations" xml:space="preserve"><value>Operations and bookings</value></data>
+  <data name="OperationsNote" xml:space="preserve"><value>Questions about opening, bookings and vouchers</value></data>
+  <data name="OffSeason" xml:space="preserve"><value>We look forward to seeing you in the {0} season.</value></data>
 </root>

@@ -1,0 +1,17 @@
+@page
+@{
+    ViewData["Title"] = T["MiniRampTitle"].Value;
+    ViewData["Description"] = T["MiniRampDescription"].Value;
+    ViewData["BodyClass"] = "page";
+    ViewData["Heading"] = T["MiniRampHeading"].Value;
+    ViewData["Subtitle"] = T["Location"].Value;
+}
+@* Texty od Dana (11/2026). Odkaz na provozní řád doplníme, až bude PDF. *@
+<partial name="_PageHeader" />
+<main class="page-body">
+    <section class="card">
+        <p>@T["MiniRampText"]</p>
+        <p class="rule">@T["MiniRampRule"]</p>
+    </section>
+    <partial name="_Galerie" model="@(new[] { "rampicka1", "rampicka2", "rampicka3", "skoleni" })" />
+</main>

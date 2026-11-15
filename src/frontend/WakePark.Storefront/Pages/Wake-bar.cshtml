@@ -1,0 +1,16 @@
+@page
+@{
+    ViewData["Title"] = T["WakeBarTitle"].Value;
+    ViewData["Description"] = T["WakeBarDescription"].Value;
+    ViewData["BodyClass"] = "page";
+    ViewData["Heading"] = T["WakeBarHeading"].Value;
+    ViewData["Subtitle"] = T["Location"].Value;
+}
+@* Texty od Dana (11/2026). *@
+<partial name="_PageHeader" />
+<main class="page-body">
+    <section class="card">
+        <p>@T["WakeBarText"]</p>
+    </section>
+    <partial name="_Galerie" model="@(new[] { "teras", "terasa2", "sekt", "party2", "jatro1", "jatro2" })" />
+</main>

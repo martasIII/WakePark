@@ -52,6 +52,14 @@ public sealed class OpeningHoursViewTests
         view.Exceptions[0].Note.ShouldBe("Státní svátek");
     }
 
+    [Fact]
+    public void Prepinac_mimo_sezonu_ze_souboru_se_propise()
+    {
+        OpeningHoursView view = OpeningHoursView.Build(Hours() with { OffSeason = true }, Wednesday, Czech);
+
+        view.IsOffSeason.ShouldBeTrue();
+    }
+
     private static LocalizedText Text(string text) => LocalizedText.Invariant(text);
 
     private static OpeningHours Hours(params OpeningOverride[] exceptions) => new(

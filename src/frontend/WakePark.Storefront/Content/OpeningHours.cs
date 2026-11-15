@@ -4,10 +4,12 @@ namespace WakePark.Storefront.Content;
 /// <param name="Week">Klíče <c>mon</c> až <c>sun</c>. Názvy dnů dodá web v jazyce stránky.</param>
 /// <param name="Exceptions">Výjimky na konkrétní datum. Minulé se nezobrazují, mazat je netřeba.</param>
 /// <param name="Note">Poznámka pod tabulkou.</param>
+/// <param name="OffSeason">Mimo sezónu: místo tabulky „Těšíme se na vás v sezóně …“. Přepíná se ručně.</param>
 public sealed record OpeningHours(
     IReadOnlyDictionary<string, LocalizedText> Week,
     IReadOnlyList<OpeningOverride>? Exceptions,
-    LocalizedText? Note) : IValidatedContent
+    LocalizedText? Note,
+    bool OffSeason = false) : IValidatedContent
 {
     /// <summary>Klíče dnů v pořadí od pondělí.</summary>
     public static readonly IReadOnlyList<string> DayKeys = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];

@@ -22,6 +22,7 @@ public static partial class LegacyRedirects
             .AddRedirect("^(cenik|kontakt)(\\.html|/)$", "$1", StatusCodes.Status301MovedPermanently)
             // stránky WordPressu o areálu → O nás
             .AddRedirect("^(o-parku|team|zakladni-informace)/?$", "o-nas", StatusCodes.Status301MovedPermanently)
+            .AddRedirect("^pro-firmy/?$", "firemni-akce", StatusCodes.Status301MovedPermanently)
             // e-shop WordPressu (WooCommerce) → vouchery v ceníku
             .Add(RedirectShopToVouchers)
             .AddRedirect("^rezervace/?$", reservationUrl.ToString(), StatusCodes.Status302Found);

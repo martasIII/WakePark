@@ -14,11 +14,11 @@
     <h2>@T["WhereToFind"]</h2>
     <div class="kv-grid">
       <p class="kv"><b>@T["Address"]</b><span>@T["AddressLine1"]<br>@T["AddressLine2"]</span></p>
-      <p class="kv"><b>GPS</b><a href="https://mapy.com/en/zakladni?q=50.09538983277756%2C14.334289900588386&amp;source=firm&amp;id=13652879&amp;x=14.3335473&amp;y=50.0946580&amp;z=18.248">50.0954, 14.3343</a></p>
+      <p class="kv"><b>GPS</b><a href="https://mapy.com/fnc/v1/showmap?mapset=basic&amp;center=14.334143,50.095229&amp;zoom=17&amp;marker=true">50.0952, 14.3341</a></p>
       <p class="kv"><b>@T["Phone"]</b><a href="tel:+420737562516">+420 737 562 516</a></p>
       <p class="kv"><b>E-mail</b><a href="mailto:info@@wake-dzban.cz">info@@wake-dzban.cz</a></p>
     </div>
-    <a class="btn" href="https://mapy.com/en/zakladni?q=50.09538983277756%2C14.334289900588386&amp;source=firm&amp;id=13652879&amp;x=14.3335473&amp;y=50.0946580&amp;z=18.248">@T["OpenInMaps"]</a>
+    <a class="btn" href="https://mapy.com/fnc/v1/showmap?mapset=basic&amp;center=14.334143,50.095229&amp;zoom=17&amp;marker=true">@T["OpenInMaps"]</a>
   </section>
 
   <section class="card" id="doba">
@@ -26,6 +26,10 @@
     @if (Model.Hours is null)
     {
         <p class="note">@T["LoadFailed"] <a href="tel:+420737562516">+420 737 562 516</a>.</p>
+    }
+    else if (Model.Hours.IsOffSeason)
+    {
+        <p class="off-season">@string.Format(SiteView.Culture, T["OffSeason"].Value, Model.NextSeason)</p>
     }
     else
     {
@@ -68,9 +72,12 @@
     <h2>@T["ContactPeople"]</h2>
     <div class="row"><div class="name"><b>Dan Beitl</b>
       <span class="desc">@T["RoleDan"]</span>
-      <span class="desc"><a href="mailto:dan@@wake-dzban.cz">dan@@wake-dzban.cz</a></span></div></div>
-    <div class="row"><div class="name"><b>Kateřina Korejsová</b>
-      <span class="desc">@T["RoleKaterina"]</span>
+      <span class="desc"><a href="mailto:dan@@wake-dzban.cz">dan@@wake-dzban.cz</a> · <a href="tel:+420603460677">+420 603 460 677</a></span></div></div>
+    <div class="row"><div class="name"><b>Martin Hájek</b>
+      <span class="desc">@T["RoleMartin"]</span>
+      <span class="desc"><a href="mailto:martin@@wake-dzban.cz">martin@@wake-dzban.cz</a></span></div></div>
+    <div class="row"><div class="name"><b>@T["Operations"]</b>
+      <span class="desc">@T["OperationsNote"]</span>
       <span class="desc"><a href="mailto:info@@wake-dzban.cz">info@@wake-dzban.cz</a> · <a href="tel:+420737562516">+420 737 562 516</a></span></div></div>
   </section>
 
@@ -88,7 +95,6 @@
   <section class="card">
     <h2>@T["Operator"]</h2>
     <div class="kv-grid">
-      <p class="kv"><b>@T["ParkOperator"]</b><span>WAKEMASTER s.r.o., @T["CompanyIdShort"] 02819082</span></p>
       <p class="kv"><b>@T["ParkManager"]</b><span>Wake Park s.r.o., @T["CompanyIdShort"] 06633633</span></p>
     </div>
   </section>

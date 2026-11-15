@@ -19,11 +19,15 @@ public sealed partial class KontaktModel(
     /// <summary>Null, když se otevírací dobu nepodařilo načíst — stránka pak ukáže telefon.</summary>
     public OpeningHoursView? Hours { get; private set; }
 
+    /// <summary>Rok příští sezóny pro text mimo sezónu: od října už ta další.</summary>
+    public int NextSeason { get; private set; }
+
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         // „Dnes“ podle času v areálu, ne podle zóny serveru (kontejner běží v UTC).
         TimeZoneInfo zone = TimeZoneInfo.FindSystemTimeZoneById(options.Value.TimeZoneId);
         DateOnly today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(clock.GetUtcNow(), zone).DateTime);
+        NextSeason = today.Month >= 10 ? today.Year + 1 : today.Year;
 
         try
         {

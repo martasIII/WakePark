@@ -1,0 +1,20 @@
+@page
+@{
+    ViewData["Title"] = T["CorporateTitle"].Value;
+    ViewData["Description"] = T["CorporateDescription"].Value;
+    ViewData["BodyClass"] = "page";
+    ViewData["Heading"] = T["CorporateHeading"].Value;
+    ViewData["Subtitle"] = T["Location"].Value;
+}
+@* Texty od Dana (11/2026). Ceny dohodou — na webu žádné. *@
+<partial name="_PageHeader" />
+<main class="page-body">
+    <section class="card">
+        <p>@T["CorporateText1"]</p>
+        <p>@T["CorporateText2"]</p>
+        <p>@T["CorporateText3"]</p>
+        <p>@T["CorporateContact"] <a href="mailto:dan@@wake-dzban.cz">dan@@wake-dzban.cz</a>.</p>
+        <a class="btn" href="mailto:dan@@wake-dzban.cz">@T["CorporateAsk"]</a>
+    </section>
+    <partial name="_Galerie" model="@(new[] { "party1", "bmx", "jatro2" })" />
+</main>

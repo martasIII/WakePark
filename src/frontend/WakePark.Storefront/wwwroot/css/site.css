@@ -8,12 +8,12 @@
 html,body{margin:0}
 body{
   min-height:100vh; display:flex; flex-direction:column;
-  background:var(--brand); color:var(--ink);
+  /* růžová fotka od grafika na všech stránkách; barva je záloha, než se načte */
+  background:var(--brand) url("../img/hp/pozadi.webp") center top / cover no-repeat fixed; color:var(--ink);
   font-family:"Montserrat",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
 }
 main{flex:1; display:grid; place-items:center; padding:clamp(16px,4vw,56px)}
-/* ---- úvod: logo, dlaždice 3 × 3 na fotce (návrh WPD_web2026_n01, varianta 4) ---- */
-body.home{background:var(--brand) url("../img/hp/pozadi.jpg") center top / cover no-repeat}
+/* ---- úvod: logo, průhledné dlaždice 3 × 3 na fotce (návrh WPD_web2026_n01) ---- */
 .home-head{text-align:center; padding:clamp(24px,3.5vw,48px) 16px 0}
 .home-head h1{margin:0; line-height:0}
 .home-head svg{width:clamp(96px,8.5vw,160px); height:auto; color:var(--ink)}
@@ -25,14 +25,14 @@ body.home{background:var(--brand) url("../img/hp/pozadi.jpg") center top / cover
 }
 .tile{
   aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-  background:#fff; color:#111; border-radius:4px; text-decoration:none;
-  transition:color .18s, transform .18s, box-shadow .18s;
+  border:2px solid var(--line); border-radius:4px; color:var(--ink); text-decoration:none;
+  transition:background-color .18s, color .18s, transform .18s;
 }
 .tile svg{width:66%; height:auto; overflow:visible}
 .tile .lbl{font-weight:700; font-size:clamp(10px,1.4vw,16px); letter-spacing:.1em; text-transform:uppercase; text-align:center; line-height:1.2; padding:0 4px}
 /* Vlek 1/2 (mimo úvod) mají popisek přímo v SVG */
 .tile svg .lbl{fill:currentColor; stroke:none; font-family:inherit; font-size:12.6px; letter-spacing:3.6px}
-a.tile:hover, a.tile:focus-visible{color:var(--brand); transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.18); outline:none}
+a.tile:hover, a.tile:focus-visible{background:var(--ink); color:var(--brand); transform:translateY(-3px); outline:none}
 .tile.soon{cursor:default}
 footer .languages{margin-top:8px; font-size:13px}
 footer .languages a{margin:0 4px; text-decoration:none; opacity:.75}
@@ -43,7 +43,9 @@ footer a{color:inherit}
 footer .small{font-size:12px; opacity:.8}
 .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 @media (max-width:760px){
-  body.home{background-image:url("../img/hp/pozadi-m.jpg")}
+  /* menší výřez; „fixed“ telefony nezvládají */
+  body{background-image:url("../img/hp/pozadi-m.webp"); background-attachment:scroll}
+  footer .social a{display:inline; margin:0 8px}
   .tile .lbl{letter-spacing:.04em}
   footer .sep{display:none}
   footer p a{display:block}
@@ -170,3 +172,22 @@ footer .small{font-size:12px; opacity:.8}
 
 /* úzké telefony: 3 sloupce už jsou moc malé */
 @media (max-width:340px){ .tiles{grid-template-columns:repeat(2,1fr)} }
+
+/* ---- fotogalerie ---- */
+.gallery{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px}
+.gallery a{display:block; border-radius:4px; overflow:hidden}
+.gallery img{display:block; width:100%; height:auto; aspect-ratio:1; object-fit:cover; transition:transform .25s}
+.gallery a:hover img, .gallery a:focus-visible img{transform:scale(1.04)}
+.lightbox{max-width:none; max-height:none; width:100%; height:100%; margin:0; padding:0; border:0; background:transparent}
+.lightbox::backdrop{background:rgba(0,0,0,.88)}
+.lightbox[open]{display:grid; place-items:center}
+.lightbox img{max-width:min(94vw,1080px); max-height:88vh; width:auto; height:auto; border-radius:4px}
+.lightbox button{position:fixed; border:0; background:rgba(0,0,0,.35); color:#fff; font:inherit; font-size:34px; line-height:1;
+  width:48px; height:48px; border-radius:50%; cursor:pointer}
+.lightbox button:hover{background:var(--brand)}
+.lb-close{top:14px; right:14px}
+.lb-prev{left:14px; top:50%; transform:translateY(-50%)}
+.lb-next{right:14px; top:50%; transform:translateY(-50%)}
+
+.card .rule{font-weight:700; color:var(--brand)}
+.card .off-season{margin:6px 0 14px; font-size:18px; font-weight:700; color:var(--brand)}

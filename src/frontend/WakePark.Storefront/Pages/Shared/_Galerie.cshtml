@@ -1,0 +1,12 @@
+@model IReadOnlyList<string>
+@* Fotogalerie: čtvercové náhledy (img/foto/n/), kliknutím velká fotka (img/foto/). Bez JS fungují jako odkazy. *@
+<section class="card gallery-card">
+    <h2>@T["Gallery"]</h2>
+    <ul class="gallery" data-close="@T["Close"]" data-prev="@T["Previous"]" data-next="@T["Next"]">
+        @foreach (string photo in Model)
+        {
+            <li><a href="~/img/foto/@(photo).webp"><img src="~/img/foto/n/@(photo).webp" alt="" width="480" height="480" loading="lazy" decoding="async"></a></li>
+        }
+    </ul>
+</section>
+<script src="~/js/galerie.js" asp-append-version="true" defer></script>

@@ -3,10 +3,10 @@
     ViewData["Title"] = T["AboutTitle"].Value;
     ViewData["Description"] = T["AboutDescription"].Value;
     ViewData["BodyClass"] = "page";
-    ViewData["Heading"] = T["TileAbout"].Value;
+    ViewData["Heading"] = T["AboutHeading"].Value;
     ViewData["Subtitle"] = T["Location"].Value;
 }
-@* Zatím texty ze starého webu (WordPress, 2021). Nové dodá Dan. *@
+@* Texty od Dana (11/2026). *@
 <partial name="_PageHeader" />
 <main class="page-body">
     <section class="card">
@@ -22,8 +22,8 @@
         <p>@T["AboutCable2Text"]</p>
     </section>
     <section class="card">
-        <p>@T["AboutMore"] <a asp-page="/Cenik" asp-route-lang="@Site.LanguageRoute">@T["Prices"]</a>
-            · <a href="@Site.Options.ReservationUrl">@T["TileReservation"]</a>
-            · <a asp-page="/Kontakt" asp-route-lang="@Site.LanguageRoute">@T["TileContact"]</a></p>
+        <h2>@T["AboutFacilitiesTitle"]</h2>
+        <p>@T["AboutFacilitiesText"]</p>
     </section>
+    <partial name="_Galerie" model="@(new[] { "vleky", "vlek1-1", "vlek2-1", "foil", "rainbow1", "sunset1", "sunset2", "sunset3", "sunset4", "david-skate", "veru-skate", "ondra-pes" })" />
 </main>
