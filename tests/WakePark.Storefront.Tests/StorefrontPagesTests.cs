@@ -38,7 +38,7 @@ public sealed class StorefrontPagesTests(WebApplicationFactory<Program> factory)
         string html = await _client.GetStringAsync(new Uri("/", UriKind.Relative), TestContext.Current.CancellationToken);
 
         CountOccurrences(html, "<li><a class=\"tile").ShouldBe(9, "všech 9 dlaždic vede na stránku");
-        html.ShouldContain("dlazdice-video.mp4");
+        html.ShouldContain("<source src=\"/img/hp/dlazdice-video.", Case.Sensitive, "video v dlaždici O nás (název s otiskem verze)");
         html.ShouldContain("href=\"/eshop\"");
         html.ShouldContain("href=\"/o-nas\"");
         html.ShouldContain("href=\"/cenik\"");
