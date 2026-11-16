@@ -13,6 +13,11 @@
     }
     <meta name="description" content="@ViewData["Description"]">
     <meta name="theme-color" content="#e50051">
+    @* Ikonka z loga (obličej bez nápisu): SVG pro moderní prohlížeče, ICO 16/32/48 pro starší, 180 px pro iPhone. *@
+    <link rel="icon" href="/favicon.ico" sizes="48x48">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
     @if (Site.IsMultilingual && currentPage is not null)
     {
         foreach (string language in Site.Options.SiteLanguages)
