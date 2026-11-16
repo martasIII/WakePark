@@ -117,7 +117,7 @@ jobs:
     # Prostředí „production“ dává v GitHubu přehled nasazení a místo pro případné schvalování.
     environment:
       name: production
-      url: https://novy.wake-dzban.cz
+      url: https://wake-dzban.cz
     permissions:
       contents: read
       packages: write

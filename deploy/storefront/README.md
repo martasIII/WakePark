@@ -184,7 +184,10 @@ gunzip -c /var/backups/wakepark/wakepark-<datum>.sql.gz \
 
 Push do `main` → v GitHubu záložka Actions → úloha „Storefront — nasazení na VPS“.
 
-## Ostré spuštění (přepnutí na wake-dzban.cz)
+## Ostré spuštění (přepnutí na wake-dzban.cz) — hotovo 16. 11. 2026
+
+Úklid testovacích dat (`cleanup-test-data.sql`) se při spuštění **nespouštěl** — v databázi
+byly už skutečně zaplacené objednávky s daňovými doklady. Číselné řady pokračují.
 
 Pořadí je důležité. Odhad: hodina práce, web je nedostupný jen pár minut kolem kroku 5.
 
