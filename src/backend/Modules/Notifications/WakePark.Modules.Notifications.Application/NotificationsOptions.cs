@@ -11,8 +11,8 @@ public sealed class NotificationsOptions
     /// </summary>
     public bool Enabled { get; init; }
 
-    /// <summary>Adresa webu pro odkazy v e-mailech, např. <c>https://novy.wake-dzban.cz</c>.</summary>
-    public Uri PublicBaseUrl { get; init; } = new("https://novy.wake-dzban.cz");
+    /// <summary>Adresa webu pro odkazy v e-mailech, např. <c>https://wake-dzban.cz</c>.</summary>
+    public Uri PublicBaseUrl { get; init; } = new("https://wake-dzban.cz");
 
     public string FromAddress { get; init; } = "noreply@wakeparksro.cz";
 
