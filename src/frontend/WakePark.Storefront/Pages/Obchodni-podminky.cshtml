@@ -1,16 +1,17 @@
 @page
 @{
     ViewData["Title"] = T["TermsTitle"].Value;
+    ViewData["Description"] = T["TermsDescription"].Value;
     ViewData["BodyClass"] = "page";
     ViewData["Heading"] = T["TermsHeading"].Value;
-    ViewData["NoIndex"] = true;
 }
 <partial name="_PageHeader" />
 <main class="page-body">
-    @* Text píšeme znovu, před zveřejněním ho zreviduje advokátka. Bez něj se ostrý prodej nespouští (ADR 0006). *@
-    <section class="card">
-        <p>@T["TermsPreparing"] <a href="mailto:info@("@")wake-dzban.cz">info@("@")wake-dzban.cz</a>
-            @T["Or"] <a href="tel:+420737562516">+420 737 562 516</a>.</p>
-        <p>@T["Seller"]: Wake Park s.r.o., IČO 06633633, DIČ CZ06633633, Pavlovská 585/1, Liboc, 162 00 Praha 6, @T["Registration"].</p>
-    </section>
+    @if (SiteView.Language != "cs")
+    {
+        <section class="card">
+            <p>@T["TermsCzechOnly"] <a href="mailto:info@("@")wake-dzban.cz">info@("@")wake-dzban.cz</a>.</p>
+        </section>
+    }
+    <partial name="_ObchodniPodminkyCs" />
 </main>

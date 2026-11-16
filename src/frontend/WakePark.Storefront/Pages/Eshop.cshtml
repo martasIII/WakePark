@@ -116,6 +116,7 @@
                     <input asp-for="Form.TermsAccepted">
                     <span>@T["TermsAgree"] <a asp-page="/Obchodni-podminky" asp-route-lang="@Site.LanguageRoute" target="_blank">@T["Terms"]</a>.</span>
                 </label>
+                <p class="pay-note">@T["PrivacyNote"] <a asp-page="/Obchodni-podminky" asp-route-lang="@Site.LanguageRoute" asp-fragment="osobni-udaje" target="_blank">@T["PrivacyLink"]</a>.</p>
                 <p class="pay-note">@T["PayNote"]</p>
                 <p class="order-total" hidden>@T["Total"] <b data-amount></b></p>
                 <button type="submit" class="order-button">@T["PlaceOrder"]</button>

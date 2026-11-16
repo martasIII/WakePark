@@ -96,10 +96,7 @@
   <data name="FooterOperator" xml:space="preserve"><value>Operated by Wake Park s.r.o., company ID 06633633</value></data>
   <data name="HomeLink" xml:space="preserve"><value>Wake Park Džbán — home</value></data>
   <data name="TermsTitle" xml:space="preserve"><value>Terms and conditions — Wake Park Džbán</value></data>
-  <data name="TermsHeading" xml:space="preserve"><value>Terms and conditions</value></data>
-  <data name="TermsPreparing" xml:space="preserve"><value>We are preparing the terms and conditions and the privacy policy. With questions, contact</value></data>
-  <data name="Seller" xml:space="preserve"><value>Seller</value></data>
-  <data name="Registration" xml:space="preserve"><value>registered at the Municipal Court in Prague, file C 285893</value></data>
+  <data name="TermsHeading" xml:space="preserve"><value>Terms and privacy</value></data>
   <data name="ContactTitle" xml:space="preserve"><value>Contact — Wake Park Džbán</value></data>
   <data name="ContactDescription" xml:space="preserve"><value>Contact Wake Park Džbán — Prague 6-Vokovice, south shore of the Džbán reservoir. Opening hours, phone, e-mail and how to get here.</value></data>
   <data name="WhereToFind" xml:space="preserve"><value>Where to find us</value></data>
@@ -172,4 +169,8 @@
   <data name="OperationsNote" xml:space="preserve"><value>Questions about opening, bookings and vouchers</value></data>
   <data name="OffSeason" xml:space="preserve"><value>We look forward to seeing you in the {0} season.</value></data>
   <data name="WakeBarFeatureAlt" xml:space="preserve"><value>Pouring beer at the Wake Bar</value></data>
+  <data name="TermsDescription" xml:space="preserve"><value>Terms and conditions of the Wake Park Džbán e-shop and privacy policy.</value></data>
+  <data name="TermsCzechOnly" xml:space="preserve"><value>The terms and conditions and the privacy policy are available in Czech only; the Czech version is binding. If you have any questions, write to us at</value></data>
+  <data name="PrivacyNote" xml:space="preserve"><value>We use your order details only to process the order — see our</value></data>
+  <data name="PrivacyLink" xml:space="preserve"><value>privacy policy</value></data>
 </root>

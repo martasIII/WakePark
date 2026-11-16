@@ -96,10 +96,7 @@
   <data name="FooterOperator" xml:space="preserve"><value>Správce areálu Wake Park s.r.o., IČ 06633633</value></data>
   <data name="HomeLink" xml:space="preserve"><value>Wake Park Džbán — úvod</value></data>
   <data name="TermsTitle" xml:space="preserve"><value>Obchodní podmínky — Wake Park Džbán</value></data>
-  <data name="TermsHeading" xml:space="preserve"><value>Obchodní podmínky</value></data>
-  <data name="TermsPreparing" xml:space="preserve"><value>Obchodní podmínky a zásady ochrany osobních údajů právě připravujeme. S dotazy se obraťte na</value></data>
-  <data name="Seller" xml:space="preserve"><value>Prodávající</value></data>
-  <data name="Registration" xml:space="preserve"><value>spisová značka C 285893 u Městského soudu v Praze</value></data>
+  <data name="TermsHeading" xml:space="preserve"><value>Obchodní podmínky a osobní údaje</value></data>
   <data name="ContactTitle" xml:space="preserve"><value>Kontakt — Wake Park Džbán</value></data>
   <data name="ContactDescription" xml:space="preserve"><value>Kontakt na Wake Park Džbán — Praha 6-Vokovice, jižní břeh vodní nádrže Džbán. Otevírací doba, telefon, e-mail a jak se k nám dostat.</value></data>
   <data name="WhereToFind" xml:space="preserve"><value>Kde nás najdete</value></data>
@@ -172,4 +169,8 @@
   <data name="OperationsNote" xml:space="preserve"><value>Dotazy k provozu, rezervacím a voucherům</value></data>
   <data name="OffSeason" xml:space="preserve"><value>Těšíme se na vás v sezóně {0}.</value></data>
   <data name="WakeBarFeatureAlt" xml:space="preserve"><value>Čepování piva ve Wake Baru</value></data>
+  <data name="TermsDescription" xml:space="preserve"><value>Obchodní podmínky e-shopu Wake Parku Džbán a zásady ochrany osobních údajů.</value></data>
+  <data name="TermsCzechOnly" xml:space="preserve"><value>Obchodní podmínky jsou jen v češtině.</value></data>
+  <data name="PrivacyNote" xml:space="preserve"><value>Údaje z objednávky použijeme jen k jejímu vyřízení — podrobnosti v</value></data>
+  <data name="PrivacyLink" xml:space="preserve"><value>zásadách ochrany osobních údajů</value></data>
 </root>
