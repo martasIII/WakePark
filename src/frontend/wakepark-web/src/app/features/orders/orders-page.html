@@ -1,0 +1,111 @@
+<header class="orders__header">
+  <h1>Objednávky</h1>
+  <p class="orders__hint">Objednávky z e-shopu na wake-dzban.cz. Jen přehled — změny zatím ručně.</p>
+</header>
+
+@if (unmatched.value().length > 0) {
+  <section class="unmatched" aria-labelledby="unmatched-title">
+    <h2 id="unmatched-title">Platby k ručnímu vyřízení ({{ unmatched.value().length }})</h2>
+    <p class="unmatched__hint">Přišly na účet, ale nesedí variabilní symbol nebo částka. Objednávka se proto nezaplatila.</p>
+    <ul class="unmatched__list">
+      @for (payment of unmatched.value(); track payment.id) {
+        <li class="unmatched__item">
+          <div class="unmatched__main">
+            <strong>{{ money(payment.amount, payment.currency) }}</strong>
+            <span>{{ date(payment.bookedOn) }}</span>
+            <span>VS {{ payment.variableSymbol || '—' }}</span>
+          </div>
+          <div class="unmatched__who">
+            {{ payment.counterpartyName || 'neznámý plátce' }}
+            @if (payment.counterpartyAccount) {
+              · {{ payment.counterpartyAccount }}
+            }
+          </div>
+          @if (payment.message) {
+            <div class="unmatched__note">Zpráva: {{ payment.message }}</div>
+          }
+          @if (payment.note) {
+            <div class="unmatched__note">{{ payment.note }}</div>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+}
+
+<div class="orders__filters">
+  <mat-button-toggle-group
+    aria-label="Stav objednávky"
+    [value]="status()"
+    (change)="setStatus($event.value)"
+    hideSingleSelectionIndicator
+  >
+    <mat-button-toggle value="">Vše</mat-button-toggle>
+    @for (s of statuses; track s.value) {
+      <mat-button-toggle [value]="s.value">{{ s.label }}</mat-button-toggle>
+    }
+  </mat-button-toggle-group>
+
+  <mat-form-field class="orders__search" subscriptSizing="dynamic">
+    <mat-label>Hledat</mat-label>
+    <input matInput type="search" placeholder="číslo, jméno, e-mail, firma" (input)="setSearch($any($event.target).value)" />
+  </mat-form-field>
+</div>
+
+@if (orders.isLoading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (orders.error()) {
+  <p class="orders__error" role="alert">Objednávky se nepodařilo načíst. Zkuste to prosím znovu.</p>
+} @else if (orders.value(); as list) {
+  @if (list.items.length === 0) {
+    <p class="orders__empty">Žádné objednávky.</p>
+  } @else {
+    <table class="orders__table">
+      <thead>
+        <tr>
+          <th scope="col">Číslo</th>
+          <th scope="col">Objednáno</th>
+          <th scope="col">Zákazník</th>
+          <th scope="col">Obsah</th>
+          <th scope="col" class="num">Celkem</th>
+          <th scope="col">Stav</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (order of list.items; track order.number) {
+          <tr>
+            <td data-label="Číslo"><a [routerLink]="['/objednavky', order.number]">{{ order.number }}</a></td>
+            <td data-label="Objednáno">{{ dateTime(order.placedAtUtc) }}</td>
+            <td data-label="Zákazník">
+              {{ order.customerName }}
+              @if (order.companyName) {
+                <span class="muted">· {{ order.companyName }}</span>
+              }
+              <div class="muted">{{ order.customerEmail }}</div>
+            </td>
+            <td data-label="Obsah">{{ order.summary }}</td>
+            <td data-label="Celkem" class="num">{{ money(order.totalGross, order.currency) }}</td>
+            <td data-label="Stav">
+              <span class="status" [attr.data-status]="order.status">{{ statusLabel(order.status) }}</span>
+              @if (order.paidAtUtc) {
+                <div class="muted">{{ dateTime(order.paidAtUtc) }}</div>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @if (pageCount() > 1) {
+      <nav class="orders__pager" aria-label="Stránky">
+        <button mat-stroked-button type="button" [disabled]="page() <= 1" (click)="page.set(page() - 1)">Novější</button>
+        <span>{{ page() }} / {{ pageCount() }} · {{ totalLabel() }}</span>
+        <button mat-stroked-button type="button" [disabled]="page() >= pageCount()" (click)="page.set(page() + 1)">Starší</button>
+      </nav>
+    } @else {
+      <p class="muted">{{ totalLabel() }}</p>
+    }
+  }
+}

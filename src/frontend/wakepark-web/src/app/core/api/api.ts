@@ -26,3 +26,10 @@ export type CableDetailDto = Schemas['CableDetailDto'];
 export type SetOperatingDayRequest = Schemas['SetOperatingDayRequest'];
 export type OperatingDaysImportDto = Schemas['OperatingDaysImportDto'];
 export type OperatingDayDiffDto = Schemas['OperatingDayDiffDto'];
+
+// Přehled objednávek (ADR 0012)
+export type OrderListDto = Schemas['OrderListDto'];
+export type OrderListItemDto = Schemas['OrderListItemDto'];
+export type OrderAdminDetailDto = Schemas['OrderAdminDetailDto'];
+export type OrderVoucherDto = Schemas['OrderVoucherDto'];
+export type UnmatchedPaymentDto = Schemas['UnmatchedPaymentDto'];

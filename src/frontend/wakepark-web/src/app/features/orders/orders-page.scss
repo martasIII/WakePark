@@ -1,0 +1,170 @@
+.orders {
+  &__header h1 {
+    margin-bottom: 0.25rem;
+  }
+
+  &__hint {
+    margin: 0 0 1rem;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  &__search {
+    flex: 1 1 16rem;
+    max-width: 24rem;
+  }
+
+  &__error {
+    color: var(--mat-sys-error);
+  }
+
+  &__empty {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--mat-sys-outline-variant);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font: var(--mat-sys-label-large);
+      color: var(--mat-sys-on-surface-variant);
+    }
+
+    .num {
+      text-align: right;
+      white-space: nowrap;
+    }
+  }
+
+  &__pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.status {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 1rem;
+  font: var(--mat-sys-label-medium);
+  white-space: nowrap;
+  background: var(--mat-sys-surface-container-high);
+
+  &[data-status='Paid'] {
+    background: #d7f0df;
+    color: #0f5d2e;
+  }
+
+  &[data-status='AwaitingPayment'] {
+    background: #fff1c2;
+    color: #6b4e00;
+  }
+
+  &[data-status='Cancelled'] {
+    background: var(--mat-sys-surface-container-highest);
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.unmatched {
+  max-width: 48rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--mat-sys-error);
+  border-radius: 0.75rem;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+
+  h2 {
+    margin: 0 0 0.25rem;
+    font: var(--mat-sys-title-medium);
+  }
+
+  &__hint {
+    margin: 0 0 0.75rem;
+    font: var(--mat-sys-body-small);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface);
+  }
+
+  &__main {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  &__note {
+    font: var(--mat-sys-body-small);
+  }
+}
+
+// Na mobilu tabulka jako karty pod sebou — popisek sloupce z data-label.
+@media (max-width: 719.98px) {
+  .orders__table {
+    thead {
+      display: none;
+    }
+
+    tr {
+      display: block;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--mat-sys-outline-variant);
+    }
+
+    td {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.125rem 0;
+      border: 0;
+
+      &::before {
+        content: attr(data-label);
+        flex: 0 0 6.5rem;
+        color: var(--mat-sys-on-surface-variant);
+        font: var(--mat-sys-label-medium);
+      }
+
+      &.num {
+        text-align: left;
+      }
+    }
+  }
+}

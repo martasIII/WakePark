@@ -23,6 +23,7 @@ interface NavItem {
 const NAV: readonly NavItem[] = [
   { path: 'kalendar', label: 'Provozní kalendář', permission: Permissions.operationsRead },
   { path: 'blokace', label: 'Blokace', permission: Permissions.blockingsManage },
+  { path: 'objednavky', label: 'Objednávky', permission: Permissions.ordersRead },
   { path: 'katalog', label: 'Katalog a ceny', permission: Permissions.catalogManage },
   { path: 'areal', label: 'Areál', permission: Permissions.parksRead },
 ];

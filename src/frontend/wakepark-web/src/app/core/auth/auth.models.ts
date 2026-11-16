@@ -19,6 +19,7 @@ export const Permissions = {
   passesManage: 'passes.manage',
   usersManage: 'users.manage',
   catalogManage: 'catalog.manage',
+  ordersRead: 'orders.read',
 } as const;
 
 export type Permission = (typeof Permissions)[keyof typeof Permissions];

@@ -39,6 +39,9 @@ export interface paths {
          *     Neúspěch vrací vždy **401** se stejnou hláškou bez ohledu na to, jestli účet
          *     neexistuje nebo je heslo špatné. Rozdílná odpověď by prozradila, které e-maily
          *     jsou v systému zavedené.
+         *
+         *     Z jedné IP adresy jde nejvýš 10 pokusů za 10 minut, pak **429**. Po 5 špatných
+         *     heslech za sebou se účet zamkne a odemkne ho až `create-admin`.
          */
         post: operations["SignIn"];
         delete?: never;
@@ -657,6 +660,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/admin/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Seznam objednávek
+         * @description Nejnovější první, po stránkách (nejvýš 100). `status`: `AwaitingPayment`, `Paid`,
+         *     `Cancelled`. `q` hledá v čísle objednávky, jménu, e-mailu a firmě.
+         */
+        get: operations["GetOrdersAdmin"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/orders/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detail objednávky
+         * @description Zákazník, položky s věnováním, platba, daňový doklad a vystavené poukazy.
+         */
+        get: operations["GetOrderAdmin"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/payments/unmatched": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Platby k ručnímu vyřízení
+         * @description Příchozí platby, které vypadají jako platba za objednávku, ale nesedí VS nebo částka.
+         */
+        get: operations["GetUnmatchedPayments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -955,6 +1019,45 @@ export interface components {
         OperatingDaysImportRequest: {
             csv: string;
         };
+        /** @description Detail objednávky: zákazník, položky s věnováním, platba, doklad a vystavené poukazy. */
+        OrderAdminDetailDto: {
+            /** Format: int64 */
+            number: number | string;
+            status: string;
+            language: string;
+            /** Format: date-time */
+            placedAtUtc: string;
+            /** Format: date-time */
+            paymentDueAtUtc: string;
+            /** Format: date-time */
+            paymentReminderAtUtc: null | string;
+            /** Format: date-time */
+            paidAtUtc: null | string;
+            /** Format: date-time */
+            cancelledAtUtc: null | string;
+            customer: components["schemas"]["OrderCustomerDto"];
+            lines: components["schemas"]["OrderLineDto"][];
+            /** Format: double */
+            totalGross: number | string;
+            /** Format: double */
+            totalVat: number | string;
+            /** Format: double */
+            totalNet: number | string;
+            currency: string;
+            payment: null | components["schemas"]["OrderPaymentDto"];
+            invoiceNumber: null | string;
+            vouchers: components["schemas"]["OrderVoucherDto"][];
+            accessToken: string;
+        };
+        OrderCustomerDto: {
+            name: string;
+            email: string;
+            phone: null | string;
+            companyName: null | string;
+            companyId: null | string;
+            vatId: null | string;
+            companyAddress: null | string;
+        };
         OrderDto: {
             /** Format: int64 */
             number: number | string;
@@ -990,6 +1093,58 @@ export interface components {
             lineGross: number | string;
             /** Format: uuid */
             productId: string;
+            dedications: string[];
+        };
+        /** @description Stránka seznamu objednávek, nejnovější první. */
+        OrderListDto: {
+            items: components["schemas"]["OrderListItemDto"][];
+            /** Format: int32 */
+            total: number | string;
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+        };
+        /**
+         * @description Řádek seznamu. `Status`: `AwaitingPayment`, `Paid`, `Cancelled`.
+         *     `Summary` je stručný obsah, např. „2× Voucher pro dva, 1× 10 × 20 minut“.
+         */
+        OrderListItemDto: {
+            /** Format: int64 */
+            number: number | string;
+            status: string;
+            /** Format: date-time */
+            placedAtUtc: string;
+            /** Format: date-time */
+            paidAtUtc: null | string;
+            customerName: string;
+            customerEmail: string;
+            companyName: null | string;
+            summary: string;
+            /** Format: double */
+            totalGross: number | string;
+            currency: string;
+        };
+        /** @description Pohyb na účtu, který objednávku zaplatil. */
+        OrderPaymentDto: {
+            /** Format: date */
+            bookedOn: string;
+            /** Format: double */
+            amount: number | string;
+            currency: string;
+            variableSymbol: null | string;
+            counterpartyAccount: null | string;
+            counterpartyName: null | string;
+        };
+        /** @description Vystavený poukaz k objednávce. `Status` podle modulu Vouchers. */
+        OrderVoucherDto: {
+            code: string;
+            productCode: string;
+            name: string;
+            /** Format: int32 */
+            piece: number | string;
+            status: string;
+            dedication: null | string;
         };
         /** @description Přístup uživatele do jednoho areálu. */
         ParkAccessDto: {
@@ -1046,11 +1201,13 @@ export interface components {
             phone: null | string;
             companyId: null | string;
         };
+        /** @description Položka objednávky. Věnování pro jednotlivé kusy je nepovinné, nejvýš tolik jako kusů. */
         PlaceOrderLine: {
             /** Format: uuid */
             productId: string;
             /** Format: int32 */
             quantity: number | string;
+            dedications?: null | string[];
         };
         /** @description Objednávka z webu. Ceny se neposílají — server je bere z katalogu. */
         PlaceOrderRequest: {
@@ -1258,6 +1415,21 @@ export interface components {
              */
             capacity: number | string;
         };
+        /** @description Platba, která vypadá jako platba za objednávku, ale nesedí — k ručnímu vyřízení. */
+        UnmatchedPaymentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            bookedOn: string;
+            /** Format: double */
+            amount: number | string;
+            currency: string;
+            variableSymbol: null | string;
+            counterpartyAccount: null | string;
+            counterpartyName: null | string;
+            message: null | string;
+            note: null | string;
+        };
         UpdateCategoryRequest: {
             /** Format: uuid */
             parentId: null | string;
@@ -1343,6 +1515,13 @@ export interface operations {
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -2353,6 +2532,91 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    GetOrdersAdmin: {
+        parameters: {
+            query?: {
+                status?: string;
+                q?: string;
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderListDto"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetOrderAdmin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderAdminDetailDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetUnmatchedPayments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnmatchedPaymentDto"][];
+                };
             };
         };
     };

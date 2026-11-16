@@ -53,6 +53,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/blockings/blockings-page').then((m) => m.BlockingsPage),
       },
       {
+        path: 'objednavky',
+        title: 'Objednávky · WakePark',
+        canActivate: [permissionGuard(Permissions.ordersRead)],
+        loadComponent: () => import('./features/orders/orders-page').then((m) => m.OrdersPage),
+      },
+      {
+        path: 'objednavky/:number',
+        title: 'Objednávka · WakePark',
+        canActivate: [permissionGuard(Permissions.ordersRead)],
+        loadComponent: () => import('./features/orders/order-detail').then((m) => m.OrderDetail),
+      },
+      {
         path: 'katalog',
         title: 'Katalog a ceny · WakePark',
         canActivate: [permissionGuard(Permissions.catalogManage)],

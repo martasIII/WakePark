@@ -1,0 +1,137 @@
+<a mat-button routerLink="/objednavky" class="back">← Objednávky</a>
+
+@if (order.isLoading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (order.error()) {
+  <p class="error" role="alert">Objednávka {{ number() }} neexistuje, nebo se ji nepodařilo načíst.</p>
+} @else if (order.value(); as o) {
+  <header class="head">
+    <h1>Objednávka {{ o.number }}</h1>
+    <span class="status" [attr.data-status]="o.status">{{ statusLabel(o.status) }}</span>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Zákazník</h2>
+      <p>
+        <strong>{{ o.customer.name }}</strong><br />
+        <a [href]="'mailto:' + o.customer.email">{{ o.customer.email }}</a>
+        @if (o.customer.phone) {
+          <br /><a [href]="'tel:' + o.customer.phone">{{ o.customer.phone }}</a>
+        }
+      </p>
+      @if (o.customer.companyName) {
+        <p>
+          {{ o.customer.companyName }}<br />
+          IČO {{ o.customer.companyId }}
+          @if (o.customer.vatId) {
+            · DIČ {{ o.customer.vatId }}
+          }
+          @if (o.customer.companyAddress) {
+            <br />{{ o.customer.companyAddress }}
+          }
+        </p>
+      }
+      <p class="muted">Jazyk: {{ o.language === 'cs' ? 'čeština' : o.language }}</p>
+    </section>
+
+    <section class="card">
+      <h2>Průběh</h2>
+      <dl>
+        <dt>Objednáno</dt>
+        <dd>{{ dateTime(o.placedAtUtc) }}</dd>
+        <dt>Splatnost</dt>
+        <dd>{{ dateTime(o.paymentDueAtUtc) }}</dd>
+        @if (o.paymentReminderAtUtc) {
+          <dt>Upomínka</dt>
+          <dd>{{ dateTime(o.paymentReminderAtUtc) }}</dd>
+        }
+        @if (o.paidAtUtc) {
+          <dt>Zaplaceno</dt>
+          <dd>{{ dateTime(o.paidAtUtc) }}</dd>
+        }
+        @if (o.cancelledAtUtc) {
+          <dt>Zrušeno</dt>
+          <dd>{{ dateTime(o.cancelledAtUtc) }}</dd>
+        }
+        @if (o.invoiceNumber) {
+          <dt>Daňový doklad</dt>
+          <dd>{{ o.invoiceNumber }}</dd>
+        }
+      </dl>
+      @if (o.payment; as p) {
+        <p class="muted">
+          Platba {{ money(p.amount, p.currency) }} z {{ date(p.bookedOn) }}, VS {{ p.variableSymbol || '—' }}<br />
+          {{ p.counterpartyName || 'neznámý plátce' }}
+          @if (p.counterpartyAccount) {
+            · {{ p.counterpartyAccount }}
+          }
+        </p>
+      }
+      @if (publicUrl(); as url) {
+        <a mat-stroked-button [href]="url" target="_blank" rel="noopener">Stránka objednávky na webu</a>
+      }
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Položky</h2>
+    <table class="lines">
+      <thead>
+        <tr>
+          <th scope="col">Položka</th>
+          <th scope="col" class="num">Ks</th>
+          <th scope="col" class="num">Cena/ks</th>
+          <th scope="col" class="num">Celkem</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of o.lines; track line.productId) {
+          <tr>
+            <td>
+              {{ line.name }}
+              @for (dedication of line.dedications; track $index) {
+                @if (dedication) {
+                  <div class="dedication">„{{ dedication }}“ <span class="muted">({{ $index + 1 }}. kus)</span></div>
+                }
+              }
+            </td>
+            <td class="num">{{ line.quantity }}</td>
+            <td class="num">{{ money(line.unitPrice, o.currency) }}</td>
+            <td class="num">{{ money(line.lineGross, o.currency) }}</td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row" colspan="3">Celkem s DPH (z toho DPH {{ money(o.totalVat, o.currency) }})</th>
+          <td class="num"><strong>{{ money(o.totalGross, o.currency) }}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Vystavené poukazy</h2>
+    @if (o.vouchers.length === 0) {
+      <p class="muted">
+        {{ o.status === 'Paid' ? 'Poukazy se ještě vystavují — obvykle do pár minut po zaplacení.' : 'Poukazy se vystaví po zaplacení.' }}
+      </p>
+    } @else {
+      <ul class="vouchers">
+        @for (v of o.vouchers; track v.code) {
+          <li>
+            <code>{{ v.code }}</code>
+            <span>{{ v.name }}</span>
+            <span class="muted">{{ voucherStatusLabel(v.status) }}</span>
+            @if (v.dedication) {
+              <div class="dedication">„{{ v.dedication }}“</div>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+}
