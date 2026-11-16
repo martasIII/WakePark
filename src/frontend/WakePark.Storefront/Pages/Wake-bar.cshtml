@@ -9,8 +9,10 @@
 @* Texty od Dana (11/2026). *@
 <partial name="_PageHeader" />
 <main class="page-body">
-    <section class="card">
+    @* Hotdog na výrazném místě (přání Dana): velká fotka přímo u textu. *@
+    <section class="card feature">
+        <img src="~/img/foto/hotdog.webp" alt="@T["WakeBarHotDogAlt"]" width="1080" height="1080">
         <p>@T["WakeBarText"]</p>
     </section>
-    <partial name="_Galerie" model="@(new[] { "teras", "terasa2", "sekt", "party2", "jatro1", "jatro2" })" />
+    <partial name="_Galerie" model="@(new[] { "hotdog", "wakebar-cep", "wakebar-tabule", "wakebar-fronta", "teras", "terasa2", "sekt", "party2", "jatro1", "jatro2" })" />
 </main>

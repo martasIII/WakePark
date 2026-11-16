@@ -195,3 +195,9 @@ footer .small{font-size:12px; opacity:.8}
 
 .card .rule{font-weight:700; color:var(--brand)}
 .card .off-season{margin:6px 0 14px; font-size:18px; font-weight:700; color:var(--brand)}
+
+/* karta s velkou fotkou vedle textu (Wake Bar: hotdog); na mobilu fotka nad textem */
+.card.feature{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:22px; align-items:center}
+.card.feature img{display:block; width:100%; height:auto; border-radius:4px}
+.card.feature p{margin:0; font-size:17px; line-height:1.6}
+@media (max-width:760px){ .card.feature{grid-template-columns:1fr} }
