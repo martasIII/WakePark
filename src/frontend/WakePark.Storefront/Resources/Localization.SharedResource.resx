@@ -171,5 +171,5 @@
   <data name="Operations" xml:space="preserve"><value>Provoz a rezervace</value></data>
   <data name="OperationsNote" xml:space="preserve"><value>Dotazy k provozu, rezervacím a voucherům</value></data>
   <data name="OffSeason" xml:space="preserve"><value>Těšíme se na vás v sezóně {0}.</value></data>
-  <data name="WakeBarHotDogAlt" xml:space="preserve"><value>Domácí hot dog s farmářským párkem z Wake Baru</value></data>
+  <data name="WakeBarFeatureAlt" xml:space="preserve"><value>Čepování piva ve Wake Baru</value></data>
 </root>

@@ -37,6 +37,30 @@ public sealed class EshopPageTests(WebApplicationFactory<Program> factory)
         """;
 
     [Fact]
+    public async Task Vouchery_jsou_v_e_shopu_pred_permanentkami_i_kdyz_je_katalog_ma_az_za_nimi()
+    {
+        const string catalog = """
+            {
+              "categories": [
+                { "code": "permanentky", "name": { "cs": "Permanentky" } },
+                { "code": "vouchery", "name": { "cs": "Vouchery" } }
+              ],
+              "products": [
+                { "id": "01990000-0000-7000-8000-0000000000b1", "code": "permanentka-10x20", "categoryCode": "permanentky",
+                  "name": { "cs": "Permanentka" }, "description": null, "imagePath": null, "unitPrice": 4500, "currency": "CZK", "vatRate": 12 },
+                { "id": "01990000-0000-7000-8000-0000000000b2", "code": "voucher-1-slot", "categoryCode": "vouchery",
+                  "name": { "cs": "Voucher" }, "description": null, "imagePath": null, "unitPrice": 990, "currency": "CZK", "vatRate": 12 }
+              ]
+            }
+            """;
+
+        string html = await GetEshopAsync(new StubHandler(HttpStatusCode.OK, catalog));
+
+        html.IndexOf("id=\"vouchery\"", StringComparison.Ordinal)
+            .ShouldBeLessThan(html.IndexOf("id=\"permanentky\"", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task Nabidka_z_API_se_zobrazi_s_cenou()
     {
         StubHandler api = new(HttpStatusCode.OK, CatalogJson);

@@ -171,5 +171,5 @@
   <data name="Operations" xml:space="preserve"><value>Operations and bookings</value></data>
   <data name="OperationsNote" xml:space="preserve"><value>Questions about opening, bookings and vouchers</value></data>
   <data name="OffSeason" xml:space="preserve"><value>We look forward to seeing you in the {0} season.</value></data>
-  <data name="WakeBarHotDogAlt" xml:space="preserve"><value>Homemade hot dog with a farm sausage from the Wake Bar</value></data>
+  <data name="WakeBarFeatureAlt" xml:space="preserve"><value>Pouring beer at the Wake Bar</value></data>
 </root>

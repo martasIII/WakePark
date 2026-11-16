@@ -32,7 +32,7 @@
                 </section>
             }
 
-            @foreach (EshopCategory category in Model.Catalog.Categories)
+            @foreach (EshopCategory category in Model.Categories)
             {
                 <section class="card" id="@category.Code">
                     <h2>@category.Name.Resolve(lang)</h2>

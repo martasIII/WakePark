@@ -140,6 +140,13 @@ public sealed partial class EshopModel(
         return RedirectToPage("/Objednavka", new { token = result.Order.AccessToken, lang = HttpContext.GetRouteValue("lang") });
     }
 
+    /// <summary>
+    /// Kategorie v e-shopu: dárkové vouchery první (prodávají se nejvíc), ostatní v pořadí
+    /// katalogu. Ceník má pořadí vlastní, proto se to řeší tady, ne v katalogu.
+    /// </summary>
+    public IEnumerable<EshopCategory> Categories =>
+        (Catalog?.Categories ?? []).OrderBy(c => c.Code == DedicationCategory ? 0 : 1);
+
     public IEnumerable<EshopProduct> ProductsIn(EshopCategory category) =>
         Catalog?.Products.Where(p => p.CategoryCode == category.Code) ?? [];
 
