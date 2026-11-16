@@ -5,6 +5,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WakePark.Modules.Billing.Application\WakePark.Modules.Billing.Application.csproj" />
+    <ProjectReference Include="..\..\Identity\WakePark.Modules.Identity.Contracts\WakePark.Modules.Identity.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Infrastructure\WakePark.BuildingBlocks.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>

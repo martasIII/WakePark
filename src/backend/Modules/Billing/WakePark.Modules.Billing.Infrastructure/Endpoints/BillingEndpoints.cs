@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Routing;
 
 using WakePark.BuildingBlocks.Application.Messaging;
 using WakePark.Modules.Billing.Application.Abstractions;
+using WakePark.Modules.Billing.Application.Admin;
 using WakePark.Modules.Billing.Application.Customers;
 using WakePark.Modules.Billing.Application.Orders;
 using WakePark.Modules.Billing.Contracts;
+using WakePark.Modules.Identity.Contracts;
 
 namespace WakePark.Modules.Billing.Infrastructure.Endpoints;
 
@@ -60,8 +62,45 @@ public static class BillingEndpoints
             .Produces(StatusCodes.Status503ServiceUnavailable)
             .AllowAnonymous();
 
+        MapAdmin(group.MapGroup("/admin")
+            .WithTags("Billing — backoffice")
+            .RequireAuthorization(PermissionPolicies.For(Permissions.OrdersRead)));
+
         return endpoints;
     }
+
+    /// <summary>Přehled objednávek a plateb pro backoffice — jen čtení (ADR 0012). Provozovatel z přihlášení.</summary>
+    private static void MapAdmin(RouteGroupBuilder admin)
+    {
+        admin.MapGet("/orders", (string? status, string? q, int? page, int? pageSize,
+                IQueryHandler<GetOrdersAdminQuery, OrderListDto> handler, CancellationToken ct) =>
+                Ok(handler.HandleAsync(new GetOrdersAdminQuery(status, q, page ?? 1, pageSize ?? 25), ct)))
+            .WithName("GetOrdersAdmin")
+            .WithSummary("Seznam objednávek")
+            .WithDescription("""
+                Nejnovější první, po stránkách (nejvýš 100). `status`: `AwaitingPayment`, `Paid`,
+                `Cancelled`. `q` hledá v čísle objednávky, jménu, e-mailu a firmě.
+                """)
+            .Produces<OrderListDto>()
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+
+        admin.MapGet("/orders/{number:long}", (long number, IQueryHandler<GetOrderAdminQuery, OrderAdminDetailDto> handler, CancellationToken ct) =>
+                Ok(handler.HandleAsync(new GetOrderAdminQuery(number), ct)))
+            .WithName("GetOrderAdmin")
+            .WithSummary("Detail objednávky")
+            .WithDescription("Zákazník, položky s věnováním, platba, daňový doklad a vystavené poukazy.")
+            .Produces<OrderAdminDetailDto>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        admin.MapGet("/payments/unmatched", (IQueryHandler<GetUnmatchedPaymentsQuery, IReadOnlyList<UnmatchedPaymentDto>> handler, CancellationToken ct) =>
+                Ok(handler.HandleAsync(new GetUnmatchedPaymentsQuery(), ct)))
+            .WithName("GetUnmatchedPayments")
+            .WithSummary("Platby k ručnímu vyřízení")
+            .WithDescription("Příchozí platby, které vypadají jako platba za objednávku, ale nesedí VS nebo částka.")
+            .Produces<IReadOnlyList<UnmatchedPaymentDto>>();
+    }
+
+    private static async Task<IResult> Ok<T>(Task<T> result) => Results.Ok(await result.ConfigureAwait(false));
 
     private static async Task<IResult> FindCompanyAsync(
         string companyId,

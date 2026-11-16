@@ -13,6 +13,11 @@ public interface IBankTransactionRepository
     /// <summary>Pohyby, které čekají na párování.</summary>
     Task<IReadOnlyList<BankTransaction>> GetReceivedAsync(Guid enterpriseId, CancellationToken cancellationToken = default);
 
+    Task<BankTransaction?> GetAsync(Guid enterpriseId, Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>Pohyby k ručnímu vyřízení (<see cref="BankTransactionStatus.Unmatched"/>), nejnovější první.</summary>
+    Task<IReadOnlyList<BankTransaction>> GetUnmatchedAsync(Guid enterpriseId, int take, CancellationToken cancellationToken = default);
+
     void Add(BankTransaction transaction);
 }
 

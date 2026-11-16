@@ -11,6 +11,18 @@ public interface IOrderRepository
 
     Task<Order?> GetByNumberAsync(Guid enterpriseId, long number, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Objednávky provozovatele pro backoffice, nejnovější první, s položkami. <paramref name="search"/>
+    /// hledá v čísle objednávky, jménu, e-mailu a názvu firmy (bez ohledu na velikost písmen).
+    /// </summary>
+    Task<(IReadOnlyList<Order> Orders, int Total)> SearchAsync(
+        Guid enterpriseId,
+        OrderStatus? status,
+        string? search,
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default);
+
     /// <summary>Nezaplacené objednávky založené před daným okamžikem.</summary>
     Task<IReadOnlyList<Order>> GetAwaitingPaymentPlacedBeforeAsync(DateTimeOffset placedBeforeUtc, CancellationToken cancellationToken = default);
 }

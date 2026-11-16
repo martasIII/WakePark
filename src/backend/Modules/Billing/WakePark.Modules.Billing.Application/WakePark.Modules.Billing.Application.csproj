@@ -5,6 +5,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\WakePark.BuildingBlocks.Application\WakePark.BuildingBlocks.Application.csproj" />
     <!-- Ceny a názvy produktů. Jen kontrakt, nikdy vnitřek modulu Catalog. -->
     <ProjectReference Include="..\..\Catalog\WakePark.Modules.Catalog.Contracts\WakePark.Modules.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\Vouchers\WakePark.Modules.Vouchers.Contracts\WakePark.Modules.Vouchers.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation" />

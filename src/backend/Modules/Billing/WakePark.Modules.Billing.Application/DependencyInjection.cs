@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using WakePark.BuildingBlocks.Application.Messaging;
+using WakePark.Modules.Billing.Application.Admin;
 using WakePark.Modules.Billing.Application.Customers;
 using WakePark.Modules.Billing.Application.Invoices;
 using WakePark.Modules.Billing.Application.Orders;
@@ -23,6 +24,11 @@ public static class DependencyInjection
         services.AddScoped<ICommandHandler<ProcessUnpaidOrdersCommand, UnpaidOrdersResult>, ProcessUnpaidOrdersCommandHandler>();
         services.AddScoped<IInvoiceDirectory, InvoiceDirectory>();
         services.AddScoped<ICommandHandler<SyncBankTransactionsCommand, BankSyncResult>, SyncBankTransactionsCommandHandler>();
+
+        // Přehled objednávek v backoffice (ADR 0012)
+        services.AddScoped<IQueryHandler<GetOrdersAdminQuery, OrderListDto>, GetOrdersAdminQueryHandler>();
+        services.AddScoped<IQueryHandler<GetOrderAdminQuery, OrderAdminDetailDto>, GetOrderAdminQueryHandler>();
+        services.AddScoped<IQueryHandler<GetUnmatchedPaymentsQuery, IReadOnlyList<UnmatchedPaymentDto>>, GetUnmatchedPaymentsQueryHandler>();
 
         return services;
     }

@@ -20,6 +20,50 @@ internal sealed class OrderRepository(BillingDbContext dbContext) : IOrderReposi
             .Include(o => o.Lines)
             .FirstOrDefaultAsync(o => o.EnterpriseId == enterpriseId && o.Number == number, cancellationToken);
 
+    public async Task<(IReadOnlyList<Order> Orders, int Total)> SearchAsync(
+        Guid enterpriseId,
+        OrderStatus? status,
+        string? search,
+        int skip,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Order> query = dbContext.Orders.AsNoTracking().Where(o => o.EnterpriseId == enterpriseId);
+
+        if (status is { } wanted)
+        {
+            query = query.Where(o => o.Status == wanted);
+        }
+
+        if (search?.Trim() is { Length: > 0 } text)
+        {
+            // Číslo objednávky přesně, ostatní jako „obsahuje“ bez ohledu na velikost písmen.
+            // Znaky %, _ a \ v hledaném textu jsou pro ILIKE zástupné — escapují se.
+            string escaped = text
+                .Replace(@"\", @"\\", StringComparison.Ordinal)
+                .Replace("%", @"\%", StringComparison.Ordinal)
+                .Replace("_", @"\_", StringComparison.Ordinal);
+            string pattern = $"%{escaped}%";
+            bool isNumber = long.TryParse(text, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out long number);
+            query = query.Where(o =>
+                (isNumber && o.Number == number)
+                || EF.Functions.ILike(o.Customer.Name, pattern)
+                || EF.Functions.ILike(o.Customer.Email, pattern)
+                || (o.Customer.CompanyName != null && EF.Functions.ILike(o.Customer.CompanyName, pattern)));
+        }
+
+        int total = await query.CountAsync(cancellationToken).ConfigureAwait(false);
+        List<Order> orders = await query
+            .Include(o => o.Lines)
+            .OrderByDescending(o => o.PlacedAtUtc)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return (orders, total);
+    }
+
     public async Task<IReadOnlyList<Order>> GetAwaitingPaymentPlacedBeforeAsync(
         DateTimeOffset placedBeforeUtc,
         CancellationToken cancellationToken = default) =>

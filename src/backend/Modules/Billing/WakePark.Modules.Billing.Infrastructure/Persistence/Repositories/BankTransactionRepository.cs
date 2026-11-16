@@ -37,5 +37,21 @@ internal sealed class BankTransactionRepository(BillingDbContext dbContext) : IB
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
+    public Task<BankTransaction?> GetAsync(Guid enterpriseId, Guid id, CancellationToken cancellationToken = default) =>
+        dbContext.BankTransactions.AsNoTracking().FirstOrDefaultAsync(t => t.EnterpriseId == enterpriseId && t.Id == id, cancellationToken);
+
+    public async Task<IReadOnlyList<BankTransaction>> GetUnmatchedAsync(
+        Guid enterpriseId,
+        int take,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.BankTransactions
+            .AsNoTracking()
+            .Where(t => t.EnterpriseId == enterpriseId && t.Status == BankTransactionStatus.Unmatched)
+            .OrderByDescending(t => t.BookedOn)
+            .ThenByDescending(t => t.CreatedAtUtc)
+            .Take(take)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
     public void Add(BankTransaction transaction) => dbContext.BankTransactions.Add(transaction);
 }
