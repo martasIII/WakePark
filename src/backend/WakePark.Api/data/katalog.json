@@ -212,7 +212,7 @@
         "cs": "2 hodiny na laně — pro maximálně 6 osob, nebo rozdělit podle chuti. Včetně vybavení a instruktora. Platí v sezóně 2027.",
         "en": "2 hours on the cable — for up to 6 people, or split as you like. Equipment and instructor included. Valid in the 2027 season."
       },
-      "image": null, "price": 3890, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
+      "image": "/img/katalog/voucher-120.jpg", "price": 3890, "vatRate": 12, "showIn": ["pricelist", "eshop", "pos"]
     }
   ]
 }

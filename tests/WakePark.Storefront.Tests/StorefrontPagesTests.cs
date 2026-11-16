@@ -17,6 +17,7 @@ public sealed class StorefrontPagesTests(WebApplicationFactory<Program> factory)
     [InlineData("/cenik", "1 200 Kč")]
     [InlineData("/kontakt", "Otevírací doba")]
     [InlineData("/o-nas", "Dráha 2")]
+    [InlineData("/o-nas", "<source src=\"/img/hp/dlazdice-video.")]
     [InlineData("/firemni-akce", "dan@wake-dzban.cz")]
     [InlineData("/dzban-park", "MČ Praha 6")]
     [InlineData("/minirampa", "U-rampa")]
@@ -38,7 +39,7 @@ public sealed class StorefrontPagesTests(WebApplicationFactory<Program> factory)
         string html = await _client.GetStringAsync(new Uri("/", UriKind.Relative), TestContext.Current.CancellationToken);
 
         CountOccurrences(html, "<li><a class=\"tile").ShouldBe(9, "všech 9 dlaždic vede na stránku");
-        html.ShouldContain("<source src=\"/img/hp/dlazdice-video.", Case.Sensitive, "video v dlaždici O nás (název s otiskem verze)");
+        html.ShouldNotContain("<video", Case.Sensitive, "video je na stránce O nás, ne na úvodu");
         html.ShouldContain("href=\"/eshop\"");
         html.ShouldContain("href=\"/o-nas\"");
         html.ShouldContain("href=\"/cenik\"");

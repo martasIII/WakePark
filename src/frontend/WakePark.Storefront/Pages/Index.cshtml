@@ -11,11 +11,7 @@
 </header>
 <main>
     <ul class="tiles">
-        <li><a class="tile tile-video" asp-page="/O-nas" asp-route-lang="@Site.LanguageRoute">
-            @* Smyčka z videa ze starého webu (2024), čtverec 400 px bez zvuku, ~1,2 MB. *@
-            <video autoplay muted loop playsinline preload="metadata" poster="~/img/hp/dlazdice-video.jpg" aria-hidden="true">
-                <source src="~/img/hp/dlazdice-video.mp4" type="video/mp4">
-            </video><partial name="Icons/_ONas" /><span class="lbl">@T["TileAbout"]</span></a></li>
+        <li><a class="tile" asp-page="/O-nas" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_ONas" /><span class="lbl">@T["TileAbout"]</span></a></li>
         <li><a class="tile" asp-page="/Eshop" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_WakeShop" /><span class="lbl">Wake Shop</span></a></li>
         <li><a class="tile" asp-page="/Kontakt" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_Kontakt" /><span class="lbl">@T["TileContact"]</span></a></li>
         <li><a class="tile" asp-page="/Firemni-akce" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_FiremniAkce" /><span class="lbl">@T["TileCorporate"]</span></a></li>
