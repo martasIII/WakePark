@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"]</title>
-    @if (ViewData["NoIndex"] is true)
+    @if (ViewData["NoIndex"] is true || Site.Options.EnvironmentLabel is { Length: > 0 })
     {
         <meta name="robots" content="noindex">
     }
@@ -31,6 +31,11 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
 </head>
 <body class="@ViewData["BodyClass"]">
+    @if (Site.Options.EnvironmentLabel is { Length: > 0 } environment)
+    {
+        @* Jen pro správce (do UAT pustí nginx jen Admina), proto bez překladu. *@
+        <div class="env-banner" role="note"><b>@environment</b> testovací prostředí · kopie ostrých dat · e-maily chodí jen správcům</div>
+    }
     @RenderBody()
     <footer>
         <p>@T["Location"]

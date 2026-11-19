@@ -49,6 +49,9 @@ const NAV: readonly NavItem[] = [
   styleUrl: './app.scss',
 })
 export class App {
+  /** Testovací prostředí (kopie ostrých dat) běží na admin.uat.wake-dzban.cz — výrazné označení. */
+  protected readonly isUat = location.hostname.startsWith('admin.uat.');
+
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 

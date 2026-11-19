@@ -17,4 +17,16 @@ public sealed class SystemRolesTests
             SystemRoles.Grants[role].ShouldNotContain(Permissions.OrdersRead, role);
         }
     }
+
+    /// <summary>UAT běží nad kopií ostrých dat (osobní údaje zákazníků) — jen Admin.</summary>
+    [Fact]
+    public void Do_UAT_smi_jen_admin()
+    {
+        SystemRoles.Grants[SystemRoles.Admin].ShouldContain(Permissions.UatAccess);
+
+        foreach (string role in new[] { SystemRoles.Manager, SystemRoles.Employee, SystemRoles.Instructor })
+        {
+            SystemRoles.Grants[role].ShouldNotContain(Permissions.UatAccess, role);
+        }
+    }
 }

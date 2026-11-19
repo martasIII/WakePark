@@ -1,12 +1,12 @@
-# Build a testy při každém pushi do main a u každého pull requestu.
-# Na main navíc: obrazy webu a API do GitHub Container Registry a nasazení na VPS —
-# ale jen když prošlo všechno ostatní.
+# Build a testy při každém pushi do main a uat a u každého pull requestu.
+# Na main a uat navíc: obrazy webu a API do GitHub Container Registry a nasazení na VPS —
+# ale jen když prošlo všechno ostatní. main → produkce, uat → testovací prostředí UAT.
 
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, uat]
   pull_request:
 
 # Nový push do stejné větve zruší rozběhnutý běh — výsledek starého commitu nikoho nezajímá.
@@ -79,7 +79,7 @@ jobs:
       contents: read
       packages: write
     env:
-      PUBLISH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      PUBLISH: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/uat') }}
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v4
@@ -149,3 +149,30 @@ jobs:
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
           ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
             deploy@31.31.73.220 "$GITHUB_SHA"
+
+  # Testovací prostředí UAT (kopie ostrých dat, jen pro Admina): stejné obrazy, jiný adresář
+  # na serveru. Značku latest nedostanou — ta patří produkci.
+  deploy-uat:
+    name: Nasazení do UAT
+    needs: [backend, frontend, images]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/uat'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: uat
+      url: https://uat.wake-dzban.cz
+    permissions:
+      contents: read
+    steps:
+      # Stejný klíč jako produkce; deploy.sh podle „uat“ v argumentu nasadí do /opt/wakepark/uat.
+      - name: Nasazení
+        env:
+          SSH_KEY: ${{ secrets.VPS_DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            deploy@31.31.73.220 "uat $GITHUB_SHA"

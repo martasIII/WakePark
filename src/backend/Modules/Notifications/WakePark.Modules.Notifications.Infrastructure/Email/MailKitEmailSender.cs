@@ -21,8 +21,13 @@ internal sealed class MailKitEmailSender(NotificationsOptions options) : IEmailS
         using MimeMessage mime = new();
         mime.From.Add(new MailboxAddress(options.FromName, options.FromAddress));
         mime.ReplyTo.Add(MailboxAddress.Parse(options.ReplyTo));
-        mime.To.Add(MailboxAddress.Parse(message.To));
-        mime.Subject = message.Subject;
+        (IReadOnlyList<string> recipients, string subject) = options.Route(message.To, message.Subject);
+        foreach (string recipient in recipients)
+        {
+            mime.To.Add(MailboxAddress.Parse(recipient));
+        }
+
+        mime.Subject = subject;
 
         BodyBuilder body = new() { HtmlBody = message.HtmlBody, TextBody = message.TextBody };
         foreach (EmailAttachment attachment in message.Attachments)

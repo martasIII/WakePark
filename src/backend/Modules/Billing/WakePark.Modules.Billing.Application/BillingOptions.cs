@@ -11,6 +11,12 @@ public sealed class BillingOptions
     /// <summary>Po kolika dnech bez platby se pošle upomínka (ADR 0006).</summary>
     public int PaymentReminderDays { get; init; } = 2;
 
+    /// <summary>
+    /// Upomínky a rušení nezaplacených objednávek na pozadí. V UAT vypnuté: na kopii dat by
+    /// rušilo objednávky, které jsou mezitím na produkci zaplacené.
+    /// </summary>
+    public bool ProcessUnpaidOrders { get; init; } = true;
+
     /// <summary>Časová zóna provozovatele — podle ní se pozná rok v čísle objednávky.</summary>
     public string TimeZoneId { get; init; } = "Europe/Prague";
 

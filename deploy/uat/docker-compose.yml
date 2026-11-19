@@ -1,0 +1,110 @@
+# Testovací prostředí UAT na VPS: /opt/wakepark/uat/. Stejné obrazy jako produkce, vlastní
+# databáze s kopií ostrých dat (uat-refresh.sh), přístup jen pro Admina.
+#
+#   uat.wake-dzban.cz        → storefront  127.0.0.1:5083  (nginx pustí jen přihlášeného Admina)
+#   admin.uat.wake-dzban.cz  → backoffice  127.0.0.1:5084
+#
+# Nasazuje ho deploy.sh s argumentem „uat <commit>“ (GitHub Actions z větve uat).
+# Oproti produkci: bez párování plateb z Fio, bez upomínek a rušení nezaplacených objednávek,
+# e-maily jen správcům. Do produkční databáze nevidí — má vlastní kontejner i síť.
+#
+# Hesla jsou v .env vedle tohoto souboru (root:deploy, 640), v gitu nejsou:
+#   POSTGRES_PASSWORD=…   (jiné než na produkci)
+#   SMTP_PASSWORD=…       (stejné jako na produkci, schránka noreply@)
+
+name: wakepark-uat
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "2"
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: wakepark-uat-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wakepark
+      POSTGRES_USER: wakepark
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Chybí POSTGRES_PASSWORD v .env}
+    command: >
+      postgres
+      -c shared_buffers=32MB
+      -c effective_cache_size=96MB
+      -c work_mem=4MB
+      -c max_connections=20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wakepark -d wakepark"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    mem_limit: 160m
+    logging: *logging
+
+  api:
+    # Bez WAKEPARK_TAG poslední verze nasazená do UAT (deploy.sh ji označí „uat“).
+    image: ghcr.io/martasiii/wakepark-api:${WAKEPARK_TAG:-uat}
+    container_name: wakepark-uat-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__WakeParkDb: "Host=db;Database=wakepark;Username=wakepark;Password=${POSTGRES_PASSWORD}"
+      Catalog__EnterpriseId: "01a15f92-3547-75ae-a047-65a2a9ecbeaf"
+      # Fio záměrně bez tokenu → párování plateb neběží. Upomínky a rušení také ne: na kopii
+      # dat by se rušily objednávky, které jsou mezitím na produkci zaplacené.
+      Billing__ProcessUnpaidOrders: "false"
+      # E-maily jdou jen správcům, s původním adresátem v předmětu: „[UAT → jan@…] …“.
+      Notifications__Enabled: "true"
+      Notifications__Smtp__Password: ${SMTP_PASSWORD:-}
+      Notifications__RedirectTo__0: "martin@wake-dzban.cz"
+      Notifications__RedirectTo__1: "dan@wake-dzban.cz"
+      Notifications__RedirectLabel: "UAT"
+      Notifications__PublicBaseUrl: "https://uat.wake-dzban.cz"
+      # Přihlášení z admin.uat… platí i pro web na uat… (před ním ho kontroluje nginx).
+      Auth__CookieDomain: "uat.wake-dzban.cz"
+      ForwardedHeaders__TrustedNetworks__0: "172.16.0.0/12"
+    volumes:
+      - api-keys:/home/app/.aspnet/DataProtection-Keys
+    mem_limit: 256m
+    logging: *logging
+
+  storefront:
+    image: ghcr.io/martasiii/wakepark-storefront:${WAKEPARK_TAG:-uat}
+    container_name: wakepark-uat-storefront
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5083:8080"
+    environment:
+      Storefront__TrustedProxyNetworks__0: "172.16.0.0/12"
+      Storefront__ApiBaseUrl: "http://api:8080"
+      Storefront__EnterpriseId: "01a15f92-3547-75ae-a047-65a2a9ecbeaf"
+      Storefront__WakeParkId: "01a1a2d0-5f3e-7c41-9b8e-2a6d0c7e4f15"
+      Storefront__OpeningHoursFromApi: "false"
+      # Žlutý pruh nahoře a zákaz indexování.
+      Storefront__EnvironmentLabel: "UAT"
+    volumes:
+      - storefront-keys:/home/app/.aspnet/DataProtection-Keys
+    mem_limit: 256m
+    logging: *logging
+
+  backoffice:
+    image: ghcr.io/martasiii/wakepark-backoffice:${WAKEPARK_TAG:-uat}
+    container_name: wakepark-uat-backoffice
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:5084:8080"
+    mem_limit: 64m
+    logging: *logging
+
+volumes:
+  api-keys:
+  storefront-keys:
+  pgdata:

@@ -1,3 +1,6 @@
+@if (isUat) {
+  <div class="uat-badge" role="note">UAT · testovací prostředí · kopie ostrých dat</div>
+}
 @if (user(); as currentUser) {
   <mat-sidenav-container class="shell">
     <mat-sidenav

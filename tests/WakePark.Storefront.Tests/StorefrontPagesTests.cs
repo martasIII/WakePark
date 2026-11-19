@@ -35,6 +35,34 @@ public sealed class StorefrontPagesTests(WebApplicationFactory<Program> factory)
     }
 
     [Fact]
+    public async Task Produkce_nema_pruh_testovaciho_prostredi_a_je_indexovatelna()
+    {
+        string html = await _client.GetStringAsync(new Uri("/", UriKind.Relative), TestContext.Current.CancellationToken);
+
+        html.ShouldNotContain("env-banner");
+        html.ShouldNotContain("name=\"robots\"");
+    }
+
+    [Fact]
+    public async Task UAT_ma_na_kazde_strance_pruh_a_zakaz_indexovani()
+    {
+        using HttpClient uat = factory
+            .WithWebHostBuilder(builder =>
+            {
+                builder.UseCatalogApi(StubCatalogApi.WithPriceList());
+                builder.UseSetting("Storefront:EnvironmentLabel", "UAT");
+            })
+            .CreateClient();
+
+        foreach (string path in new[] { "/", "/cenik", "/kontakt" })
+        {
+            string html = await uat.GetStringAsync(new Uri(path, UriKind.Relative), TestContext.Current.CancellationToken);
+            html.ShouldContain("<div class=\"env-banner\" role=\"note\"><b>UAT</b>", customMessage: path);
+            html.ShouldContain("<meta name=\"robots\" content=\"noindex\">", customMessage: path);
+        }
+    }
+
+    [Fact]
     public async Task Uvodni_stranka_ma_devet_dlazdic()
     {
         string html = await _client.GetStringAsync(new Uri("/", UriKind.Relative), TestContext.Current.CancellationToken);

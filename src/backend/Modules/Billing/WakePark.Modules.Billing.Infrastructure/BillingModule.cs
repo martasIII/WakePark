@@ -32,7 +32,8 @@ public static class BillingModule
                 .UseWakeParkNpgsql(connectionString, BillingDbContext.Schema)
                 .AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>()));
 
-        services.AddSingleton(configuration.GetSection(BillingOptions.SectionName).Get<BillingOptions>() ?? new BillingOptions());
+        BillingOptions billing = configuration.GetSection(BillingOptions.SectionName).Get<BillingOptions>() ?? new BillingOptions();
+        services.AddSingleton(billing);
         services.AddScoped<IBillingUnitOfWork>(sp => sp.GetRequiredService<BillingDbContext>());
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IOrderNumberAllocator, OrderNumberAllocator>();
@@ -64,7 +65,10 @@ public static class BillingModule
         services.AddSingleton<OutboxDispatcher<BillingDbContext>>();
         services.AddHostedService(sp => sp.GetRequiredService<OutboxDispatcher<BillingDbContext>>());
 
-        services.AddHostedService<Orders.UnpaidOrdersWorker>();
+        if (billing.ProcessUnpaidOrders)
+        {
+            services.AddHostedService<Orders.UnpaidOrdersWorker>();
+        }
 
         services.AddBillingApplication();
 

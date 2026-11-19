@@ -31,6 +31,21 @@ public sealed class NotificationsOptions
 
     public SmtpOptions Smtp { get; init; } = new();
 
+    /// <summary>
+    /// Testovací prostředí: všechny e-maily jdou jen na tyto adresy, ne zákazníkům ani na
+    /// <see cref="AdminEmail"/>. Prázdné = posílá se skutečným adresátům (produkce).
+    /// </summary>
+    public IReadOnlyList<string> RedirectTo { get; init; } = [];
+
+    /// <summary>Označení prostředí v předmětu přesměrovaného e-mailu: „[UAT → jan@novak.cz] …“.</summary>
+    public string RedirectLabel { get; init; } = "TEST";
+
+    /// <summary>Komu e-mail opravdu odejde a s jakým předmětem (při přesměrování s původním adresátem).</summary>
+    public (IReadOnlyList<string> To, string Subject) Route(string to, string subject) =>
+        RedirectTo.Count == 0
+            ? ([to], subject)
+            : (RedirectTo, $"[{RedirectLabel} → {to}] {subject}");
+
     /// <summary>Barva pruhu na PDF poukazu podle kódu produktu (1/2/3 na první pohled).</summary>
     public IReadOnlyDictionary<string, string> VoucherColors { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal)
     {

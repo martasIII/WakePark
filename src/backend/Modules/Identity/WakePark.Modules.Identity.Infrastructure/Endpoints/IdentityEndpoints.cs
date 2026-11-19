@@ -70,6 +70,17 @@ public static class IdentityEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .RequireAuthorization();
 
+        // Ptá se na něj nginx před webem UAT (auth_request) při každém požadavku — proto bez
+        // těla a bez dotazu do databáze navíc: oprávnění ověří autorizace sama.
+        group.MapGet("/uat-access", () => Results.NoContent())
+            .WithName("CheckUatAccess")
+            .WithSummary("Smí přihlášený do testovacího prostředí?")
+            .WithDescription("**204** ano, **401** nepřihlášený, **403** bez oprávnění `uat.access` (jen Admin).")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .RequireAuthorization(PermissionPolicies.For(Permissions.UatAccess));
+
         return endpoints;
     }
 

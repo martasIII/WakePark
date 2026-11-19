@@ -58,6 +58,12 @@ public sealed class StorefrontOptions
     /// </summary>
     public bool EshopTrialMode { get; init; }
 
+    /// <summary>
+    /// Označení testovacího prostředí („UAT“): pruh nahoře na každé stránce a zákaz indexování.
+    /// Na produkci prázdné.
+    /// </summary>
+    public string? EnvironmentLabel { get; init; }
+
     /// <summary>Jazyky bez duplicit; bez konfigurace jen čeština.</summary>
     public IReadOnlyList<string> SiteLanguages => Languages.Count == 0 ? ["cs"] : [.. Languages.Distinct(StringComparer.Ordinal)];
 

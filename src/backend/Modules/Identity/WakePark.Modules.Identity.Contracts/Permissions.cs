@@ -31,6 +31,9 @@ public static class Permissions
     /// <summary>Přehled objednávek e-shopu a plateb — osobní údaje zákazníků, jen Admin (ADR 0012).</summary>
     public const string OrdersRead = "orders.read";
 
+    /// <summary>Testovací prostředí UAT (kopie ostrých dat) — jen Admin.</summary>
+    public const string UatAccess = "uat.access";
+
     /// <summary>Všechna známá oprávnění i s popisem. Používá seeder a administrace.</summary>
     public static IReadOnlyDictionary<string, string> All { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
     {
@@ -46,6 +49,7 @@ public static class Permissions
         [UsersManage] = "Spravovat uživatele a jejich role",
         [CatalogManage] = "Spravovat produkty, kategorie a ceny",
         [OrdersRead] = "Zobrazit objednávky e-shopu a platby",
+        [UatAccess] = "Přístup do testovacího prostředí (UAT)",
     };
 }
 

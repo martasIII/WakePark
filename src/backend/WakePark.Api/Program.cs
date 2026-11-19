@@ -60,6 +60,12 @@ builder.Services
     .AddCookie(options =>
     {
         options.Cookie.Name = "wakepark.session";
+        // V UAT „uat.wake-dzban.cz“: cookie z admin.uat… dostane i web na uat…, kterého
+        // před zobrazením hlídá nginx. Na produkci prázdné — cookie jen pro adresu backoffice.
+        if (builder.Configuration["Auth:CookieDomain"] is { Length: > 0 } cookieDomain)
+        {
+            options.Cookie.Domain = cookieDomain;
+        }
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Strict;
         options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
