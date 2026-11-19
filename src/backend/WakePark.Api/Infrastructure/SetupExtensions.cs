@@ -13,7 +13,8 @@ namespace WakePark.Api.Infrastructure;
 
 /// <summary>
 /// Kroky nasazení pro základní data provozu (ADR 0009, upřesnění 24. 10.):
-/// <c>import-setup</c> srovná provozovatele, areál, nastavení a vleky s <c>data/provoz.json</c>;
+/// <c>import-setup</c> srovná provozovatele, areál, nastavení a vleky s <c>data/provoz.json</c>
+/// a oprávnění a systémové role s kódem (<c>Permissions</c>, <c>SystemRoles</c>);
 /// <c>create-admin &lt;e-mail&gt;</c> založí admina (heslo se zadá v terminálu, nikde jinde není).
 /// </summary>
 internal static partial class SetupExtensions
@@ -62,6 +63,12 @@ internal static partial class SetupExtensions
         OperationsSetupResult result = await services
             .GetRequiredService<ICommandHandler<ApplyOperationsSetupCommand, OperationsSetupResult>>()
             .HandleAsync(new ApplyOperationsSetupCommand(setup.Park.Id, new OperationsSetup(setup.Settings, setup.Cables)))
+            .ConfigureAwait(false);
+
+        // Nové oprávnění v kódu (např. uat.access) dostanou existující role hned při nasazení,
+        // ne až při příštím create-admin. Jen doplňuje, nic neodebírá; účty nezakládá.
+        await services.GetRequiredService<IdentitySeeder>()
+            .SeedAsync(bootstrapAdminEmail: null, bootstrapAdminPassword: null, bootstrapEnterpriseId: null)
             .ConfigureAwait(false);
 
         LogImported(logger, path, setup.Park.Name, result);
