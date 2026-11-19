@@ -129,6 +129,9 @@ footer .small{font-size:12px; opacity:.8}
 .cart-bar b{color:var(--brand); font-size:19px}
 .cart-bar-go{flex:none; padding:12px 18px; border-radius:6px; background:var(--brand); color:#fff; font-weight:700; text-decoration:none; white-space:nowrap}
 .cart-bar-go:hover{filter:brightness(1.08)}
+.cart-bar-go{transition:opacity .2s, visibility .2s}
+/* Na svém místě je formulář hned pod lištou — tlačítko zmizí, ale místo drží, aby obsah neposkočil. */
+.cart-bar.docked .cart-bar-go{opacity:0; visibility:hidden; pointer-events:none}
 @media (max-width:520px){
   .cart-bar{flex-direction:column; align-items:stretch; text-align:center; padding-inline:12px}
   .cart-bar-go{text-align:center}

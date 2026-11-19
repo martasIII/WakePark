@@ -44,11 +44,13 @@
     };
 
     // Lišta „plave“, dokud její vlastní místo (značka hned pod ní) není vidět pod spodním
-    // okrajem okna — jen tehdy má stín. Na svém místě vypadá jako ostatní karty.
+    // okrajem okna — jen tehdy má stín. Na svém místě vypadá jako ostatní karty a tlačítko
+    // k údajům schová (údaje jsou hned pod ní).
     const spot = form.querySelector('.cart-bar-spot');
     if (bar && spot && 'IntersectionObserver' in window) {
         new IntersectionObserver(([entry]) => {
             bar.classList.toggle('stuck', !entry.isIntersecting && entry.boundingClientRect.top > entry.rootBounds.bottom);
+            bar.classList.toggle('docked', entry.isIntersecting);
         }).observe(spot);
     }
 
