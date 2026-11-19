@@ -43,6 +43,15 @@
         }
     };
 
+    // Lišta „plave“, dokud její vlastní místo (značka hned pod ní) není vidět pod spodním
+    // okrajem okna — jen tehdy má stín. Na svém místě vypadá jako ostatní karty.
+    const spot = form.querySelector('.cart-bar-spot');
+    if (bar && spot && 'IntersectionObserver' in window) {
+        new IntersectionObserver(([entry]) => {
+            bar.classList.toggle('stuck', !entry.isIntersecting && entry.boundingClientRect.top > entry.rootBounds.bottom);
+        }).observe(spot);
+    }
+
     // Tlačítko v liště sjede k údajům a rovnou do prvního pole.
     bar?.querySelector('.cart-bar-go').addEventListener('click', (event) => {
         const target = document.getElementById('udaje');

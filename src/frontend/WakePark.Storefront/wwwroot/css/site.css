@@ -116,10 +116,14 @@ footer .small{font-size:12px; opacity:.8}
 .product img, .product h3{cursor:pointer}
 .product.selected{border-color:var(--brand); box-shadow:0 0 0 1px var(--brand)}
 .cart-bar{
-  position:sticky; bottom:0; z-index:5; display:flex; align-items:center; justify-content:space-between; gap:10px 18px;
-  margin:0 0 18px; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); border-radius:6px 6px 0 0;
-  background:#fff; color:#1d1d1f; box-shadow:0 -6px 18px rgba(0,0,0,.18); border-top:3px solid var(--brand)}
+  position:sticky; bottom:calc(10px + env(safe-area-inset-bottom)); z-index:5;
+  display:flex; align-items:center; justify-content:space-between; gap:10px 18px;
+  margin:0 0 18px; padding:12px 16px; border-radius:6px; background:#fff; color:#1d1d1f;
+  transition:box-shadow .2s}
+/* Výrazný stín jen když lišta plave nad produkty; na svém místě vypadá jako ostatní karty. */
+.cart-bar.stuck{box-shadow:0 10px 32px rgba(0,0,0,.38), 0 2px 8px rgba(0,0,0,.18)}
 .cart-bar[hidden]{display:none}
+.cart-bar-spot{height:1px; margin-top:-19px; margin-bottom:18px}
 .cart-bar p{margin:0; font-size:16px; line-height:1.35}
 .cart-bar b{color:var(--brand); font-size:20px; white-space:nowrap}
 .cart-bar-go{flex:none; padding:12px 20px; border-radius:6px; background:var(--brand); color:#fff; font-weight:700; text-decoration:none; white-space:nowrap}
