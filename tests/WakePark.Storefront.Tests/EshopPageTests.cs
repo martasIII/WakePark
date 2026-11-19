@@ -78,6 +78,19 @@ public sealed class EshopPageTests(WebApplicationFactory<Program> factory)
             .ShouldBe("/api/v1/catalog/enterprises/01990000-0000-7000-8000-000000000001");
     }
 
+    /// <summary>Lišta košíku je bez skriptu skrytá, odkazuje k údajům a nese tvary „kus/kusy/kusů“ pro skript.</summary>
+    [Fact]
+    public async Task Lista_kosiku_je_pred_udaji_a_bez_skriptu_skryta()
+    {
+        string html = await GetEshopAsync(new StubHandler(HttpStatusCode.OK, CatalogJson));
+
+        html.ShouldContain("<div class=\"cart-bar\" hidden>");
+        html.ShouldContain("href=\"#udaje\"");
+        html.ShouldContain("data-few=\"{0} kusy\"");
+        html.IndexOf("class=\"cart-bar\"", StringComparison.Ordinal)
+            .ShouldBeLessThan(html.IndexOf("id=\"udaje\"", StringComparison.Ordinal));
+    }
+
     [Fact]
     public async Task Nabidka_se_drzi_v_pameti_a_API_se_pri_kazdem_nacteni_nepta()
     {

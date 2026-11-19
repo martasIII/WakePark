@@ -55,6 +55,12 @@
   <data name="PaymentInfo" xml:space="preserve"><value>QR kód naskenujte v aplikaci své banky, údaje se vyplní samy. Podle variabilního symbolu platbu spárujeme a voucher pošleme e-mailem. Z jiné banky než Fio může platba trvat do dalšího pracovního dne.</value></data>
   <data name="OrderSummary" xml:space="preserve"><value>Co jste objednali</value></data>
   <data name="PerPiece" xml:space="preserve"><value>za kus</value></data>
+  <data name="InCart" xml:space="preserve"><value>V košíku máte</value></data>
+  <data name="InCartFor" xml:space="preserve"><value>za celkem</value></data>
+  <data name="PiecesOne" xml:space="preserve"><value>{0} kus</value></data>
+  <data name="PiecesFew" xml:space="preserve"><value>{0} kusy</value></data>
+  <data name="PiecesOther" xml:space="preserve"><value>{0} kusů</value></data>
+  <data name="ContinueToOrder" xml:space="preserve"><value>Pokračovat k objednávce</value></data>
   <data name="Total" xml:space="preserve"><value>Celkem</value></data>
   <data name="VatIncluded" xml:space="preserve"><value>z toho DPH</value></data>
   <data name="SaveThisPage" xml:space="preserve"><value>Odkaz na tuto stránku si uložte, najdete na ní stav objednávky. S dotazy volejte</value></data>

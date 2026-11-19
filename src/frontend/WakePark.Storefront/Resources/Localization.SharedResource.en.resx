@@ -55,6 +55,12 @@
   <data name="PaymentInfo" xml:space="preserve"><value>Scan the QR code in your banking app and the details fill in by themselves. We match the payment by the variable symbol and e-mail you the voucher. From banks other than Fio it can take until the next business day.</value></data>
   <data name="OrderSummary" xml:space="preserve"><value>Your order</value></data>
   <data name="PerPiece" xml:space="preserve"><value>each</value></data>
+  <data name="InCart" xml:space="preserve"><value>In your cart:</value></data>
+  <data name="InCartFor" xml:space="preserve"><value>for a total of</value></data>
+  <data name="PiecesOne" xml:space="preserve"><value>{0} item</value></data>
+  <data name="PiecesFew" xml:space="preserve"><value>{0} items</value></data>
+  <data name="PiecesOther" xml:space="preserve"><value>{0} items</value></data>
+  <data name="ContinueToOrder" xml:space="preserve"><value>Continue to checkout</value></data>
   <data name="Total" xml:space="preserve"><value>Total</value></data>
   <data name="VatIncluded" xml:space="preserve"><value>incl. VAT</value></data>
   <data name="SaveThisPage" xml:space="preserve"><value>Keep the link to this page, it shows the status of your order. Questions? Call</value></data>

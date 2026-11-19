@@ -83,7 +83,15 @@
                 </section>
             }
 
-            <section class="card contact">
+            @* Lišta košíku: drží se spodního okraje okna, dokud zákazník vybírá; pod posledním produktem
+               zůstane na svém místě. Bez skriptu je skrytá (součet počítá eshop.js). *@
+            <div class="cart-bar" hidden>
+                <p aria-live="polite">@T["InCart"] <span data-count data-one="@T["PiecesOne"]" data-few="@T["PiecesFew"]"
+                    data-other="@T["PiecesOther"]"></span> @T["InCartFor"] <b data-amount></b></p>
+                <a href="#udaje" class="cart-bar-go">@T["ContinueToOrder"]</a>
+            </div>
+
+            <section class="card contact" id="udaje">
                 <h2>@T["Contact"]</h2>
                 <div class="fields">
                     <label>@T["Name"] <input asp-for="Form.Name" autocomplete="name" required></label>

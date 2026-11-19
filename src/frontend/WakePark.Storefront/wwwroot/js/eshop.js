@@ -9,6 +9,10 @@
     const inputs = [...form.querySelectorAll('.product input[type=number]')];
     const total = form.querySelector('.order-total');
     const totalAmount = total?.querySelector('[data-amount]');
+    const bar = form.querySelector('.cart-bar');
+    const barCount = bar?.querySelector('[data-count]');
+    const barAmount = bar?.querySelector('[data-amount]');
+    const plural = new Intl.PluralRules(document.documentElement.lang || 'cs');
     const formatter = new Intl.NumberFormat(document.documentElement.lang || 'cs', {
         style: 'currency', currency: 'CZK', maximumFractionDigits: 0,
     });
@@ -18,8 +22,10 @@
 
     const update = () => {
         let sum = 0;
+        let pieces = 0;
         for (const input of inputs) {
             const quantity = Number(input.value) || 0;
+            pieces += quantity;
             sum += quantity * Number(input.dataset.price);
             input.closest('.product').classList.toggle('selected', quantity > 0);
         }
@@ -27,7 +33,27 @@
             total.hidden = sum === 0;
             totalAmount.textContent = formatter.format(sum);
         }
+        if (bar) {
+            // „1 kus“, „3 kusy“, „5 kusů“ — tvar podle pravidel jazyka stránky.
+            const kind = plural.select(pieces);
+            const template = barCount.dataset[kind] ?? barCount.dataset.other;
+            bar.hidden = pieces === 0;
+            barCount.textContent = template.replace('{0}', pieces);
+            barAmount.textContent = formatter.format(sum);
+        }
     };
+
+    // Tlačítko v liště sjede k údajům a rovnou do prvního pole.
+    bar?.querySelector('.cart-bar-go').addEventListener('click', (event) => {
+        const target = document.getElementById('udaje');
+        if (!target) {
+            return;
+        }
+        event.preventDefault();
+        const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+        target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+        target.querySelector('input')?.focus({ preventScroll: true });
+    });
 
     // Věnování: jedno pole na každý kus voucheru. Text z pole, do kterého zákazník psal jako
     // první (lead), se předvyplní do ostatních, dokud je sám nezmění (pak má pole data-own).
