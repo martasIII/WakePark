@@ -65,6 +65,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/orders/order-detail').then((m) => m.OrderDetail),
       },
       {
+        path: 'akce',
+        title: 'Akční slevy · WakePark',
+        canActivate: [permissionGuard(Permissions.catalogManage)],
+        loadComponent: () => import('./features/promotions/promotions-page').then((m) => m.PromotionsPage),
+      },
+      {
         path: 'katalog',
         title: 'Katalog a ceny · WakePark',
         canActivate: [permissionGuard(Permissions.catalogManage)],

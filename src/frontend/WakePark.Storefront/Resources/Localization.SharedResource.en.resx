@@ -61,6 +61,12 @@
   <data name="PiecesFew" xml:space="preserve"><value>{0} items</value></data>
   <data name="PiecesOther" xml:space="preserve"><value>{0} items</value></data>
   <data name="ContinueToOrder" xml:space="preserve"><value>Continue to checkout</value></data>
+  <data name="PromoBadge" xml:space="preserve"><value>−{0}%</value></data>
+  <data name="PromoDiscount" xml:space="preserve"><value>{0}% off everything below</value></data>
+  <data name="PromoUntil" xml:space="preserve"><value>until {0}</value></data>
+  <data name="PromoDateFormat" xml:space="preserve"><value>MMMM d, yyyy</value></data>
+  <data name="PromoLastDay" xml:space="preserve"><value>last day today!</value></data>
+  <data name="RegularPrice" xml:space="preserve"><value>Regular price</value></data>
   <data name="Total" xml:space="preserve"><value>Total</value></data>
   <data name="VatIncluded" xml:space="preserve"><value>incl. VAT</value></data>
   <data name="SaveThisPage" xml:space="preserve"><value>Keep the link to this page, it shows the status of your order. Questions? Call</value></data>

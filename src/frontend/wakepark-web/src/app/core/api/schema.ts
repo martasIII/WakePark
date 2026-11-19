@@ -87,6 +87,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/identity/uat-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Smí přihlášený do testovacího prostředí?
+         * @description **204** ano, **401** nepřihlášený, **403** bez oprávnění `uat.access` (jen Admin).
+         */
+        get: operations["CheckUatAccess"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tenancy/parks": {
         parameters: {
             query?: never;
@@ -597,6 +617,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/catalog/admin/promotions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Nová akční sleva (e-shop)
+         * @description Procento (1–90) z ceny všech produktů kategorie i podkategorií, celé dny od–do včetně
+         *     (čas areálu). Cena po slevě se zaokrouhlí na koruny nahoru. Na stejnou kategorii se
+         *     akce nesmí časově překrývat (422). Ceník na webu ani pokladna akci neznají.
+         */
+        post: operations["CreatePromotion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/catalog/admin/promotions/{promotionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Úprava akční slevy
+         * @description Prodané objednávky mají cenu zamrazenou, změna platí pro další nákupy.
+         */
+        put: operations["UpdatePromotion"];
+        post?: never;
+        /** Smazání akční slevy */
+        delete: operations["DeletePromotion"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/billing/enterprises/{enterpriseId}/orders": {
         parameters: {
             query?: never;
@@ -763,6 +826,22 @@ export interface components {
             currentPrice: null | components["schemas"]["PriceDto"];
             scheduledPrices: components["schemas"]["PriceDto"][];
         };
+        /** @description Akční sleva (jen e-shop): procento na kategorii, celé dny od–do včetně. */
+        AdminPromotionDto: {
+            /** Format: uuid */
+            id: string;
+            name: {
+                [key: string]: string;
+            };
+            /** Format: uuid */
+            categoryId: string;
+            /** Format: int32 */
+            discountPercent: number | string;
+            /** Format: date */
+            validFrom: string;
+            /** Format: date */
+            validTo: string;
+        };
         BlockingDto: {
             /** Format: uuid */
             id: string;
@@ -829,12 +908,15 @@ export interface components {
             };
             categories: components["schemas"]["AdminCategoryDto"][];
             products: components["schemas"]["AdminProductDto"][];
+            promotions: components["schemas"]["AdminPromotionDto"][];
         };
+        /** @description Kategorie e-shopu. `Promotion` = dnes v ní běží akční sleva (i z nadřazené kategorie). */
         CatalogCategoryDto: {
             code: string;
             name: {
                 [key: string]: string;
             };
+            promotion?: null | components["schemas"]["CatalogPromotionDto"];
         };
         /**
          * @description Nabídka e-shopu: kategorie a aktivní produkty s cenou, seřazené tak, jak se mají zobrazit.
@@ -861,6 +943,20 @@ export interface components {
             currency: string;
             /** Format: double */
             vatRate: number | string;
+            /** Format: double */
+            regularUnitPrice?: null | number | string;
+            /** Format: int32 */
+            discountPercent?: null | number | string;
+        };
+        /** @description Akční sleva v e-shopu: název, procento a poslední den (včetně, čas areálu). */
+        CatalogPromotionDto: {
+            name: {
+                [key: string]: string;
+            };
+            /** Format: int32 */
+            discountPercent: number | string;
+            /** Format: date */
+            validTo: string;
         };
         /** @description Firma z registru ARES. DIČ jen u plátce DPH. */
         CompanyDto: {
@@ -1265,6 +1361,20 @@ export interface components {
             eshop: boolean;
             pos: boolean;
         };
+        /** @description Nová nebo upravená akce. Název česky povinný, anglicky volitelný. */
+        PromotionRequest: {
+            name: {
+                [key: string]: string;
+            };
+            /** Format: uuid */
+            categoryId: string;
+            /** Format: int32 */
+            discountPercent: number | string;
+            /** Format: date */
+            validFrom: string;
+            /** Format: date */
+            validTo: string;
+        };
         PublicBlockingDto: {
             /** @description Null = celý areál. */
             cableName: null | string;
@@ -1563,6 +1673,42 @@ export interface operations {
             };
             /** @description Unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CheckUatAccess: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2431,6 +2577,114 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CatalogAdminDto"];
+                };
+            };
+        };
+    };
+    CreatePromotion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromotionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogAdminDto"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdatePromotion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                promotionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromotionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogAdminDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeletePromotion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                promotionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogAdminDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
         };

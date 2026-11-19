@@ -33,3 +33,10 @@ export type OrderListItemDto = Schemas['OrderListItemDto'];
 export type OrderAdminDetailDto = Schemas['OrderAdminDetailDto'];
 export type OrderVoucherDto = Schemas['OrderVoucherDto'];
 export type UnmatchedPaymentDto = Schemas['UnmatchedPaymentDto'];
+
+// Katalog a akční slevy (ADR 0009, 0014)
+export type CatalogAdminDto = Schemas['CatalogAdminDto'];
+export type AdminCategoryDto = Schemas['AdminCategoryDto'];
+export type AdminProductDto = Schemas['AdminProductDto'];
+export type AdminPromotionDto = Schemas['AdminPromotionDto'];
+export type PromotionRequest = Schemas['PromotionRequest'];

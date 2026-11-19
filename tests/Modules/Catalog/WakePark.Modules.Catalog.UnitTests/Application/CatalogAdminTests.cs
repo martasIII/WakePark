@@ -189,6 +189,121 @@ public sealed class CatalogAdminTests
         await Should.ThrowAsync<NotFoundException>(AdminAsync);
     }
 
+    // --- Akční slevy (ADR 0014) ---
+
+    [Fact]
+    public async Task Akce_zlevni_produkty_kategorie_v_e_shopu_a_cenu_zaokrouhli_nahoru()
+    {
+        Guid productId = await VoucherWithPriceAsync(1490m);
+        Guid categoryId = _repository.Products.Single(p => p.Id == productId).CategoryId;
+
+        CatalogAdminDto admin = await CreatePromotionAsync("Vánoční akce", categoryId, 15, Today, Today.AddDays(10));
+
+        admin.Promotions.Single().ShouldBe(new AdminPromotionDto(
+            admin.Promotions.Single().Id, admin.Promotions.Single().Name, categoryId, 15, Today, Today.AddDays(10)));
+
+        CatalogDto eshop = await EshopAsync();
+        CatalogProductDto product = eshop.Products.Single();
+        // 1 490 × 0,85 = 1 266,50 → nahoru na 1 267.
+        product.UnitPrice.ShouldBe(1267m);
+        product.RegularUnitPrice.ShouldBe(1490m);
+        product.DiscountPercent.ShouldBe(15);
+        eshop.Categories.Single().Promotion.ShouldNotBeNull().DiscountPercent.ShouldBe(15);
+        eshop.Categories.Single().Promotion!.Name["cs"].ShouldBe("Vánoční akce");
+        eshop.Categories.Single().Promotion!.ValidTo.ShouldBe(Today.AddDays(10));
+
+        // Jen e-shop: ceník na webu ukazuje běžnou cenu.
+        (await PriceListAsync()).Sections.Single().Items.Single().UnitPrice.ShouldBe(1490m);
+    }
+
+    [Fact]
+    public async Task Akce_plati_cele_dny_od_pulnoci_do_pulnoci_v_Praze()
+    {
+        Guid productId = await VoucherWithPriceAsync(1000m);
+        Guid categoryId = _repository.Products.Single(p => p.Id == productId).CategoryId;
+        await CreatePromotionAsync("Víkend", categoryId, 20, new DateOnly(2026, 10, 25), new DateOnly(2026, 10, 26));
+
+        (await EshopAsync()).Products.Single().UnitPrice.ShouldBe(1000m);
+
+        // 24. 10. 22:30 UTC = 25. 10. 00:30 v Praze → akce už běží.
+        _time.Set(new DateTimeOffset(2026, 10, 24, 22, 30, 0, TimeSpan.Zero));
+        (await EshopAsync()).Products.Single().UnitPrice.ShouldBe(800m);
+
+        // 26. 10. 21:30 UTC = 26. 10. 22:30 v Praze → poslední den ještě platí.
+        _time.Set(new DateTimeOffset(2026, 10, 26, 21, 30, 0, TimeSpan.Zero));
+        (await EshopAsync()).Products.Single().UnitPrice.ShouldBe(800m);
+
+        // 26. 10. 23:30 UTC = 27. 10. 00:30 v Praze → po akci.
+        _time.Set(new DateTimeOffset(2026, 10, 26, 23, 30, 0, TimeSpan.Zero));
+        CatalogProductDto after = (await EshopAsync()).Products.Single();
+        after.UnitPrice.ShouldBe(1000m);
+        after.RegularUnitPrice.ShouldBeNull();
+        after.DiscountPercent.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task Akce_nadrazene_kategorie_plati_i_v_podkategorii()
+    {
+        CatalogAdminDto catalog = await CreateCategoryAsync("vouchery");
+        Guid parentId = catalog.Categories.Single().Id;
+        catalog = await Handler<CreateCategoryCommand>(new CreateCategoryCommand(
+            new CreateCategoryRequest("darkove", parentId, Czech("Dárkové"), null, 0)));
+        Guid childId = catalog.Categories.Single(c => c.Code == "darkove").Id;
+        catalog = await CreateProductAsync("voucher-2-sloty", childId, Everywhere);
+        await SetPriceAsync(catalog.Products.Single().Id, 1000m);
+
+        await CreatePromotionAsync("Akce", parentId, 10, Today, Today);
+
+        CatalogDto eshop = await EshopAsync();
+        eshop.Products.Single().UnitPrice.ShouldBe(900m);
+        eshop.Categories.Single().Promotion.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task Prekryvajici_se_akce_na_stejnou_kategorii_nejdou_navazujici_ano()
+    {
+        Guid productId = await VoucherWithPriceAsync(1000m);
+        Guid categoryId = _repository.Products.Single(p => p.Id == productId).CategoryId;
+        await CreatePromotionAsync("Listopad", categoryId, 10, Today, Today.AddDays(6));
+
+        DomainException overlap = await Should.ThrowAsync<DomainException>(
+            () => CreatePromotionAsync("Black Friday", categoryId, 30, Today.AddDays(6), Today.AddDays(8)));
+        overlap.Code.ShouldBe("promotion.overlap");
+
+        CatalogAdminDto admin = await CreatePromotionAsync("Prosinec", categoryId, 20, Today.AddDays(7), Today.AddDays(30));
+        admin.Promotions.Count.ShouldBe(2);
+
+        // Ani úpravou se akce nesmí dostat do jiné.
+        Guid december = admin.Promotions.Single(p => p.Name["cs"] == "Prosinec").Id;
+        (await Should.ThrowAsync<DomainException>(() => Handler<UpdatePromotionCommand>(new UpdatePromotionCommand(
+                december, new PromotionRequest(Czech("Prosinec"), categoryId, 20, Today.AddDays(3), Today.AddDays(30))))))
+            .Code.ShouldBe("promotion.overlap");
+    }
+
+    [Fact]
+    public async Task Akci_jde_upravit_a_smazat_kategorii_s_akci_smazat_nejde()
+    {
+        Guid productId = await VoucherWithPriceAsync(1000m);
+        Guid categoryId = _repository.Products.Single(p => p.Id == productId).CategoryId;
+        CatalogAdminDto admin = await CreatePromotionAsync("Akce", categoryId, 10, Today, Today.AddDays(3));
+        Guid promotionId = admin.Promotions.Single().Id;
+
+        admin = await Handler<UpdatePromotionCommand>(new UpdatePromotionCommand(
+            promotionId, new PromotionRequest(Czech("Větší akce"), categoryId, 25, Today, Today.AddDays(5))));
+        admin.Promotions.Single().DiscountPercent.ShouldBe(25);
+        (await EshopAsync()).Products.Single().UnitPrice.ShouldBe(750m);
+
+        _repository.Products.Clear();
+        (await Should.ThrowAsync<DomainException>(() => Handler<DeleteCategoryCommand>(new DeleteCategoryCommand(categoryId))))
+            .Code.ShouldBe("category.has_promotions");
+
+        admin = await Handler<DeletePromotionCommand>(new DeletePromotionCommand(promotionId));
+        admin.Promotions.ShouldBeEmpty();
+    }
+
+    private Task<CatalogAdminDto> CreatePromotionAsync(string name, Guid categoryId, int percent, DateOnly from, DateOnly to) =>
+        Handler<CreatePromotionCommand>(new CreatePromotionCommand(new PromotionRequest(Czech(name), categoryId, percent, from, to)));
+
     private async Task<Guid> VoucherWithPriceAsync(decimal price)
     {
         CatalogAdminDto catalog = await CreateCategoryAsync("vouchery");
@@ -233,6 +348,9 @@ public sealed class CatalogAdminTests
             UpdateProductCommand c => new UpdateProductCommandHandler(loader).HandleAsync(c, ct),
             SetProductPriceCommand c => new SetProductPriceCommandHandler(loader).HandleAsync(c, ct),
             RemoveScheduledPriceCommand c => new RemoveScheduledPriceCommandHandler(loader).HandleAsync(c, ct),
+            CreatePromotionCommand c => new CreatePromotionCommandHandler(loader).HandleAsync(c, ct),
+            UpdatePromotionCommand c => new UpdatePromotionCommandHandler(loader).HandleAsync(c, ct),
+            DeletePromotionCommand c => new DeletePromotionCommandHandler(loader).HandleAsync(c, ct),
             _ => throw new NotSupportedException(typeof(TCommand).Name),
         };
     }

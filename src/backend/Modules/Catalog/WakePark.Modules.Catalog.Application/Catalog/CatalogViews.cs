@@ -3,6 +3,7 @@ using WakePark.Modules.Catalog.Contracts;
 using WakePark.Modules.Catalog.Domain.Categories;
 using WakePark.Modules.Catalog.Domain.Pricing;
 using WakePark.Modules.Catalog.Domain.Products;
+using WakePark.Modules.Catalog.Domain.Promotions;
 
 namespace WakePark.Modules.Catalog.Application.Catalog;
 
@@ -15,7 +16,10 @@ internal static class CatalogViews
 {
     private const string DefaultCurrency = "CZK";
 
-    /// <summary>E-shop: aktivní produkty pro e-shop s dnes platnou kladnou cenou.</summary>
+    /// <summary>
+    /// E-shop: aktivní produkty pro e-shop s dnes platnou kladnou cenou. V kategorii s dnešní
+    /// akcí (i zděděnou z nadřazené kategorie) je cena po slevě a původní cena vedle ní.
+    /// </summary>
     public static CatalogDto Eshop(CatalogSnapshot snapshot, DateOnly today)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
@@ -26,6 +30,7 @@ internal static class CatalogViews
         }
 
         Dictionary<Guid, ProductCategory> categories = snapshot.Categories.ToDictionary(c => c.Id);
+        Dictionary<Guid, Promotion> promotions = PromotionsByCategory(snapshot, categories, today);
 
         var offered = snapshot.Products
             .Where(p => p.IsOfferedIn(ProductChannels.Eshop) && categories.ContainsKey(p.CategoryId))
@@ -41,21 +46,38 @@ internal static class CatalogViews
             .. offered
                 .Select(x => categories[x.Product.CategoryId])
                 .DistinctBy(c => c.Id)
-                .Select(c => new CatalogCategoryDto(c.Code, c.Name.Translations)),
+                .Select(c => new CatalogCategoryDto(
+                    c.Code,
+                    c.Name.Translations,
+                    promotions.TryGetValue(c.Id, out Promotion? promotion)
+                        ? new CatalogPromotionDto(promotion.Name.Translations, promotion.DiscountPercent, promotion.ValidTo)
+                        : null)),
         ];
 
         List<CatalogProductDto> productDtos =
         [
-            .. offered.Select(x => new CatalogProductDto(
-                x.Product.Id,
-                x.Product.Code,
-                categories[x.Product.CategoryId].Code,
-                x.Product.Name.Translations,
-                x.Product.Description?.Translations ?? EmptyText,
-                x.Product.ImagePath,
-                x.Price!.UnitPrice,
-                priceList.Currency,
-                x.Price.VatRate)),
+            .. offered.Select(x =>
+            {
+                decimal regular = x.Price!.UnitPrice;
+                Promotion? promotion = promotions.GetValueOrDefault(x.Product.CategoryId);
+                decimal price = promotion?.Apply(regular) ?? regular;
+
+                // Sleva, která by cenu nezměnila (zaokrouhlení nahoru u levné položky), se neukazuje.
+                bool discounted = price < regular;
+
+                return new CatalogProductDto(
+                    x.Product.Id,
+                    x.Product.Code,
+                    categories[x.Product.CategoryId].Code,
+                    x.Product.Name.Translations,
+                    x.Product.Description?.Translations ?? EmptyText,
+                    x.Product.ImagePath,
+                    discounted ? price : regular,
+                    priceList.Currency,
+                    x.Price.VatRate,
+                    discounted ? regular : null,
+                    discounted ? promotion!.DiscountPercent : null);
+            }),
         ];
 
         return new CatalogDto(categoryDtos, productDtos);
@@ -148,10 +170,53 @@ internal static class CatalogViews
                         p.IsActive,
                         priceList?.PriceOn(p.Id, today) is { } current ? ToDto(current) : null,
                         priceList is null ? [] : [.. priceList.ScheduledPrices(p.Id, today).Select(ToDto)])),
+            ],
+            [
+                .. snapshot.Promotions
+                    .OrderByDescending(p => p.ValidFrom)
+                    .ThenBy(p => p.Name.ToString(), StringComparer.CurrentCulture)
+                    .Select(p => new AdminPromotionDto(
+                        p.Id, p.Name.Translations, p.CategoryId, p.DiscountPercent, p.ValidFrom, p.ValidTo)),
             ]);
     }
 
     private static PriceDto ToDto(PriceItem item) => new(item.UnitPrice, item.VatRate, item.ValidFrom);
+
+    /// <summary>
+    /// Dnešní akce pro každou kategorii: vlastní, jinak nejbližší nadřazené kategorie. Akce se
+    /// na jednu kategorii nepřekrývají (hlídá správa katalogu), takže je nejvýš jedna.
+    /// </summary>
+    private static Dictionary<Guid, Promotion> PromotionsByCategory(
+        CatalogSnapshot snapshot,
+        Dictionary<Guid, ProductCategory> categories,
+        DateOnly today)
+    {
+        Dictionary<Guid, Promotion> own = snapshot.Promotions
+            .Where(p => p.IsActiveOn(today))
+            .GroupBy(p => p.CategoryId)
+            .ToDictionary(g => g.Key, g => g.OrderBy(p => p.ValidFrom).First());
+
+        Dictionary<Guid, Promotion> result = [];
+        if (own.Count == 0)
+        {
+            return result;
+        }
+
+        foreach (ProductCategory category in categories.Values)
+        {
+            for (ProductCategory? current = category; current is not null;
+                 current = current.ParentId is { } parentId && categories.TryGetValue(parentId, out ProductCategory? parent) ? parent : null)
+            {
+                if (own.TryGetValue(current.Id, out Promotion? promotion))
+                {
+                    result[category.Id] = promotion;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
 
     private static readonly IReadOnlyDictionary<string, string> EmptyText = new Dictionary<string, string>();
 

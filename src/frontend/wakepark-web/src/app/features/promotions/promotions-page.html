@@ -1,0 +1,78 @@
+<header class="promotions__header">
+  <div>
+    <h1>Akční slevy</h1>
+    <p class="promotions__hint">
+      Sleva v procentech na celou kategorii, jen v e-shopu. Ceník na webu a pokladna se nemění, už prodané objednávky také ne.
+    </p>
+  </div>
+  <button mat-flat-button type="button" [disabled]="!catalog.hasValue()" (click)="open()">Nová akce</button>
+</header>
+
+@if (catalog.isLoading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (catalog.error()) {
+  <p class="promotions__error" role="alert">Akce se nepodařilo načíst. Zkuste to prosím znovu.</p>
+} @else if (catalog.hasValue() && isEmpty()) {
+  <p class="promotions__empty">Zatím žádná akce. Založte první tlačítkem „Nová akce“.</p>
+} @else {
+  @if (running().length > 0) {
+    <section class="group">
+      <h2 class="group__title">Právě probíhá</h2>
+      <ng-container *ngTemplateOutlet="list; context: { $implicit: running() }" />
+    </section>
+  }
+  @if (planned().length > 0) {
+    <section class="group">
+      <h2 class="group__title">Naplánované</h2>
+      <ng-container *ngTemplateOutlet="list; context: { $implicit: planned() }" />
+    </section>
+  }
+  @if (ended().length > 0) {
+    <section class="group group--ended">
+      <h2 class="group__title">Nedávno skončené</h2>
+      <ng-container *ngTemplateOutlet="list; context: { $implicit: ended() }" />
+    </section>
+  }
+}
+
+<ng-template #list let-rows>
+  <ul class="group__list">
+    @for (row of rows; track row.promotion.id) {
+      <li class="promotion" [attr.data-state]="row.state">
+        <span class="promotion__pct" aria-hidden="true">−{{ row.percent }} %</span>
+        <div class="promotion__body">
+          <div class="promotion__name">
+            <strong>{{ row.name }}</strong>
+            @if (row.lastDay) {
+              <span class="promotion__badge">dnes poslední den</span>
+            }
+          </div>
+          <div class="promotion__meta">
+            {{ row.category }} · sleva {{ row.percent }} % · {{ row.dates }}
+            @if (row.state !== 'ended') {
+              · {{ row.productCount === 1 ? '1 produkt' : row.productCount >= 2 && row.productCount <= 4 ? row.productCount + ' produkty' : row.productCount + ' produktů' }} v e-shopu
+            }
+          </div>
+          @if (row.nameEn) {
+            <div class="promotion__en">EN: {{ row.nameEn }}</div>
+          }
+
+          <div class="promotion__actions">
+            @if (confirming() === row.promotion.id) {
+              <span>Opravdu smazat?</span>
+              <button mat-button type="button" (click)="confirming.set(null)">Ne</button>
+              <button mat-flat-button type="button" class="promotion__confirm" [disabled]="removing()" (click)="remove(row)">Ano, smazat</button>
+            } @else {
+              @if (row.state !== 'ended') {
+                <button mat-stroked-button type="button" (click)="open(row.promotion)">Upravit</button>
+              }
+              <button mat-button type="button" [attr.aria-label]="'Smazat akci ' + row.name" (click)="confirming.set(row.promotion.id)">Smazat</button>
+            }
+          </div>
+        </div>
+      </li>
+    }
+  </ul>
+</ng-template>

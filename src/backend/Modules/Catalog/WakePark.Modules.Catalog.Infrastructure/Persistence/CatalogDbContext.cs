@@ -5,6 +5,7 @@ using WakePark.Modules.Catalog.Application.Abstractions;
 using WakePark.Modules.Catalog.Domain.Categories;
 using WakePark.Modules.Catalog.Domain.Pricing;
 using WakePark.Modules.Catalog.Domain.Products;
+using WakePark.Modules.Catalog.Domain.Promotions;
 
 namespace WakePark.Modules.Catalog.Infrastructure.Persistence;
 
@@ -21,6 +22,8 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     public DbSet<PriceList> PriceLists => Set<PriceList>();
 
     public DbSet<PriceItem> PriceItems => Set<PriceItem>();
+
+    public DbSet<Promotion> Promotions => Set<Promotion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

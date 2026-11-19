@@ -36,11 +36,28 @@
             {
                 <section class="card" id="@category.Code">
                     <h2>@category.Name.Resolve(lang)</h2>
+                    @if (category.Promotion is { } promotion)
+                    {
+                        <div class="promo">
+                            <span class="promo-pct" aria-hidden="true">@string.Format(SiteView.Culture, T["PromoBadge"].Value, promotion.DiscountPercent)</span>
+                            <p class="promo-text">
+                                <b>@promotion.Name.Resolve(lang)</b>
+                                <span>@string.Format(SiteView.Culture, T["PromoDiscount"].Value, promotion.DiscountPercent)
+                                    · @(promotion.ValidTo == Model.Today
+                                        ? T["PromoLastDay"].Value
+                                        : string.Format(SiteView.Culture, T["PromoUntil"].Value, promotion.ValidTo.ToString(T["PromoDateFormat"].Value, SiteView.Culture)))</span>
+                            </p>
+                        </div>
+                    }
                     <ul class="products">
                         @foreach (EshopProduct product in Model.ProductsIn(category))
                         {
                             string inputId = $"q-{product.Code}";
-                            <li class="product" id="@product.Code">
+                            <li class="product@(product.DiscountPercent is not null ? " on-sale" : null)" id="@product.Code">
+                                @if (product.DiscountPercent is { } discount)
+                                {
+                                    <span class="sale-tag">@string.Format(SiteView.Culture, T["PromoBadge"].Value, discount)</span>
+                                }
                                 @if (product.ImagePath is not null)
                                 {
                                     <img src="@product.ImagePath" alt="" width="400" height="250" loading="lazy">
@@ -50,7 +67,13 @@
                                 {
                                     <p class="desc">@description</p>
                                 }
-                                <p class="price">@SiteView.Price(product.UnitPrice) <span>@T["InclVat"]</span></p>
+                                <p class="price">
+                                    @if (product.RegularUnitPrice is { } regular)
+                                    {
+                                        <s><span class="visually-hidden">@T["RegularPrice"] </span>@SiteView.Price(regular)</s>
+                                    }
+                                    <b>@SiteView.Price(product.UnitPrice)</b> <span>@T["InclVat"]</span>
+                                </p>
                                 <label class="qty" for="@inputId">@T["Quantity"]
                                     <span class="stepper">
                                         <input id="@inputId" type="number" name="Quantities[@product.Id]"

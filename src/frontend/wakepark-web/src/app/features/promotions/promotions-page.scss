@@ -1,0 +1,127 @@
+.promotions {
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    h1 {
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  &__hint {
+    max-width: 40rem;
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__error {
+    color: var(--mat-sys-error);
+  }
+
+  &__empty {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.group {
+  max-width: 44rem;
+  margin-bottom: 1.5rem;
+
+  &__title {
+    margin: 0 0 0.5rem;
+    font: var(--mat-sys-title-medium);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &--ended .promotion {
+    opacity: 0.7;
+  }
+}
+
+.promotion {
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 0.75rem;
+  background: var(--mat-sys-surface);
+
+  &[data-state='running'] {
+    border-color: #e50051;
+    box-shadow: inset 4px 0 0 #e50051;
+  }
+
+  &__pct {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e50051, #ff9a00);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  [data-state='ended'] &__pct {
+    background: var(--mat-sys-surface-container-highest);
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font: var(--mat-sys-title-small);
+  }
+
+  &__badge {
+    padding: 0.125rem 0.5rem;
+    border-radius: 1rem;
+    background: #fff1c2;
+    color: #6b4e00;
+    font: var(--mat-sys-label-medium);
+  }
+
+  &__meta,
+  &__en {
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-medium);
+  }
+
+  &__en {
+    font: var(--mat-sys-body-small);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__confirm {
+    --mat-button-filled-container-color: var(--mat-sys-error);
+    --mat-button-filled-label-text-color: var(--mat-sys-on-error);
+  }
+}

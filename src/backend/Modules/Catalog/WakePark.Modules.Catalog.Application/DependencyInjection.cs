@@ -31,6 +31,9 @@ public static class DependencyInjection
         services.AddScoped<ICommandHandler<SetProductPriceCommand, CatalogAdminDto>, SetProductPriceCommandHandler>();
         services.AddScoped<ICommandHandler<RemoveScheduledPriceCommand, CatalogAdminDto>, RemoveScheduledPriceCommandHandler>();
         services.AddScoped<ICommandHandler<SetPriceListTitleCommand, CatalogAdminDto>, SetPriceListTitleCommandHandler>();
+        services.AddScoped<ICommandHandler<CreatePromotionCommand, CatalogAdminDto>, CreatePromotionCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdatePromotionCommand, CatalogAdminDto>, UpdatePromotionCommandHandler>();
+        services.AddScoped<ICommandHandler<DeletePromotionCommand, CatalogAdminDto>, DeletePromotionCommandHandler>();
 
         return services;
     }

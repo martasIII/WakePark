@@ -1,0 +1,93 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Upravit akci' : 'Nová akce' }}</h2>
+
+<mat-dialog-content>
+  <div class="grid">
+    <mat-form-field class="wide" subscriptSizing="dynamic">
+      <mat-label>Název akce</mat-label>
+      <input matInput [maxlength]="nameMaxLength" [ngModel]="nameCs()" (ngModelChange)="nameCs.set($event)" required cdkFocusInitial />
+      <mat-hint>Uvidí ho zákazníci v e-shopu, např. „Vánoční akce“.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field class="wide" subscriptSizing="dynamic">
+      <mat-label>Název anglicky (nepovinné)</mat-label>
+      <input matInput [maxlength]="nameMaxLength" [ngModel]="nameEn()" (ngModelChange)="nameEn.set($event)" />
+      <mat-hint>Bez něj se na anglickém webu ukáže český název.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field class="wide" subscriptSizing="dynamic">
+      <mat-label>Kategorie</mat-label>
+      <mat-select [value]="categoryId()" (valueChange)="categoryId.set($event)" required>
+        @for (category of categories; track category.id) {
+          <mat-option [value]="category.id">{{ category.label }}</mat-option>
+        }
+      </mat-select>
+      <mat-hint>Sleva platí na všechny produkty kategorie i podkategorií.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Sleva</mat-label>
+      <input
+        matInput
+        type="number"
+        inputmode="numeric"
+        [min]="minPercent"
+        [max]="maxPercent"
+        step="1"
+        [ngModel]="percent()"
+        (ngModelChange)="percent.set($event === '' || $event === null ? null : +$event)"
+        required
+      />
+      <span matTextSuffix>%</span>
+    </mat-form-field>
+
+    <span></span>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Od</mat-label>
+      <input matInput type="date" [min]="today" [ngModel]="validFrom()" (ngModelChange)="setValidFrom($event)" required />
+    </mat-form-field>
+
+    <mat-form-field subscriptSizing="dynamic">
+      <mat-label>Do (včetně)</mat-label>
+      <input matInput type="date" [min]="validFrom() > today ? validFrom() : today" [ngModel]="validTo()" (ngModelChange)="validTo.set($event)" required />
+    </mat-form-field>
+  </div>
+
+  <p class="note">Akce začíná o půlnoci prvního dne a končí o půlnoci po posledním dni. Platí jen v e-shopu.</p>
+
+  @if (percent() !== null && !percentValid()) {
+    <p class="error">Sleva musí být celé číslo od {{ minPercent }} do {{ maxPercent }} %.</p>
+  }
+  @if (!rangeValid()) {
+    <p class="error">Konec akce musí být nejdřív v den začátku.</p>
+  }
+
+  <section class="preview" aria-label="Náhled cen">
+    <h3>Ceny v e-shopu</h3>
+    @if (preview().length === 0) {
+      <p class="note">V této kategorii teď v e-shopu nic není.</p>
+    } @else {
+      <ul>
+        @for (row of preview(); track row.id) {
+          <li>
+            <span class="preview__name">{{ row.name }}</span>
+            @if (row.sale && !row.same) {
+              <s>{{ row.regular }}</s> <strong>{{ row.sale }}</strong>
+            } @else {
+              <span>{{ row.regular }}</span>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  @if (error(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Zrušit</button>
+  <button mat-flat-button type="button" [disabled]="!canSave()" (click)="save()">{{ isEdit ? 'Uložit' : 'Vytvořit akci' }}</button>
+</mat-dialog-actions>

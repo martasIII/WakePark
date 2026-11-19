@@ -103,6 +103,46 @@ public sealed class EshopPageTests(WebApplicationFactory<Program> factory)
         api.RequestedUris.Count.ShouldBe(1);
     }
 
+    /// <summary>Akce (ADR 0014): pruh s názvem v kategorii, přeškrtnutá cena a štítek se slevou.</summary>
+    [Fact]
+    public async Task Akce_ukaze_nazev_preskrtnutou_cenu_a_stitek()
+    {
+        const string catalog = """
+            {
+              "categories": [ { "code": "vouchery", "name": { "cs": "Vouchery" },
+                                "promotion": { "name": { "cs": "Vánoční akce" }, "discountPercent": 15, "validTo": "2099-12-31" } } ],
+              "products": [
+                { "id": "01990000-0000-7000-8000-0000000000c1", "code": "voucher-2-sloty", "categoryCode": "vouchery",
+                  "name": { "cs": "Voucher pro dva" }, "description": null, "imagePath": null,
+                  "unitPrice": 1267, "currency": "CZK", "vatRate": 12, "regularUnitPrice": 1490, "discountPercent": 15 }
+              ]
+            }
+            """;
+
+        string html = await GetEshopAsync(new StubHandler(HttpStatusCode.OK, catalog));
+
+        html.ShouldContain("<div class=\"promo\">");
+        html.ShouldContain("<b>Vánoční akce</b>");
+        html.ShouldContain("platí do 31. 12. 2099");
+        html.ShouldContain("class=\"product on-sale\"");
+        html.ShouldContain("<span class=\"sale-tag\">−15 %</span>");
+        // Mezery v ceně jsou nezlomitelné (tisíce i před „Kč“).
+        html.ShouldMatch(@"<s><span class=""visually-hidden"">Původní cena </span>1\s490\sKč</s>");
+        html.ShouldMatch(@"<b>1\s267\sKč</b>");
+        // Průběžný součet ve skriptu počítá s cenou po slevě.
+        html.ShouldContain("data-price=\"1267\"");
+    }
+
+    [Fact]
+    public async Task Bez_akce_neni_pruh_ani_preskrtnuta_cena()
+    {
+        string html = await GetEshopAsync(new StubHandler(HttpStatusCode.OK, CatalogJson));
+
+        html.ShouldNotContain("class=\"promo\"");
+        html.ShouldNotContain("sale-tag");
+        html.ShouldNotContain("<s>");
+    }
+
     [Theory]
     [InlineData(HttpStatusCode.InternalServerError, "")]
     [InlineData(HttpStatusCode.OK, "tohle není JSON")]

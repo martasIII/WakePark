@@ -4,13 +4,25 @@ namespace WakePark.Modules.Catalog.Contracts;
 /// Nabídka e-shopu: kategorie a aktivní produkty s cenou, seřazené tak, jak se mají zobrazit.
 /// Texty jsou slovníky jazyk → text; výběr jazyka je věc klienta.
 /// </summary>
+/// <remarks>
+/// <c>UnitPrice</c> je cena, za kterou se dnes prodává — v akci už po slevě. Původní cena je pak
+/// v <c>RegularUnitPrice</c> a sleva v <c>DiscountPercent</c>; mimo akci jsou obě null.
+/// </remarks>
 public sealed record CatalogDto(
     IReadOnlyList<CatalogCategoryDto> Categories,
     IReadOnlyList<CatalogProductDto> Products);
 
+/// <summary>Kategorie e-shopu. <c>Promotion</c> = dnes v ní běží akční sleva (i z nadřazené kategorie).</summary>
 public sealed record CatalogCategoryDto(
     string Code,
-    IReadOnlyDictionary<string, string> Name);
+    IReadOnlyDictionary<string, string> Name,
+    CatalogPromotionDto? Promotion = null);
+
+/// <summary>Akční sleva v e-shopu: název, procento a poslední den (včetně, čas areálu).</summary>
+public sealed record CatalogPromotionDto(
+    IReadOnlyDictionary<string, string> Name,
+    int DiscountPercent,
+    DateOnly ValidTo);
 
 public sealed record CatalogProductDto(
     Guid Id,
@@ -21,7 +33,9 @@ public sealed record CatalogProductDto(
     string? ImagePath,
     decimal UnitPrice,
     string Currency,
-    decimal VatRate);
+    decimal VatRate,
+    decimal? RegularUnitPrice = null,
+    int? DiscountPercent = null);
 
 /// <summary>Ceník na webu: sekce (kategorie) s podsekcemi a položkami s dnes platnou cenou.</summary>
 public sealed record PublicPriceListDto(

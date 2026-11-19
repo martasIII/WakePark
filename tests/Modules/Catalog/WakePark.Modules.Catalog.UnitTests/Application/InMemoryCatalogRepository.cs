@@ -6,6 +6,7 @@ using WakePark.Modules.Catalog.Application.Abstractions;
 using WakePark.Modules.Catalog.Domain.Categories;
 using WakePark.Modules.Catalog.Domain.Pricing;
 using WakePark.Modules.Catalog.Domain.Products;
+using WakePark.Modules.Catalog.Domain.Promotions;
 
 namespace WakePark.Modules.Catalog.UnitTests.Application;
 
@@ -21,6 +22,11 @@ internal sealed class InMemoryCatalogRepository : ICatalogRepository, ICatalogRe
 
     public List<PriceList> PriceLists { get; } = [];
 
+    public List<Promotion> Promotions { get; } = [];
+
+    public Task<IReadOnlyList<Promotion>> GetPromotionsAsync(Guid enterpriseId, CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<Promotion>>([.. Promotions.Where(p => p.EnterpriseId == enterpriseId)]);
+
     public Task<IReadOnlyList<ProductCategory>> GetCategoriesAsync(Guid enterpriseId, CancellationToken cancellationToken = default) =>
         Task.FromResult<IReadOnlyList<ProductCategory>>([.. Categories.Where(c => c.EnterpriseId == enterpriseId)]);
 
@@ -34,7 +40,8 @@ internal sealed class InMemoryCatalogRepository : ICatalogRepository, ICatalogRe
         new(
             await GetCategoriesAsync(enterpriseId, cancellationToken),
             await GetProductsAsync(enterpriseId, cancellationToken),
-            await GetActivePriceListAsync(enterpriseId, cancellationToken));
+            await GetActivePriceListAsync(enterpriseId, cancellationToken),
+            await GetPromotionsAsync(enterpriseId, cancellationToken));
 
     public void Add(ProductCategory category) => Categories.Add(category);
 
@@ -42,7 +49,11 @@ internal sealed class InMemoryCatalogRepository : ICatalogRepository, ICatalogRe
 
     public void Add(PriceList priceList) => PriceLists.Add(priceList);
 
+    public void Add(Promotion promotion) => Promotions.Add(promotion);
+
     public void Remove(ProductCategory category) => Categories.Remove(category);
+
+    public void Remove(Promotion promotion) => Promotions.Remove(promotion);
 }
 
 /// <summary>Hodiny pro testy, které se dají posunout.</summary>

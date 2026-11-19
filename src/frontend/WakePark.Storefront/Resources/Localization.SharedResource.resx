@@ -61,6 +61,12 @@
   <data name="PiecesFew" xml:space="preserve"><value>{0} kusy</value></data>
   <data name="PiecesOther" xml:space="preserve"><value>{0} kusů</value></data>
   <data name="ContinueToOrder" xml:space="preserve"><value>Pokračovat k objednávce</value></data>
+  <data name="PromoBadge" xml:space="preserve"><value>−{0} %</value></data>
+  <data name="PromoDiscount" xml:space="preserve"><value>sleva {0} % na celou nabídku níže</value></data>
+  <data name="PromoUntil" xml:space="preserve"><value>platí do {0}</value></data>
+  <data name="PromoLastDay" xml:space="preserve"><value>dnes je poslední den!</value></data>
+  <data name="PromoDateFormat" xml:space="preserve"><value>d. M. yyyy</value></data>
+  <data name="RegularPrice" xml:space="preserve"><value>Původní cena</value></data>
   <data name="Total" xml:space="preserve"><value>Celkem</value></data>
   <data name="VatIncluded" xml:space="preserve"><value>z toho DPH</value></data>
   <data name="SaveThisPage" xml:space="preserve"><value>Odkaz na tuto stránku si uložte, najdete na ní stav objednávky. S dotazy volejte</value></data>

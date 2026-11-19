@@ -11,7 +11,25 @@ public sealed record CatalogAdminDto(
     string Currency,
     IReadOnlyDictionary<string, string>? PriceListTitle,
     IReadOnlyList<AdminCategoryDto> Categories,
-    IReadOnlyList<AdminProductDto> Products);
+    IReadOnlyList<AdminProductDto> Products,
+    IReadOnlyList<AdminPromotionDto> Promotions);
+
+/// <summary>Akční sleva (jen e-shop): procento na kategorii, celé dny od–do včetně.</summary>
+public sealed record AdminPromotionDto(
+    Guid Id,
+    IReadOnlyDictionary<string, string> Name,
+    Guid CategoryId,
+    int DiscountPercent,
+    DateOnly ValidFrom,
+    DateOnly ValidTo);
+
+/// <summary>Nová nebo upravená akce. Název česky povinný, anglicky volitelný.</summary>
+public sealed record PromotionRequest(
+    IReadOnlyDictionary<string, string> Name,
+    Guid CategoryId,
+    int DiscountPercent,
+    DateOnly ValidFrom,
+    DateOnly ValidTo);
 
 public sealed record AdminCategoryDto(
     Guid Id,

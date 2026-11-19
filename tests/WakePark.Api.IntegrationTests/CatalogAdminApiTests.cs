@@ -95,6 +95,41 @@ public sealed class CatalogAdminApiTests : IAsyncLifetime
         priceList.Sections.Single().Description!["cs"].ShouldBe("Pošleme e-mailem.");
     }
 
+    /// <summary>Akční sleva (ADR 0014) celou cestou: založení v backoffice, cena v e-shopu, překryv 422.</summary>
+    [Fact]
+    public async Task Akce_zlevni_e_shop_ale_ne_cenik_a_prekryv_vrati_422()
+    {
+        using HttpClient client = CreateClient();
+        await SignInAsync(client);
+
+        CatalogAdminDto catalog = await SendAsync(client, HttpMethod.Post, "/api/v1/catalog/admin/categories",
+            new CreateCategoryRequest("vouchery", null, Czech("Vouchery"), null, 0));
+        Guid categoryId = catalog.Categories.Single().Id;
+        catalog = await SendAsync(client, HttpMethod.Post, "/api/v1/catalog/admin/products",
+            new CreateProductRequest("voucher-2-sloty", categoryId, Czech("Voucher pro dva"), null, null, null, 0,
+                new ProductVisibilityDto(PriceList: true, Eshop: true, Pos: true)));
+        await SendAsync(client, HttpMethod.Put, $"/api/v1/catalog/admin/products/{catalog.Products.Single().Id}/price",
+            new SetPriceRequest(1490m, 12m, null));
+
+        catalog = await SendAsync(client, HttpMethod.Post, "/api/v1/catalog/admin/promotions",
+            new PromotionRequest(Czech("Vánoční akce"), categoryId, 15, catalog.Today, catalog.Today.AddDays(7)));
+        catalog.Promotions.Single().DiscountPercent.ShouldBe(15);
+
+        CatalogDto eshop = (await client.GetFromJsonAsync<CatalogDto>(
+            new Uri($"/api/v1/catalog/enterprises/{EnterpriseId}", UriKind.Relative), TestContext.Current.CancellationToken))!;
+        eshop.Products.Single().UnitPrice.ShouldBe(1267m);
+        eshop.Products.Single().RegularUnitPrice.ShouldBe(1490m);
+        eshop.Categories.Single().Promotion!.Name["cs"].ShouldBe("Vánoční akce");
+
+        PublicPriceListDto priceList = (await client.GetFromJsonAsync<PublicPriceListDto>(
+            new Uri($"/api/v1/catalog/enterprises/{EnterpriseId}/price-list", UriKind.Relative), TestContext.Current.CancellationToken))!;
+        priceList.Sections.Single().Items.Single().UnitPrice.ShouldBe(1490m);
+
+        HttpResponseMessage overlap = await RawSendAsync(client, HttpMethod.Post, "/api/v1/catalog/admin/promotions",
+            new PromotionRequest(Czech("Black Friday"), categoryId, 30, catalog.Today.AddDays(3), catalog.Today.AddDays(4)));
+        overlap.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
+    }
+
     [Fact]
     public async Task Porusene_pravidlo_vrati_422_a_neznamy_produkt_404()
     {

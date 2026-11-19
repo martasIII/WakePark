@@ -4,6 +4,7 @@ using WakePark.Modules.Catalog.Application.Abstractions;
 using WakePark.Modules.Catalog.Domain.Categories;
 using WakePark.Modules.Catalog.Domain.Pricing;
 using WakePark.Modules.Catalog.Domain.Products;
+using WakePark.Modules.Catalog.Domain.Promotions;
 
 namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Repositories;
 
@@ -30,6 +31,11 @@ internal sealed class CatalogReadRepository(CatalogDbContext dbContext) : ICatal
             .FirstOrDefaultAsync(p => p.EnterpriseId == enterpriseId && p.IsActive, cancellationToken)
             .ConfigureAwait(false);
 
-        return new CatalogSnapshot(categories, products, priceList);
+        List<Promotion> promotions = await dbContext.Promotions.AsNoTracking()
+            .Where(p => p.EnterpriseId == enterpriseId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        return new CatalogSnapshot(categories, products, priceList, promotions);
     }
 }

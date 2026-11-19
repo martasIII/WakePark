@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 
 using WakePark.Storefront.Eshop;
 using WakePark.Storefront.Infrastructure;
@@ -16,8 +17,14 @@ public sealed partial class EshopModel(
     OrderClient orderClient,
     CompanyClient companyClient,
     IStringLocalizer<SharedResource> text,
+    IOptions<StorefrontOptions> options,
+    TimeProvider clock,
     ILogger<EshopModel> logger) : PageModel
 {
+    /// <summary>Dnešní datum v čase areálu — akce končí o půlnoci (ADR 0014).</summary>
+    public DateOnly Today => DateOnly.FromDateTime(
+        TimeZoneInfo.ConvertTime(clock.GetUtcNow(), TimeZoneInfo.FindSystemTimeZoneById(options.Value.TimeZoneId)).DateTime);
+
     /// <summary>Null, když API neodpovídá nebo e-shop není nastavený — stránka pak ukáže telefon.</summary>
     public EshopCatalog? Catalog { get; private set; }
 

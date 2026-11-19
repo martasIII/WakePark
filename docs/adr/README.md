@@ -21,3 +21,4 @@ Rozhodnutí se **nepřepisují**. Když se změní, přidá se nové ADR, které
 | [0011](0011-backoffice-angular-material-typy-z-openapi.md) | Backoffice: Angular Material, typy z OpenAPI, rozložení podle rolí | Přijato |
 | [0012](0012-prehled-objednavek-v-backoffice.md) | Přehled objednávek e-shopu v backoffice (jen čtení) | Přijato |
 | [0013](0013-testovaci-prostredi-uat.md) | Testovací prostředí UAT s kopií ostrých dat, jen pro Admina | Přijato |
+| [0014](0014-akcni-slevy-v-e-shopu.md) | Akční slevy v e-shopu: procento na kategorii, celé dny, bez překryvu | Přijato |

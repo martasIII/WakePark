@@ -157,6 +157,36 @@ public sealed class OrdersAdminApiTests : IAsyncLifetime
         unknown.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
+    /// <summary>Akce (ADR 0014): objednávka si vezme cenu po slevě a drží ji i po smazání akce.</summary>
+    [Fact]
+    public async Task Objednavka_v_akci_ma_cenu_po_sleve_a_akce_ji_pozdeji_nezmeni()
+    {
+        using HttpClient client = CreateClient();
+        await SignInAsync(client);
+        string xsrf = await XsrfTokenAsync(client);
+
+        CatalogAdminDto catalog = (await client.GetFromJsonAsync<CatalogAdminDto>(
+            new Uri("/api/v1/catalog/admin", UriKind.Relative), TestContext.Current.CancellationToken))!;
+        using HttpRequestMessage create = new(HttpMethod.Post, new Uri("/api/v1/catalog/admin/promotions", UriKind.Relative))
+        {
+            Content = JsonContent.Create(new PromotionRequest(
+                new Dictionary<string, string> { ["cs"] = "Vánoční akce" }, catalog.Categories.Single().Id, 15, catalog.Today, catalog.Today)),
+        };
+        create.Headers.Add("X-XSRF-TOKEN", xsrf);
+        catalog = (await (await client.SendAsync(create, TestContext.Current.CancellationToken))
+            .Content.ReadFromJsonAsync<CatalogAdminDto>(TestContext.Current.CancellationToken))!;
+
+        PlacedOrderDto order = await PlaceOrderAsync(client, "Jana Nováková", "jana@example.cz", 2, ["", ""]);
+
+        using HttpRequestMessage remove = new(HttpMethod.Delete, new Uri($"/api/v1/catalog/admin/promotions/{catalog.Promotions.Single().Id}", UriKind.Relative));
+        remove.Headers.Add("X-XSRF-TOKEN", xsrf);
+        (await client.SendAsync(remove, TestContext.Current.CancellationToken)).StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // 990 Kč − 15 % = 841,50 → 842 Kč za kus, 2 kusy.
+        OrderAdminDetailDto detail = await GetAsync<OrderAdminDetailDto>(client, $"/api/v1/billing/admin/orders/{order.Number}");
+        detail.TotalGross.ShouldBe(1684m);
+    }
+
     private static DateOnly Today => DateOnly.FromDateTime(DateTime.UtcNow);
 
     private static string Vs(PlacedOrderDto order) => order.Number.ToString(System.Globalization.CultureInfo.InvariantCulture);

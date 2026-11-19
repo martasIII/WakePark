@@ -11,7 +11,10 @@ namespace WakePark.Storefront.Eshop;
 /// </summary>
 public sealed record EshopCatalog(IReadOnlyList<EshopCategory> Categories, IReadOnlyList<EshopProduct> Products);
 
-public sealed record EshopCategory(string Code, LocalizedText Name);
+public sealed record EshopCategory(string Code, LocalizedText Name, EshopPromotion? Promotion = null);
+
+/// <summary>Akční sleva v kategorii: název, procento a poslední den (včetně, čas areálu).</summary>
+public sealed record EshopPromotion(LocalizedText Name, int DiscountPercent, DateOnly ValidTo);
 
 public sealed record EshopProduct(
     Guid Id,
@@ -22,7 +25,9 @@ public sealed record EshopProduct(
     string? ImagePath,
     decimal UnitPrice,
     string Currency,
-    decimal VatRate);
+    decimal VatRate,
+    decimal? RegularUnitPrice = null,
+    int? DiscountPercent = null);
 
 /// <summary>Ceník na webu (<c>GET …/price-list</c>): sekce s podsekcemi, ceny platné dnes.</summary>
 public sealed record WebPriceList(LocalizedText? Title, string Currency, IReadOnlyList<WebPriceSection> Sections);

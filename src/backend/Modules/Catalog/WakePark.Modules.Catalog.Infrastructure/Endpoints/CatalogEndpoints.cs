@@ -129,6 +129,34 @@ public static class CatalogEndpoints
             .WithName("SetPriceListTitle")
             .WithSummary("Podtitulek ceníku na webu")
             .Produces<CatalogAdminDto>();
+
+        admin.MapPost("/promotions", (PromotionRequest request, ICommandHandler<CreatePromotionCommand, CatalogAdminDto> handler, CancellationToken ct) =>
+                Ok(handler.HandleAsync(new CreatePromotionCommand(request), ct)))
+            .WithName("CreatePromotion")
+            .WithSummary("Nová akční sleva (e-shop)")
+            .WithDescription("""
+                Procento (1–90) z ceny všech produktů kategorie i podkategorií, celé dny od–do včetně
+                (čas areálu). Cena po slevě se zaokrouhlí na koruny nahoru. Na stejnou kategorii se
+                akce nesmí časově překrývat (422). Ceník na webu ani pokladna akci neznají.
+                """)
+            .Produces<CatalogAdminDto>()
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+
+        admin.MapPut("/promotions/{promotionId:guid}", (Guid promotionId, PromotionRequest request, ICommandHandler<UpdatePromotionCommand, CatalogAdminDto> handler, CancellationToken ct) =>
+                Ok(handler.HandleAsync(new UpdatePromotionCommand(promotionId, request), ct)))
+            .WithName("UpdatePromotion")
+            .WithSummary("Úprava akční slevy")
+            .WithDescription("Prodané objednávky mají cenu zamrazenou, změna platí pro další nákupy.")
+            .Produces<CatalogAdminDto>()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+
+        admin.MapDelete("/promotions/{promotionId:guid}", (Guid promotionId, ICommandHandler<DeletePromotionCommand, CatalogAdminDto> handler, CancellationToken ct) =>
+                Ok(handler.HandleAsync(new DeletePromotionCommand(promotionId), ct)))
+            .WithName("DeletePromotion")
+            .WithSummary("Smazání akční slevy")
+            .Produces<CatalogAdminDto>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
     private static async Task<IResult> Ok<T>(Task<T> result) => Results.Ok(await result.ConfigureAwait(false));

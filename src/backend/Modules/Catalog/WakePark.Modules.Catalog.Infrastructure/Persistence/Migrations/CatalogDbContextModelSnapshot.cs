@@ -271,6 +271,65 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                     b.ToTable("products", "catalog");
                 });
 
+            modelBuilder.Entity("WakePark.Modules.Catalog.Domain.Promotions.Promotion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("DiscountPercent")
+                        .HasColumnType("integer")
+                        .HasColumnName("discount_percent");
+
+                    b.Property<Guid>("EnterpriseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("enterprise_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("name");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at_utc");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_from");
+
+                    b.Property<DateOnly>("ValidTo")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_to");
+
+                    b.HasKey("Id")
+                        .HasName("pk_promotions");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_promotions_category_id");
+
+                    b.HasIndex("EnterpriseId", "ValidTo")
+                        .HasDatabaseName("ix_promotions_enterprise_id_valid_to");
+
+                    b.ToTable("promotions", "catalog");
+                });
+
             modelBuilder.Entity("WakePark.Modules.Catalog.Domain.Categories.ProductCategory", b =>
                 {
                     b.HasOne("WakePark.Modules.Catalog.Domain.Categories.ProductCategory", null)
@@ -305,6 +364,16 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_products_product_categories_category_id");
+                });
+
+            modelBuilder.Entity("WakePark.Modules.Catalog.Domain.Promotions.Promotion", b =>
+                {
+                    b.HasOne("WakePark.Modules.Catalog.Domain.Categories.ProductCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_promotions_product_categories_category_id");
                 });
 
             modelBuilder.Entity("WakePark.Modules.Catalog.Domain.Pricing.PriceList", b =>

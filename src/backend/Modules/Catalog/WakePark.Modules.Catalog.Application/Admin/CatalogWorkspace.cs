@@ -8,6 +8,7 @@ using WakePark.Modules.Catalog.Domain.Categories;
 using WakePark.Modules.Catalog.Domain.Common;
 using WakePark.Modules.Catalog.Domain.Pricing;
 using WakePark.Modules.Catalog.Domain.Products;
+using WakePark.Modules.Catalog.Domain.Promotions;
 
 namespace WakePark.Modules.Catalog.Application.Admin;
 
@@ -26,6 +27,7 @@ internal sealed class CatalogWorkspace
     private readonly ICatalogUnitOfWork _unitOfWork;
     private readonly List<ProductCategory> _categories;
     private readonly List<Product> _products;
+    private readonly List<Promotion> _promotions;
 
     private CatalogWorkspace(
         ICatalogRepository repository,
@@ -34,7 +36,8 @@ internal sealed class CatalogWorkspace
         DateOnly today,
         List<ProductCategory> categories,
         List<Product> products,
-        PriceList? priceList)
+        PriceList? priceList,
+        List<Promotion> promotions)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
@@ -43,6 +46,7 @@ internal sealed class CatalogWorkspace
         _categories = categories;
         _products = products;
         PriceList = priceList;
+        _promotions = promotions;
     }
 
     public Guid EnterpriseId { get; }
@@ -54,6 +58,8 @@ internal sealed class CatalogWorkspace
     public IReadOnlyList<Product> Products => _products;
 
     public PriceList? PriceList { get; private set; }
+
+    public IReadOnlyList<Promotion> Promotions => _promotions;
 
     public static async Task<CatalogWorkspace> LoadAsync(
         ICatalogRepository repository,
@@ -71,9 +77,10 @@ internal sealed class CatalogWorkspace
         IReadOnlyList<ProductCategory> categories = await repository.GetCategoriesAsync(enterpriseId, cancellationToken).ConfigureAwait(false);
         IReadOnlyList<Product> products = await repository.GetProductsAsync(enterpriseId, cancellationToken).ConfigureAwait(false);
         PriceList? priceList = await repository.GetActivePriceListAsync(enterpriseId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<Promotion> promotions = await repository.GetPromotionsAsync(enterpriseId, cancellationToken).ConfigureAwait(false);
 
         return new CatalogWorkspace(
-            repository, unitOfWork, enterpriseId, calendar.Today, [.. categories], [.. products], priceList);
+            repository, unitOfWork, enterpriseId, calendar.Today, [.. categories], [.. products], priceList, [.. promotions]);
     }
 
     public ProductCategory Category(Guid id) =>
@@ -81,6 +88,44 @@ internal sealed class CatalogWorkspace
 
     public Product Product(Guid id) =>
         _products.Find(p => p.Id == id) ?? throw new NotFoundException("Produkt nenalezen.");
+
+    public Promotion Promotion(Guid id) =>
+        _promotions.Find(p => p.Id == id) ?? throw new NotFoundException("Akce nenalezena.");
+
+    /// <summary>
+    /// Nová akce. Kategorie musí patřit provozovateli a na stejnou kategorii nesmí ve stejné
+    /// dny běžet jiná akce — zákazník by nevěděl, která sleva platí.
+    /// </summary>
+    public void Add(Promotion promotion)
+    {
+        ArgumentNullException.ThrowIfNull(promotion);
+        EnsurePromotionFits(promotion);
+        _promotions.Add(promotion);
+        _repository.Add(promotion);
+    }
+
+    /// <summary>Kontrola po úpravě akce: kategorie existuje a nepřekrývá se s jinou.</summary>
+    public void EnsurePromotionFits(Promotion promotion)
+    {
+        ArgumentNullException.ThrowIfNull(promotion);
+
+        ProductCategory category = _categories.Find(c => c.Id == promotion.CategoryId)
+            ?? throw new DomainException("promotion.category_not_found", "Kategorie akce neexistuje.");
+
+        if (_promotions.Find(promotion.Overlaps) is { } clash)
+        {
+            throw new DomainException(
+                "promotion.overlap",
+                $"Na kategorii „{category.Name}“ už ve stejné dny běží akce „{clash.Name}“ "
+                + $"({clash.ValidFrom:d. M. yyyy} – {clash.ValidTo:d. M. yyyy}).");
+        }
+    }
+
+    public void Remove(Promotion promotion)
+    {
+        _promotions.Remove(promotion);
+        _repository.Remove(promotion);
+    }
 
     public void Add(ProductCategory category)
     {
@@ -103,6 +148,11 @@ internal sealed class CatalogWorkspace
         if (_categories.Exists(c => c.ParentId == category.Id))
         {
             throw new DomainException("category.has_children", "Kategorie má podkategorie — nejdřív je přesuňte nebo smažte.");
+        }
+
+        if (_promotions.Exists(p => p.CategoryId == category.Id))
+        {
+            throw new DomainException("category.has_promotions", "Na kategorii jsou akce — nejdřív je smažte.");
         }
 
         _categories.Remove(category);
@@ -164,7 +214,7 @@ internal sealed class CatalogWorkspace
         return View();
     }
 
-    public CatalogAdminDto View() => CatalogViews.Admin(new CatalogSnapshot(_categories, _products, PriceList), Today);
+    public CatalogAdminDto View() => CatalogViews.Admin(new CatalogSnapshot(_categories, _products, PriceList, _promotions), Today);
 
     public static LocalizedText Text(IReadOnlyDictionary<string, string> translations) => LocalizedText.Create(translations);
 

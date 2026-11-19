@@ -4,6 +4,7 @@ using WakePark.Modules.Catalog.Application.Abstractions;
 using WakePark.Modules.Catalog.Domain.Categories;
 using WakePark.Modules.Catalog.Domain.Pricing;
 using WakePark.Modules.Catalog.Domain.Products;
+using WakePark.Modules.Catalog.Domain.Promotions;
 
 namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Repositories;
 
@@ -32,11 +33,23 @@ internal sealed class CatalogRepository(CatalogDbContext dbContext) : ICatalogRe
             .Include(p => p.Items)
             .FirstOrDefaultAsync(p => p.EnterpriseId == enterpriseId && p.IsActive, cancellationToken);
 
+    public async Task<IReadOnlyList<Promotion>> GetPromotionsAsync(
+        Guid enterpriseId,
+        CancellationToken cancellationToken = default) =>
+        await dbContext.Promotions
+            .Where(p => p.EnterpriseId == enterpriseId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
     public void Add(ProductCategory category) => dbContext.Categories.Add(category);
 
     public void Add(Product product) => dbContext.Products.Add(product);
 
     public void Add(PriceList priceList) => dbContext.PriceLists.Add(priceList);
 
+    public void Add(Promotion promotion) => dbContext.Promotions.Add(promotion);
+
     public void Remove(ProductCategory category) => dbContext.Categories.Remove(category);
+
+    public void Remove(Promotion promotion) => dbContext.Promotions.Remove(promotion);
 }
