@@ -4,28 +4,43 @@
   <div class="grid">
     <mat-form-field class="wide" subscriptSizing="dynamic">
       <mat-label>Název akce</mat-label>
-      <input matInput [maxlength]="nameMaxLength" [ngModel]="nameCs()" (ngModelChange)="nameCs.set($event)" required cdkFocusInitial />
+      <input
+        matInput
+        [maxlength]="nameMaxLength"
+        [ngModel]="nameCs()"
+        (ngModelChange)="nameCs.set($event)"
+        required
+        cdkFocusInitial
+      />
       <mat-hint>Uvidí ho zákazníci v e-shopu, např. „Vánoční akce“.</mat-hint>
     </mat-form-field>
 
     <mat-form-field class="wide" subscriptSizing="dynamic">
       <mat-label>Název anglicky (nepovinné)</mat-label>
-      <input matInput [maxlength]="nameMaxLength" [ngModel]="nameEn()" (ngModelChange)="nameEn.set($event)" />
+      <input
+        matInput
+        [maxlength]="nameMaxLength"
+        [ngModel]="nameEn()"
+        (ngModelChange)="nameEn.set($event)"
+      />
       <mat-hint>Bez něj se na anglickém webu ukáže český název.</mat-hint>
     </mat-form-field>
 
     <mat-form-field class="wide" subscriptSizing="dynamic">
       <mat-label>Kategorie</mat-label>
-      <mat-select [value]="categoryId()" (valueChange)="categoryId.set($event)" required>
+      <mat-select [value]="categoryId()" (valueChange)="setCategory($event)" required>
         @for (category of categories; track category.id) {
           <mat-option [value]="category.id">{{ category.label }}</mat-option>
         }
       </mat-select>
-      <mat-hint>Sleva platí na všechny produkty kategorie i podkategorií.</mat-hint>
+      <mat-hint
+        >Sleva platí na všechny produkty kategorie i podkategorií, u jednotlivých jde změnit
+        níže.</mat-hint
+      >
     </mat-form-field>
 
     <mat-form-field subscriptSizing="dynamic">
-      <mat-label>Sleva</mat-label>
+      <mat-label>Výchozí sleva</mat-label>
       <input
         matInput
         type="number"
@@ -34,7 +49,7 @@
         [max]="maxPercent"
         step="1"
         [ngModel]="percent()"
-        (ngModelChange)="percent.set($event === '' || $event === null ? null : +$event)"
+        (ngModelChange)="setPercent($event === '' || $event === null ? null : +$event)"
         required
       />
       <span matTextSuffix>%</span>
@@ -44,16 +59,32 @@
 
     <mat-form-field subscriptSizing="dynamic">
       <mat-label>Od</mat-label>
-      <input matInput type="date" [min]="today" [ngModel]="validFrom()" (ngModelChange)="setValidFrom($event)" required />
+      <input
+        matInput
+        type="date"
+        [min]="today"
+        [ngModel]="validFrom()"
+        (ngModelChange)="setValidFrom($event)"
+        required
+      />
     </mat-form-field>
 
     <mat-form-field subscriptSizing="dynamic">
       <mat-label>Do (včetně)</mat-label>
-      <input matInput type="date" [min]="validFrom() > today ? validFrom() : today" [ngModel]="validTo()" (ngModelChange)="validTo.set($event)" required />
+      <input
+        matInput
+        type="date"
+        [min]="validFrom() > today ? validFrom() : today"
+        [ngModel]="validTo()"
+        (ngModelChange)="validTo.set($event)"
+        required
+      />
     </mat-form-field>
   </div>
 
-  <p class="note">Akce začíná o půlnoci prvního dne a končí o půlnoci po posledním dni. Platí jen v e-shopu.</p>
+  <p class="note">
+    Akce začíná o půlnoci prvního dne a končí o půlnoci po posledním dni. Platí jen v e-shopu.
+  </p>
 
   @if (percent() !== null && !percentValid()) {
     <p class="error">Sleva musí být celé číslo od {{ minPercent }} do {{ maxPercent }} %.</p>
@@ -62,23 +93,68 @@
     <p class="error">Konec akce musí být nejdřív v den začátku.</p>
   }
 
-  <section class="preview" aria-label="Náhled cen">
-    <h3>Ceny v e-shopu</h3>
+  <section class="preview" aria-label="Produkty v akci">
+    <h3>Produkty a ceny v e-shopu</h3>
     @if (preview().length === 0) {
       <p class="note">V této kategorii teď v e-shopu nic není.</p>
     } @else {
+      <p class="note note--tight">
+        Procento u produktu přepíšete přímo v řádku, 0 = produkt v akci není.
+        @if (ownCount() > 0) {
+          <strong>Změna výchozí slevy vrátí všechny produkty na výchozí.</strong>
+        }
+      </p>
       <ul>
         @for (row of preview(); track row.id) {
-          <li>
+          <li [class.own]="row.own" [class.off]="row.percent === 0">
             <span class="preview__name">{{ row.name }}</span>
-            @if (row.sale && !row.same) {
-              <s>{{ row.regular }}</s> <strong>{{ row.sale }}</strong>
+            @if (row.editable) {
+              <span class="preview__pct">
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  [max]="maxPercent"
+                  step="1"
+                  [attr.aria-label]="'Sleva pro ' + row.name"
+                  [ngModel]="row.percent"
+                  (ngModelChange)="
+                    setProductPercent(row.id, $event === '' || $event === null ? null : +$event)
+                  "
+                />
+                %
+                @if (row.own) {
+                  <button
+                    type="button"
+                    class="preview__reset"
+                    (click)="resetProduct(row.id)"
+                    title="Vrátit na výchozí"
+                    aria-label="Vrátit na výchozí"
+                  >
+                    ↺
+                  </button>
+                }
+              </span>
             } @else {
-              <span>{{ row.regular }}</span>
+              <span
+                class="preview__pct preview__pct--fixed"
+                title="Produkt z podkategorie má výchozí slevu"
+                >{{ row.percent ?? '–' }} %</span
+              >
             }
+            <span class="preview__price">
+              @if (row.sale && !row.same) {
+                <s>{{ row.regular }}</s> <strong>{{ row.sale }}</strong>
+              } @else {
+                <span>{{ row.regular }}</span>
+              }
+            </span>
           </li>
         }
       </ul>
+      @if (!overridesValid()) {
+        <p class="error">Sleva u produktu musí být celé číslo od 0 do {{ maxPercent }} %.</p>
+      }
     }
   </section>
 
@@ -89,5 +165,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button type="button" mat-dialog-close>Zrušit</button>
-  <button mat-flat-button type="button" [disabled]="!canSave()" (click)="save()">{{ isEdit ? 'Uložit' : 'Vytvořit akci' }}</button>
+  <button mat-flat-button type="button" [disabled]="!canSave()" (click)="save()">
+    {{ isEdit ? 'Uložit' : 'Vytvořit akci' }}
+  </button>
 </mat-dialog-actions>

@@ -14,6 +14,12 @@ public sealed record UpdatePromotionCommand(Guid PromotionId, PromotionRequest R
 /// <summary>Smazání akce. Prodané objednávky mají cenu zamrazenou, takže je to bezpečné kdykoli.</summary>
 public sealed record DeletePromotionCommand(Guid PromotionId) : ICommand<CatalogAdminDto>;
 
+internal static class PromotionRequests
+{
+    public static IEnumerable<ProductDiscount> ProductDiscounts(PromotionRequest request) =>
+        request.ProductDiscounts?.Select(d => new ProductDiscount(d.ProductId, d.DiscountPercent)) ?? [];
+}
+
 internal sealed class CreatePromotionCommandHandler(CatalogWorkspaceLoader loader)
     : ICommandHandler<CreatePromotionCommand, CatalogAdminDto>
 {
@@ -28,6 +34,7 @@ internal sealed class CreatePromotionCommandHandler(CatalogWorkspaceLoader loade
             CatalogWorkspace.Text(request.Name),
             request.CategoryId,
             request.DiscountPercent,
+            PromotionRequests.ProductDiscounts(request),
             request.ValidFrom,
             request.ValidTo,
             workspace.Today));
@@ -50,6 +57,7 @@ internal sealed class UpdatePromotionCommandHandler(CatalogWorkspaceLoader loade
             CatalogWorkspace.Text(request.Name),
             request.CategoryId,
             request.DiscountPercent,
+            PromotionRequests.ProductDiscounts(request),
             request.ValidFrom,
             request.ValidTo,
             workspace.Today);

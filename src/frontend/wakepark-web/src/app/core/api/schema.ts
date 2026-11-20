@@ -841,6 +841,7 @@ export interface components {
             validFrom: string;
             /** Format: date */
             validTo: string;
+            productDiscounts: components["schemas"]["ProductDiscountDto"][];
         };
         BlockingDto: {
             /** Format: uuid */
@@ -957,6 +958,10 @@ export interface components {
             discountPercent: number | string;
             /** Format: date */
             validTo: string;
+            /** @default false */
+            upTo: boolean;
+            /** @default true */
+            allProducts: boolean;
         };
         /** @description Firma z registru ARES. DIČ jen u plátce DPH. */
         CompanyDto: {
@@ -1361,7 +1366,17 @@ export interface components {
             eshop: boolean;
             pos: boolean;
         };
-        /** @description Nová nebo upravená akce. Název česky povinný, anglicky volitelný. */
+        /** @description Vlastní procento produktu v akci; 0 = produkt v akci není. */
+        ProductDiscountDto: {
+            /** Format: uuid */
+            productId: string;
+            /** Format: int32 */
+            discountPercent: number | string;
+        };
+        /**
+         * @description Nová nebo upravená akce. Název česky povinný, anglicky volitelný. Produkty s vlastním
+         *     procentem musí být přímo v kategorii akce.
+         */
         PromotionRequest: {
             name: {
                 [key: string]: string;
@@ -1374,6 +1389,8 @@ export interface components {
             validFrom: string;
             /** Format: date */
             validTo: string;
+            /** @default null */
+            productDiscounts?: null | components["schemas"]["ProductDiscountDto"][];
         };
         PublicBlockingDto: {
             /** @description Null = celý areál. */

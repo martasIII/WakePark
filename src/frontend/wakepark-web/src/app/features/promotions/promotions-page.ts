@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { num, type AdminPromotionDto, type CatalogAdminDto } from '../../core/api/api';
 import { problemMessage } from '../../shared/problem';
 import { PromotionDialog, PromotionDialogData } from './promotion-dialog';
-import { categoryLabel, dateRange, eshopProductsIn } from './promotion-format';
+import { categoryLabel, dateRange, discountFor, eshopProductsIn } from './promotion-format';
 import { PromotionsApi } from './promotions-api';
 
 /** Kolik skončených akcí ukázat — starší jsou jen historie. */
@@ -22,7 +22,13 @@ interface PromotionRow {
   readonly name: string;
   readonly nameEn: string | null;
   readonly category: string;
+  /** Výchozí procento akce. */
   readonly percent: number;
+  /** Nejvyšší procento mezi produkty — „až −30 %“, když se liší. */
+  readonly maxPercent: number;
+  readonly upTo: boolean;
+  /** Produkty s jiným než výchozím procentem. */
+  readonly ownCount: number;
   readonly dates: string;
   readonly state: PromotionState;
   readonly productCount: number;
@@ -59,16 +65,23 @@ export class PromotionsPage {
     const today = catalog.today;
     return catalog.promotions.map((promotion) => {
       const category = catalog.categories.find((c) => c.id === promotion.categoryId);
-      const state: PromotionState = promotion.validTo < today ? 'ended' : promotion.validFrom > today ? 'planned' : 'running';
+      const percents = eshopProductsIn(catalog, promotion.categoryId)
+        .map((product) => discountFor(promotion, product.id))
+        .filter((percent) => percent > 0);
+      const state: PromotionState =
+        promotion.validTo < today ? 'ended' : promotion.validFrom > today ? 'planned' : 'running';
       return {
         promotion,
         name: promotion.name['cs'],
         nameEn: promotion.name['en'] ?? null,
         category: category ? categoryLabel(category, catalog.categories) : '—',
         percent: num(promotion.discountPercent),
+        maxPercent: percents.length > 0 ? Math.max(...percents) : num(promotion.discountPercent),
+        upTo: new Set(percents).size > 1,
+        ownCount: promotion.productDiscounts.length,
         dates: dateRange(promotion.validFrom, promotion.validTo),
         state,
-        productCount: eshopProductsIn(catalog, promotion.categoryId).length,
+        productCount: percents.length,
         lastDay: state === 'running' && promotion.validTo === today,
       };
     });
@@ -102,9 +115,15 @@ export class PromotionsPage {
       .subscribe((saved?: CatalogAdminDto) => {
         if (saved) {
           this.catalog.set(saved);
-          this.snackBar.open(promotion ? 'Akce upravena.' : 'Akce vytvořena. V e-shopu se ukáže nejpozději do minuty.', 'OK', {
-            duration: 5000,
-          });
+          this.snackBar.open(
+            promotion
+              ? 'Akce upravena.'
+              : 'Akce vytvořena. V e-shopu se ukáže nejpozději do minuty.',
+            'OK',
+            {
+              duration: 5000,
+            },
+          );
         }
       });
   }

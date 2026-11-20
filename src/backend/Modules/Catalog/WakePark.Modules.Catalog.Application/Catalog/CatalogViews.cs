@@ -18,7 +18,8 @@ internal static class CatalogViews
 
     /// <summary>
     /// E-shop: aktivní produkty pro e-shop s dnes platnou kladnou cenou. V kategorii s dnešní
-    /// akcí (i zděděnou z nadřazené kategorie) je cena po slevě a původní cena vedle ní.
+    /// akcí (i zděděnou z nadřazené kategorie) je cena po slevě — výchozí procento akce, nebo
+    /// vlastní procento produktu — a původní cena vedle ní.
     /// </summary>
     public static CatalogDto Eshop(CatalogSnapshot snapshot, DateOnly today)
     {
@@ -41,28 +42,16 @@ internal static class CatalogViews
             .ThenBy(x => x.Product.Code, StringComparer.Ordinal)
             .ToList();
 
-        List<CatalogCategoryDto> categoryDtos =
-        [
-            .. offered
-                .Select(x => categories[x.Product.CategoryId])
-                .DistinctBy(c => c.Id)
-                .Select(c => new CatalogCategoryDto(
-                    c.Code,
-                    c.Name.Translations,
-                    promotions.TryGetValue(c.Id, out Promotion? promotion)
-                        ? new CatalogPromotionDto(promotion.Name.Translations, promotion.DiscountPercent, promotion.ValidTo)
-                        : null)),
-        ];
-
         List<CatalogProductDto> productDtos =
         [
             .. offered.Select(x =>
             {
                 decimal regular = x.Price!.UnitPrice;
                 Promotion? promotion = promotions.GetValueOrDefault(x.Product.CategoryId);
-                decimal price = promotion?.Apply(regular) ?? regular;
+                decimal price = promotion?.Apply(x.Product.Id, regular) ?? regular;
 
-                // Sleva, která by cenu nezměnila (zaokrouhlení nahoru u levné položky), se neukazuje.
+                // Sleva, která by cenu nezměnila (0 % u produktu nebo zaokrouhlení nahoru
+                // u levné položky), se neukazuje.
                 bool discounted = price < regular;
 
                 return new CatalogProductDto(
@@ -76,8 +65,34 @@ internal static class CatalogViews
                     priceList.Currency,
                     x.Price.VatRate,
                     discounted ? regular : null,
-                    discounted ? promotion!.DiscountPercent : null);
+                    discounted ? promotion!.DiscountFor(x.Product.Id) : null);
             }),
+        ];
+
+        // Pruh akce v kategorii se skládá z toho, co zákazník u produktů opravdu uvidí: nejvyšší
+        // procento, „až“ při různých procentech a „vybrané produkty“, když něco zlevněné není.
+        List<CatalogCategoryDto> categoryDtos =
+        [
+            .. offered
+                .Select(x => categories[x.Product.CategoryId])
+                .DistinctBy(c => c.Id)
+                .Select(c =>
+                {
+                    List<CatalogProductDto> inCategory = [.. productDtos.Where(p => p.CategoryCode == c.Code)];
+                    List<int> percents = [.. inCategory.Where(p => p.DiscountPercent is not null).Select(p => p.DiscountPercent!.Value)];
+
+                    return new CatalogCategoryDto(
+                        c.Code,
+                        c.Name.Translations,
+                        percents.Count > 0 && promotions.TryGetValue(c.Id, out Promotion? promotion)
+                            ? new CatalogPromotionDto(
+                                promotion.Name.Translations,
+                                percents.Max(),
+                                promotion.ValidTo,
+                                UpTo: percents.Distinct().Count() > 1,
+                                AllProducts: percents.Count == inCategory.Count)
+                            : null);
+                }),
         ];
 
         return new CatalogDto(categoryDtos, productDtos);
@@ -176,7 +191,13 @@ internal static class CatalogViews
                     .OrderByDescending(p => p.ValidFrom)
                     .ThenBy(p => p.Name.ToString(), StringComparer.CurrentCulture)
                     .Select(p => new AdminPromotionDto(
-                        p.Id, p.Name.Translations, p.CategoryId, p.DiscountPercent, p.ValidFrom, p.ValidTo)),
+                        p.Id,
+                        p.Name.Translations,
+                        p.CategoryId,
+                        p.DiscountPercent,
+                        p.ValidFrom,
+                        p.ValidTo,
+                        [.. p.ProductDiscounts.Select(d => new ProductDiscountDto(d.ProductId, d.DiscountPercent))])),
             ]);
     }
 

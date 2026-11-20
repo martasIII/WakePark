@@ -63,6 +63,10 @@
   <data name="ContinueToOrder" xml:space="preserve"><value>Continue to checkout</value></data>
   <data name="PromoBadge" xml:space="preserve"><value>−{0}%</value></data>
   <data name="PromoDiscount" xml:space="preserve"><value>{0}% off everything below</value></data>
+  <data name="PromoUpTo" xml:space="preserve"><value>up to</value></data>
+  <data name="PromoDiscountSelected" xml:space="preserve"><value>{0}% off selected items</value></data>
+  <data name="PromoDiscountUpTo" xml:space="preserve"><value>up to {0}% off everything below</value></data>
+  <data name="PromoDiscountUpToSelected" xml:space="preserve"><value>up to {0}% off selected items</value></data>
   <data name="PromoUntil" xml:space="preserve"><value>until {0}</value></data>
   <data name="PromoDateFormat" xml:space="preserve"><value>MMMM d, yyyy</value></data>
   <data name="PromoLastDay" xml:space="preserve"><value>last day today!</value></data>

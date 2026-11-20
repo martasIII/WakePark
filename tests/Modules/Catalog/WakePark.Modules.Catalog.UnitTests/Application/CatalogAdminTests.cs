@@ -199,8 +199,9 @@ public sealed class CatalogAdminTests
 
         CatalogAdminDto admin = await CreatePromotionAsync("Vánoční akce", categoryId, 15, Today, Today.AddDays(10));
 
-        admin.Promotions.Single().ShouldBe(new AdminPromotionDto(
-            admin.Promotions.Single().Id, admin.Promotions.Single().Name, categoryId, 15, Today, Today.AddDays(10)));
+        AdminPromotionDto created = admin.Promotions.Single();
+        (created.CategoryId, created.DiscountPercent, created.ValidFrom, created.ValidTo).ShouldBe((categoryId, 15, Today, Today.AddDays(10)));
+        created.ProductDiscounts.ShouldBeEmpty();
 
         CatalogDto eshop = await EshopAsync();
         CatalogProductDto product = eshop.Products.Single();
@@ -211,6 +212,8 @@ public sealed class CatalogAdminTests
         eshop.Categories.Single().Promotion.ShouldNotBeNull().DiscountPercent.ShouldBe(15);
         eshop.Categories.Single().Promotion!.Name["cs"].ShouldBe("Vánoční akce");
         eshop.Categories.Single().Promotion!.ValidTo.ShouldBe(Today.AddDays(10));
+        eshop.Categories.Single().Promotion!.UpTo.ShouldBeFalse();
+        eshop.Categories.Single().Promotion!.AllProducts.ShouldBeTrue();
 
         // Jen e-shop: ceník na webu ukazuje běžnou cenu.
         (await PriceListAsync()).Sections.Single().Items.Single().UnitPrice.ShouldBe(1490m);
@@ -301,8 +304,77 @@ public sealed class CatalogAdminTests
         admin.Promotions.ShouldBeEmpty();
     }
 
-    private Task<CatalogAdminDto> CreatePromotionAsync(string name, Guid categoryId, int percent, DateOnly from, DateOnly to) =>
-        Handler<CreatePromotionCommand>(new CreatePromotionCommand(new PromotionRequest(Czech(name), categoryId, percent, from, to)));
+    [Fact]
+    public async Task Produkty_s_vlastnim_procentem_a_pruh_ukaze_az_nejvyssi_slevu()
+    {
+        CatalogAdminDto catalog = await CreateCategoryAsync("vouchery");
+        Guid categoryId = catalog.Categories.Single().Id;
+        Guid one = await ProductWithPriceAsync("voucher-1-slot", categoryId, 1000m);
+        Guid two = await ProductWithPriceAsync("voucher-2-sloty", categoryId, 2000m);
+        Guid six = await ProductWithPriceAsync("voucher-6-slotu", categoryId, 5000m);
+
+        CatalogAdminDto admin = await CreatePromotionAsync("Vánoční akce", categoryId, 15, Today, Today.AddDays(10),
+            [new ProductDiscountDto(six, 30)]);
+        admin.Promotions.Single().ProductDiscounts.ShouldBe([new ProductDiscountDto(six, 30)]);
+
+        CatalogDto eshop = await EshopAsync();
+        eshop.Products.Single(p => p.Id == one).UnitPrice.ShouldBe(850m);
+        eshop.Products.Single(p => p.Id == two).UnitPrice.ShouldBe(1700m);
+        eshop.Products.Single(p => p.Id == six).UnitPrice.ShouldBe(3500m);
+        eshop.Products.Single(p => p.Id == six).DiscountPercent.ShouldBe(30);
+        CatalogPromotionDto banner = eshop.Categories.Single().Promotion.ShouldNotBeNull();
+        (banner.DiscountPercent, banner.UpTo, banner.AllProducts).ShouldBe((30, true, true));
+
+        // Jeden produkt z akce vyřazený (0 %), ostatní stejně → „−15 % na vybrané produkty“.
+        await Handler<UpdatePromotionCommand>(new UpdatePromotionCommand(admin.Promotions.Single().Id,
+            new PromotionRequest(Czech("Vánoční akce"), categoryId, 15, Today, Today.AddDays(10), [new ProductDiscountDto(one, 0)])));
+
+        eshop = await EshopAsync();
+        CatalogProductDto excluded = eshop.Products.Single(p => p.Id == one);
+        (excluded.UnitPrice, excluded.RegularUnitPrice, excluded.DiscountPercent).ShouldBe((1000m, null, null));
+        banner = eshop.Categories.Single().Promotion.ShouldNotBeNull();
+        (banner.DiscountPercent, banner.UpTo, banner.AllProducts).ShouldBe((15, false, false));
+    }
+
+    [Fact]
+    public async Task Vsechny_produkty_vyrazene_z_akce_pruh_neukazou()
+    {
+        Guid productId = await VoucherWithPriceAsync(1000m);
+        Guid categoryId = _repository.Products.Single(p => p.Id == productId).CategoryId;
+
+        await CreatePromotionAsync("Akce", categoryId, 15, Today, Today, [new ProductDiscountDto(productId, 0)]);
+
+        CatalogDto eshop = await EshopAsync();
+        eshop.Products.Single().DiscountPercent.ShouldBeNull();
+        eshop.Categories.Single().Promotion.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task Vlastni_procento_jen_pro_produkty_primo_v_kategorii_akce()
+    {
+        CatalogAdminDto catalog = await CreateCategoryAsync("vouchery");
+        Guid parentId = catalog.Categories.Single().Id;
+        catalog = await Handler<CreateCategoryCommand>(new CreateCategoryCommand(
+            new CreateCategoryRequest("darkove", parentId, Czech("Dárkové"), null, 0)));
+        Guid childId = catalog.Categories.Single(c => c.Code == "darkove").Id;
+        Guid inChild = await ProductWithPriceAsync("voucher-2-sloty", childId, 1000m);
+
+        (await Should.ThrowAsync<DomainException>(() => CreatePromotionAsync("Akce", parentId, 10, Today, Today,
+                [new ProductDiscountDto(inChild, 30)])))
+            .Code.ShouldBe("promotion.product_not_in_category");
+    }
+
+    private Task<CatalogAdminDto> CreatePromotionAsync(
+        string name, Guid categoryId, int percent, DateOnly from, DateOnly to, IReadOnlyList<ProductDiscountDto>? discounts = null) =>
+        Handler<CreatePromotionCommand>(new CreatePromotionCommand(new PromotionRequest(Czech(name), categoryId, percent, from, to, discounts)));
+
+    private async Task<Guid> ProductWithPriceAsync(string code, Guid categoryId, decimal price)
+    {
+        CatalogAdminDto catalog = await CreateProductAsync(code, categoryId, Everywhere);
+        Guid productId = catalog.Products.Single(p => p.Code == code).Id;
+        await SetPriceAsync(productId, price);
+        return productId;
+    }
 
     private async Task<Guid> VoucherWithPriceAsync(decimal price)
     {

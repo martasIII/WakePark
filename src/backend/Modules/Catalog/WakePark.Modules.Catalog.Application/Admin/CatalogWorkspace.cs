@@ -104,13 +104,23 @@ internal sealed class CatalogWorkspace
         _repository.Add(promotion);
     }
 
-    /// <summary>Kontrola po úpravě akce: kategorie existuje a nepřekrývá se s jinou.</summary>
+    /// <summary>
+    /// Kontrola po úpravě akce: kategorie existuje, produkty s vlastním procentem jsou přímo
+    /// v ní (ne v podkategorii) a akce se nepřekrývá s jinou.
+    /// </summary>
     public void EnsurePromotionFits(Promotion promotion)
     {
         ArgumentNullException.ThrowIfNull(promotion);
 
         ProductCategory category = _categories.Find(c => c.Id == promotion.CategoryId)
             ?? throw new DomainException("promotion.category_not_found", "Kategorie akce neexistuje.");
+
+        if (promotion.ProductDiscounts.Any(d => !_products.Exists(p => p.Id == d.ProductId && p.CategoryId == promotion.CategoryId)))
+        {
+            throw new DomainException(
+                "promotion.product_not_in_category",
+                $"Vlastní procento jde nastavit jen produktům přímo v kategorii „{category.Name}“.");
+        }
 
         if (_promotions.Find(promotion.Overlaps) is { } clash)
         {

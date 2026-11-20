@@ -128,6 +128,21 @@ public sealed class CatalogAdminApiTests : IAsyncLifetime
         HttpResponseMessage overlap = await RawSendAsync(client, HttpMethod.Post, "/api/v1/catalog/admin/promotions",
             new PromotionRequest(Czech("Black Friday"), categoryId, 30, catalog.Today.AddDays(3), catalog.Today.AddDays(4)));
         overlap.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
+
+        // Vlastní procento produktu se uloží (jsonb) a e-shop ho použije.
+        Guid productId = catalog.Products.Single().Id;
+        catalog = await SendAsync(client, HttpMethod.Put, $"/api/v1/catalog/admin/promotions/{catalog.Promotions.Single().Id}",
+            new PromotionRequest(Czech("Vánoční akce"), categoryId, 15, catalog.Today, catalog.Today.AddDays(7),
+                [new ProductDiscountDto(productId, 30)]));
+
+        CatalogAdminDto reloaded = (await client.GetFromJsonAsync<CatalogAdminDto>(
+            new Uri("/api/v1/catalog/admin", UriKind.Relative), TestContext.Current.CancellationToken))!;
+        reloaded.Promotions.Single().ProductDiscounts.ShouldBe([new ProductDiscountDto(productId, 30)]);
+
+        eshop = (await client.GetFromJsonAsync<CatalogDto>(
+            new Uri($"/api/v1/catalog/enterprises/{EnterpriseId}", UriKind.Relative), TestContext.Current.CancellationToken))!;
+        eshop.Products.Single().UnitPrice.ShouldBe(1043m);
+        eshop.Categories.Single().Promotion!.DiscountPercent.ShouldBe(30);
     }
 
     [Fact]

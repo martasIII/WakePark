@@ -115,6 +115,8 @@ footer .small{font-size:12px; opacity:.8}
   flex:none; display:grid; place-items:center; width:72px; height:72px; border-radius:50%;
   background:#fff; color:var(--brand); font-size:21px; font-weight:700; letter-spacing:-.02em;
   box-shadow:0 0 0 4px rgba(255,255,255,.35)}
+.promo-pct.up-to{align-content:center; gap:1px; line-height:1}
+.promo-pct small{font-size:12px; font-weight:600; letter-spacing:.02em; text-align:center}
 .promo-text{position:relative; z-index:1; margin:0; line-height:1.35}
 .promo-text b{display:block; font-size:20px; letter-spacing:.02em}
 .promo-text span{font-size:14.5px; font-weight:500; opacity:.95}

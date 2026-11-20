@@ -63,6 +63,10 @@
   <data name="ContinueToOrder" xml:space="preserve"><value>Pokračovat k objednávce</value></data>
   <data name="PromoBadge" xml:space="preserve"><value>−{0} %</value></data>
   <data name="PromoDiscount" xml:space="preserve"><value>sleva {0} % na celou nabídku níže</value></data>
+  <data name="PromoUpTo" xml:space="preserve"><value>až</value></data>
+  <data name="PromoDiscountSelected" xml:space="preserve"><value>sleva {0} % na vybrané produkty</value></data>
+  <data name="PromoDiscountUpTo" xml:space="preserve"><value>slevy až {0} % na celou nabídku níže</value></data>
+  <data name="PromoDiscountUpToSelected" xml:space="preserve"><value>slevy až {0} % na vybrané produkty</value></data>
   <data name="PromoUntil" xml:space="preserve"><value>platí do {0}</value></data>
   <data name="PromoLastDay" xml:space="preserve"><value>dnes je poslední den!</value></data>
   <data name="PromoDateFormat" xml:space="preserve"><value>d. M. yyyy</value></data>

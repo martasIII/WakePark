@@ -40,3 +40,4 @@ export type AdminCategoryDto = Schemas['AdminCategoryDto'];
 export type AdminProductDto = Schemas['AdminProductDto'];
 export type AdminPromotionDto = Schemas['AdminPromotionDto'];
 export type PromotionRequest = Schemas['PromotionRequest'];
+export type ProductDiscountDto = Schemas['ProductDiscountDto'];

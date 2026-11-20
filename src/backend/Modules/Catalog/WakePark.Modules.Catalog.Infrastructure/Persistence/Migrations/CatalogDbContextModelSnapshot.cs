@@ -318,6 +318,13 @@ namespace WakePark.Modules.Catalog.Infrastructure.Persistence.Migrations
                         .HasColumnType("date")
                         .HasColumnName("valid_to");
 
+                    b.Property<string>("_productDiscounts")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("product_discounts")
+                        .HasDefaultValueSql("'[]'::jsonb");
+
                     b.HasKey("Id")
                         .HasName("pk_promotions");
 

@@ -74,6 +74,16 @@
     color: #fff;
     font-weight: 700;
     font-size: 1rem;
+
+    &--up-to {
+      align-content: center;
+      line-height: 1.05;
+    }
+
+    small {
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
   }
 
   [data-state='ended'] &__pct {

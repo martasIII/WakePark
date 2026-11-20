@@ -39,10 +39,16 @@
                     @if (category.Promotion is { } promotion)
                     {
                         <div class="promo">
-                            <span class="promo-pct" aria-hidden="true">@string.Format(SiteView.Culture, T["PromoBadge"].Value, promotion.DiscountPercent)</span>
+                            <span class="promo-pct@(promotion.UpTo ? " up-to" : null)" aria-hidden="true">
+                                @if (promotion.UpTo)
+                                {
+                                    <small>@T["PromoUpTo"]</small>
+                                }
+                                <span>@string.Format(SiteView.Culture, T["PromoBadge"].Value, promotion.DiscountPercent)</span>
+                            </span>
                             <p class="promo-text">
                                 <b>@promotion.Name.Resolve(lang)</b>
-                                <span>@string.Format(SiteView.Culture, T["PromoDiscount"].Value, promotion.DiscountPercent)
+                                <span>@string.Format(SiteView.Culture, T[promotion.DiscountTextKey].Value, promotion.DiscountPercent)
                                     · @(promotion.ValidTo == Model.Today
                                         ? T["PromoLastDay"].Value
                                         : string.Format(SiteView.Culture, T["PromoUntil"].Value, promotion.ValidTo.ToString(T["PromoDateFormat"].Value, SiteView.Culture)))</span>

@@ -27,6 +27,18 @@ a zadávat je sami, bez SQL. Zákazník má vidět původní i akční cenu a n�
 - **Web:** pruh s názvem akce, procentem a koncem („dnes je poslední den!“) v kategorii,
   štítek „−15 %“ na produktu, přeškrtnutá původní cena.
 
+### Doplněno 20. 11. 2026 — procento u jednotlivých produktů
+
+- Akce má **výchozí procento** a produkty **přímo v kategorii** (ne v podkategorii) můžou mít
+  vlastní, 0–90 %; **0 = produkt v akci není**. Ukládá se jako `product_discounts` (jsonb) u
+  akce — čte se jen s ní a výjimek je pár. Výjimka stejná jako výchozí procento se neukládá.
+- V dialogu backoffice **změna výchozí slevy nebo kategorie vrátí všechny produkty na
+  výchozí** (přání majitele — žádné zapomenuté výjimky ze starého nastavení).
+- Na jednu kategorii dál jen jedna akce najednou.
+- **Pruh na webu se skládá z toho, co zákazník u produktů opravdu vidí:** nejvyšší procento,
+  „až −30 %“ jen když se procenta liší, „na vybrané produkty“ když něco zlevněné není
+  (jinak „na celou nabídku níže“). Když po výjimkách a zaokrouhlení nezlevní nic, pruh není.
+
 ## Důsledky
 
 - Web drží nabídku minutu v paměti — akce se na webu objeví nejpozději minutu po

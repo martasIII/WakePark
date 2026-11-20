@@ -131,6 +131,40 @@ public sealed class EshopPageTests(WebApplicationFactory<Program> factory)
         html.ShouldMatch(@"<b>1\s267\sKč</b>");
         // Průběžný součet ve skriptu počítá s cenou po slevě.
         html.ShouldContain("data-price=\"1267\"");
+        html.ShouldContain("sleva 15 % na celou nabídku níže");
+        html.ShouldNotContain("<small>až</small>");
+    }
+
+    /// <summary>Různá procenta u produktů a něco bez slevy: „až −30 %“ a „na vybrané produkty“.</summary>
+    [Fact]
+    public async Task Akce_s_ruznymi_procenty_ukaze_az_nejvyssi_slevu()
+    {
+        const string catalog = """
+            {
+              "categories": [ { "code": "vouchery", "name": { "cs": "Vouchery" },
+                                "promotion": { "name": { "cs": "Vánoční akce" }, "discountPercent": 30, "validTo": "2099-12-31",
+                                               "upTo": true, "allProducts": false } } ],
+              "products": [
+                { "id": "01990000-0000-7000-8000-0000000000c1", "code": "voucher-6-slotu", "categoryCode": "vouchery",
+                  "name": { "cs": "Voucher pro šest" }, "description": null, "imagePath": null,
+                  "unitPrice": 3500, "currency": "CZK", "vatRate": 12, "regularUnitPrice": 5000, "discountPercent": 30 },
+                { "id": "01990000-0000-7000-8000-0000000000c2", "code": "voucher-2-sloty", "categoryCode": "vouchery",
+                  "name": { "cs": "Voucher pro dva" }, "description": null, "imagePath": null,
+                  "unitPrice": 1700, "currency": "CZK", "vatRate": 12, "regularUnitPrice": 2000, "discountPercent": 15 },
+                { "id": "01990000-0000-7000-8000-0000000000c3", "code": "voucher-1-slot", "categoryCode": "vouchery",
+                  "name": { "cs": "Voucher pro jednoho" }, "description": null, "imagePath": null,
+                  "unitPrice": 990, "currency": "CZK", "vatRate": 12 }
+              ]
+            }
+            """;
+
+        string html = await GetEshopAsync(new StubHandler(HttpStatusCode.OK, catalog));
+
+        html.ShouldContain("class=\"promo-pct up-to\"");
+        html.ShouldContain("<small>až</small>");
+        html.ShouldContain("slevy až 30 % na vybrané produkty");
+        html.ShouldContain("<span class=\"sale-tag\">−30 %</span>");
+        html.ShouldContain("<span class=\"sale-tag\">−15 %</span>");
     }
 
     [Fact]

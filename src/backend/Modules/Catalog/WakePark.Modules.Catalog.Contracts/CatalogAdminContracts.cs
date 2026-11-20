@@ -14,22 +14,33 @@ public sealed record CatalogAdminDto(
     IReadOnlyList<AdminProductDto> Products,
     IReadOnlyList<AdminPromotionDto> Promotions);
 
-/// <summary>Akční sleva (jen e-shop): procento na kategorii, celé dny od–do včetně.</summary>
+/// <summary>
+/// Akční sleva (jen e-shop): výchozí procento na kategorii, celé dny od–do včetně.
+/// <c>ProductDiscounts</c> = produkty s jiným procentem (0 = bez slevy).
+/// </summary>
 public sealed record AdminPromotionDto(
     Guid Id,
     IReadOnlyDictionary<string, string> Name,
     Guid CategoryId,
     int DiscountPercent,
     DateOnly ValidFrom,
-    DateOnly ValidTo);
+    DateOnly ValidTo,
+    IReadOnlyList<ProductDiscountDto> ProductDiscounts);
 
-/// <summary>Nová nebo upravená akce. Název česky povinný, anglicky volitelný.</summary>
+/// <summary>Vlastní procento produktu v akci; 0 = produkt v akci není.</summary>
+public sealed record ProductDiscountDto(Guid ProductId, int DiscountPercent);
+
+/// <summary>
+/// Nová nebo upravená akce. Název česky povinný, anglicky volitelný. Produkty s vlastním
+/// procentem musí být přímo v kategorii akce.
+/// </summary>
 public sealed record PromotionRequest(
     IReadOnlyDictionary<string, string> Name,
     Guid CategoryId,
     int DiscountPercent,
     DateOnly ValidFrom,
-    DateOnly ValidTo);
+    DateOnly ValidTo,
+    IReadOnlyList<ProductDiscountDto>? ProductDiscounts = null);
 
 public sealed record AdminCategoryDto(
     Guid Id,

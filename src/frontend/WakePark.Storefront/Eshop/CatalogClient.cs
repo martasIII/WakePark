@@ -13,8 +13,21 @@ public sealed record EshopCatalog(IReadOnlyList<EshopCategory> Categories, IRead
 
 public sealed record EshopCategory(string Code, LocalizedText Name, EshopPromotion? Promotion = null);
 
-/// <summary>Akční sleva v kategorii: název, procento a poslední den (včetně, čas areálu).</summary>
-public sealed record EshopPromotion(LocalizedText Name, int DiscountPercent, DateOnly ValidTo);
+/// <summary>
+/// Akční sleva v kategorii: název, nejvyšší procento a poslední den (včetně, čas areálu).
+/// <c>UpTo</c> = produkty mají různá procenta, <c>AllProducts</c> = zlevněné je všechno.
+/// </summary>
+public sealed record EshopPromotion(LocalizedText Name, int DiscountPercent, DateOnly ValidTo, bool UpTo = false, bool AllProducts = true)
+{
+    /// <summary>Klíč textu pod názvem akce: „sleva 15 % na celou nabídku níže“ a varianty.</summary>
+    public string DiscountTextKey => (UpTo, AllProducts) switch
+    {
+        (false, true) => "PromoDiscount",
+        (false, false) => "PromoDiscountSelected",
+        (true, true) => "PromoDiscountUpTo",
+        (true, false) => "PromoDiscountUpToSelected",
+    };
+}
 
 public sealed record EshopProduct(
     Guid Id,

@@ -1,4 +1,10 @@
-import { num, type AdminCategoryDto, type AdminProductDto, type CatalogAdminDto } from '../../core/api/api';
+import {
+  num,
+  type AdminCategoryDto,
+  type AdminProductDto,
+  type CatalogAdminDto,
+  type ProductDiscountDto,
+} from '../../core/api/api';
 
 /** `2026-12-24` → „24. 12. 2026“ */
 export function czechDate(isoDate: string): string {
@@ -28,13 +34,38 @@ export function discounted(price: number, percent: number): number {
 }
 
 /** Název kategorie s cestou: „Vouchery › Dárkové“. */
-export function categoryLabel(category: AdminCategoryDto, all: readonly AdminCategoryDto[]): string {
+export function categoryLabel(
+  category: AdminCategoryDto,
+  all: readonly AdminCategoryDto[],
+): string {
   const parent = category.parentId ? all.find((c) => c.id === category.parentId) : undefined;
   return parent ? `${parent.name['cs']} › ${category.name['cs']}` : category.name['cs'];
 }
 
 /** Aktivní produkty e-shopu v kategorii a jejích podkategoriích, s dnešní cenou. */
 export function eshopProductsIn(catalog: CatalogAdminDto, categoryId: string): AdminProductDto[] {
-  const ids = new Set([categoryId, ...catalog.categories.filter((c) => c.parentId === categoryId).map((c) => c.id)]);
-  return catalog.products.filter((p) => ids.has(p.categoryId) && p.isActive && p.visibility.eshop && p.currentPrice && num(p.currentPrice.unitPrice) > 0);
+  const ids = new Set([
+    categoryId,
+    ...catalog.categories.filter((c) => c.parentId === categoryId).map((c) => c.id),
+  ]);
+  return catalog.products.filter(
+    (p) =>
+      ids.has(p.categoryId) &&
+      p.isActive &&
+      p.visibility.eshop &&
+      p.currentPrice &&
+      num(p.currentPrice.unitPrice) > 0,
+  );
+}
+
+/** Procento produktu v akci: vlastní, jinak výchozí (0 = bez slevy). Stejně jako na serveru. */
+export function discountFor(
+  promotion: {
+    readonly discountPercent: number | string;
+    readonly productDiscounts?: readonly ProductDiscountDto[] | null;
+  },
+  productId: string,
+): number {
+  const own = promotion.productDiscounts?.find((d) => d.productId === productId);
+  return num(own ? own.discountPercent : promotion.discountPercent);
 }

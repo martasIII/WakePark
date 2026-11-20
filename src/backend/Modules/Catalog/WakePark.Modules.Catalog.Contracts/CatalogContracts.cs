@@ -18,11 +18,17 @@ public sealed record CatalogCategoryDto(
     IReadOnlyDictionary<string, string> Name,
     CatalogPromotionDto? Promotion = null);
 
-/// <summary>Akční sleva v e-shopu: název, procento a poslední den (včetně, čas areálu).</summary>
+/// <summary>
+/// Akční sleva v e-shopu: název, nejvyšší procento mezi zlevněnými produkty kategorie a poslední
+/// den (včetně, čas areálu). <c>UpTo</c> = produkty mají různá procenta („až −30 %“),
+/// <c>AllProducts</c> = zlevněné je všechno v kategorii, jinak jen vybrané produkty.
+/// </summary>
 public sealed record CatalogPromotionDto(
     IReadOnlyDictionary<string, string> Name,
     int DiscountPercent,
-    DateOnly ValidTo);
+    DateOnly ValidTo,
+    bool UpTo = false,
+    bool AllProducts = true);
 
 public sealed record CatalogProductDto(
     Guid Id,
