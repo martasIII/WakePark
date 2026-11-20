@@ -54,9 +54,10 @@ docker compose up -d --remove-orphans
 docker image prune -f > /dev/null
 
 # Hotovo je, až web ukáže nabídku (web → API → databáze) a backoffice dosáhne na API
-# (nepřihlášenému vrátí 401, ne 502 od svého nginxu).
+# (nepřihlášenému vrátí 401, ne 502 od svého nginxu). Produkt v akci má class="product on-sale",
+# takže se hledá „product“ jako celé první slovo třídy.
 for _ in $(seq 1 30); do
-    if curl -fsS "http://127.0.0.1:$web/eshop" 2> /dev/null | grep -q 'class="product"' \
+    if curl -fsS "http://127.0.0.1:$web/eshop" 2> /dev/null | grep -Eq 'class="product( |")' \
         && [ "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$backoffice/api/v1/identity/me")" = 401 ]; then
         # Ruční příkazy (docker compose run … bez WAKEPARK_TAG) berou :latest, v UAT :uat —
         # ať je to vždy verze, která běží, ne nějaká starší.
