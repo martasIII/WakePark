@@ -147,12 +147,8 @@ public sealed partial class EshopModel(
         return RedirectToPage("/Objednavka", new { token = result.Order.AccessToken, lang = HttpContext.GetRouteValue("lang") });
     }
 
-    /// <summary>
-    /// Kategorie v e-shopu: dárkové vouchery první (prodávají se nejvíc), ostatní v pořadí
-    /// katalogu. Ceník má pořadí vlastní, proto se to řeší tady, ne v katalogu.
-    /// </summary>
-    public IEnumerable<EshopCategory> Categories =>
-        (Catalog?.Categories ?? []).OrderBy(c => c.Code == DedicationCategory ? 0 : 1);
+    /// <summary>Kategorie v pořadí e-shopu (vouchery první).</summary>
+    public IEnumerable<EshopCategory> Categories => Catalog?.CategoriesInShopOrder ?? [];
 
     public IEnumerable<EshopProduct> ProductsIn(EshopCategory category) =>
         Catalog?.Products.Where(p => p.CategoryCode == category.Code) ?? [];
@@ -161,12 +157,10 @@ public sealed partial class EshopModel(
         Quantities.TryGetValue(product.Id, out int quantity) ? quantity : 0;
 
     /// <summary>Věnování jde jen na dárkové vouchery; permanentky zatím zůstávají beze změny.</summary>
-    public static bool AllowsDedication(EshopProduct product) => product.CategoryCode == DedicationCategory;
+    public static bool AllowsDedication(EshopProduct product) => product.CategoryCode == EshopCatalog.VoucherCategory;
 
     public string? DedicationOf(EshopProduct product, int index) =>
         Dedications?.TryGetValue(product.Id, out List<string?>? texts) == true ? texts.ElementAtOrDefault(index) : null;
-
-    private const string DedicationCategory = "vouchery";
 
     /// <summary>Jen tolik věnování, kolik je kusů — po snížení počtu mohou ve formuláři zbýt navíc.</summary>
     private List<string?>? DedicationsFor(Guid productId, int quantity) =>

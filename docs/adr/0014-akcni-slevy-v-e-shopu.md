@@ -39,6 +39,14 @@ a zadávat je sami, bez SQL. Zákazník má vidět původní i akční cenu a n�
   „až −30 %“ jen když se procenta liší, „na vybrané produkty“ když něco zlevněné není
   (jinak „na celou nabídku níže“). Když po výjimkách a zaokrouhlení nezlevní nic, pruh není.
 
+### Doplněno 24. 11. 2026 — páska na úvodní stránce
+
+- Nad dlaždicí **Wake Shop** šikmá páska s **názvem akce** (bez procenta), když dnes v e-shopu
+  nějaká akce opravdu zlevňuje. Bere se z nabídky e-shopu (stejná minutová paměť), takže úvod a
+  e-shop si neodporují. Víc akcí v různých kategoriích → ta z první kategorie v pořadí e-shopu.
+- Dlouhý název (přes 14 znaků) menším písmem, nejvýš dva řádky. Odkaz vede na úvod e-shopu.
+- Úvod čeká na API **nejvýš 1 s** — když nestihne, ukáže se bez pásky (dřív na API nečekal vůbec).
+
 ## Důsledky
 
 - Web drží nabídku minutu v paměti — akce se na webu objeví nejpozději minutu po

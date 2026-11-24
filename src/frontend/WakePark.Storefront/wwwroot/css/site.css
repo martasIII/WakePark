@@ -40,6 +40,21 @@ main{flex:1; display:grid; place-items:center; padding:clamp(16px,4vw,56px)}
 .tile svg .lbl{fill:currentColor; stroke:none; font-family:inherit; font-size:12.6px; letter-spacing:3.6px}
 a.tile:hover, a.tile:focus-visible{background:var(--ink); color:var(--brand); transform:translateY(-3px); outline:none}
 .tile.soon{cursor:default}
+/* Páska s názvem akce přes dlaždici Wake Shop (ADR 0014). Velikost v cqi = % šířky dlaždice,
+   takže páska vypadá stejně na monitoru i na telefonu. Šrafovaný okraj je gradient, ne obrázek. */
+.tile{position:relative; container-type:inline-size}
+.promo-ribbon{
+  position:absolute; left:46%; top:24%; z-index:1; width:94cqi; padding:1.8cqi; pointer-events:none;
+  transform:translate(-50%,-50%) rotate(-20deg);
+  background:repeating-linear-gradient(-45deg,#ffd400 0 2.6cqi,#111 0 5.2cqi);
+  box-shadow:0 2px 8px rgb(0 0 0 / .35);
+}
+.promo-ribbon span{
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden;
+  background:#111; color:#fff; font-weight:700; text-transform:uppercase; text-align:center;
+  font-size:9cqi; line-height:1.1; letter-spacing:.02em; padding:1.4cqi 2.4cqi; overflow-wrap:anywhere;
+}
+.promo-ribbon.long span{font-size:6.2cqi}
 /* video na stránce O nás: čtverec ve stejném rámečku a velikosti jako dlaždice na úvodu */
 .video-frame{aspect-ratio:16/9; margin-bottom:18px; border:2px solid var(--line); border-radius:4px; overflow:hidden}
 .video-frame video{display:block; width:100%; height:100%; object-fit:cover}

@@ -9,7 +9,25 @@ namespace WakePark.Storefront.Eshop;
 /// Nabídka e-shopu tak, jak ji vrací API (<c>GET /api/v1/catalog/enterprises/{id}</c>).
 /// Vlastní kopie kontraktu — web na moduly backendu odkazovat nesmí (StorefrontIsolationTests).
 /// </summary>
-public sealed record EshopCatalog(IReadOnlyList<EshopCategory> Categories, IReadOnlyList<EshopProduct> Products);
+public sealed record EshopCatalog(IReadOnlyList<EshopCategory> Categories, IReadOnlyList<EshopProduct> Products)
+{
+    /// <summary>Kategorie s dárkovými vouchery — věnování, první místo v e-shopu.</summary>
+    public const string VoucherCategory = "vouchery";
+
+    /// <summary>
+    /// Kategorie v pořadí e-shopu: dárkové vouchery první (prodávají se nejvíc), ostatní v pořadí
+    /// katalogu. Ceník má pořadí vlastní, proto se to řeší na webu, ne v katalogu. JSON bez
+    /// kategorií dá null i přes typ — stránka se kvůli tomu nerozbije.
+    /// </summary>
+    public IEnumerable<EshopCategory> CategoriesInShopOrder => (Categories ?? []).OrderBy(c => c.Code == VoucherCategory ? 0 : 1);
+
+    /// <summary>
+    /// Akce pro pásku na úvodní stránce: první kategorie (v pořadí e-shopu), kde dnes nějaká akce
+    /// opravdu zlevňuje. Dvě akce najednou v různých kategoriích by být neměly — kdyby byly,
+    /// vyhraje ta dřív v e-shopu, ať se páska nemění s každým načtením.
+    /// </summary>
+    public EshopPromotion? CurrentPromotion => CategoriesInShopOrder.Select(c => c.Promotion).FirstOrDefault(p => p is not null);
+}
 
 public sealed record EshopCategory(string Code, LocalizedText Name, EshopPromotion? Promotion = null);
 

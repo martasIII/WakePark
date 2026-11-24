@@ -1,4 +1,5 @@
 @page
+@model IndexModel
 @{
     ViewData["Title"] = T["HomeTitle"].Value;
     ViewData["Description"] = T["HomeDescription"].Value;
@@ -12,7 +13,14 @@
 <main>
     <ul class="tiles">
         <li><a class="tile" asp-page="/O-nas" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_ONas" /><span class="lbl">@T["TileAbout"]</span></a></li>
-        <li><a class="tile" asp-page="/Eshop" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_WakeShop" /><span class="lbl">Wake Shop</span></a></li>
+        <li><a class="tile" asp-page="/Eshop" asp-route-lang="@Site.LanguageRoute">
+                @if (Model.Promotion?.Name.Resolve(SiteView.Language) is { Length: > 0 } promotionName)
+                {
+                    @* Páska s akcí (ADR 0014). Delší název se zalomí menším písmem, nejvýš na dva řádky. *@
+                    <span class="promo-ribbon@(promotionName.Length > 14 ? " long" : null)"><span>@promotionName</span></span>
+                }
+                <partial name="Icons/_WakeShop" /><span class="lbl">Wake Shop</span>
+        </a></li>
         <li><a class="tile" asp-page="/Kontakt" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_Kontakt" /><span class="lbl">@T["TileContact"]</span></a></li>
         <li><a class="tile" asp-page="/Firemni-akce" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_FiremniAkce" /><span class="lbl">@T["TileCorporate"]</span></a></li>
         <li><a class="tile" asp-page="/Cenik" asp-route-lang="@Site.LanguageRoute"><partial name="Icons/_Cenik" /><span class="lbl">@T["Prices"]</span></a></li>
