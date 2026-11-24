@@ -62,6 +62,17 @@ public sealed class StorefrontPagesTests(WebApplicationFactory<Program> factory)
         }
     }
 
+    /// <summary>Mapy vedou na kartu podniku (hodnocení, fotky, trasa), v jazyce stránky.</summary>
+    [Theory]
+    [InlineData("/kontakt", "https://mapy.com/cs/zakladni?source=firm&amp;id=13652879&amp;")]
+    [InlineData("/en/kontakt", "https://mapy.com/en/zakladni?source=firm&amp;id=13652879&amp;")]
+    public async Task Kontakt_odkazuje_na_podnik_na_Mapy_com(string path, string mapUrl)
+    {
+        string html = await _client.GetStringAsync(new Uri(path, UriKind.Relative), TestContext.Current.CancellationToken);
+
+        CountOccurrences(html, "href=\"" + mapUrl).ShouldBe(2);
+    }
+
     [Fact]
     public async Task Uvodni_stranka_ma_devet_dlazdic()
     {

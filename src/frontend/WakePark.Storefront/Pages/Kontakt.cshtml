@@ -6,6 +6,8 @@
     ViewData["BodyClass"] = "page";
     ViewData["Heading"] = T["Contact"].Value;
     ViewData["Subtitle"] = T["Location"].Value;
+    // Karta podniku na Mapy.com (hodnocení, fotky, trasa), ne jen bod na mapě.
+    string mapUrl = $"https://mapy.com/{(SiteView.Language == "en" ? "en" : "cs")}/zakladni?source=firm&id=13652879&x=14.3342219&y=50.0952072&z=17";
 }
 <partial name="_PageHeader" />
 <main class="page-body">
@@ -14,11 +16,11 @@
     <h2>@T["WhereToFind"]</h2>
     <div class="kv-grid">
       <p class="kv"><b>@T["Address"]</b><span>@T["AddressLine1"]<br>@T["AddressLine2"]</span></p>
-      <p class="kv"><b>GPS</b><a href="https://mapy.com/fnc/v1/showmap?mapset=basic&amp;center=14.334143,50.095229&amp;zoom=17&amp;marker=true">50.0952, 14.3341</a></p>
+      <p class="kv"><b>GPS</b><a href="@mapUrl">50.0952, 14.3342</a></p>
       <p class="kv"><b>@T["Phone"]</b><a href="tel:+420737562516">+420 737 562 516</a></p>
       <p class="kv"><b>E-mail</b><a href="mailto:info@@wake-dzban.cz">info@@wake-dzban.cz</a></p>
     </div>
-    <a class="btn" href="https://mapy.com/fnc/v1/showmap?mapset=basic&amp;center=14.334143,50.095229&amp;zoom=17&amp;marker=true">@T["OpenInMaps"]</a>
+    <a class="btn" href="@mapUrl">@T["OpenInMaps"]</a>
   </section>
 
   <section class="card" id="doba">
