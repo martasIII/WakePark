@@ -13,8 +13,11 @@ body{
 }
 /* Růžová fotka od grafika na všech stránkách. Samostatná vrstva s position:fixed, ne
    background-attachment:fixed — to telefony ignorují a fotku roztáhnou přes celou délku
-   stránky, takže nahoře jsou vidět jen stromy. Vrstva má vždy velikost okna a je vystředěná. */
-body::before{content:""; position:fixed; inset:0; z-index:-1; background:url("../img/hp/pozadi.webp") center / cover no-repeat}
+   stránky, takže nahoře jsou vidět jen stromy. Vrstva má vždy velikost okna a je vystředěná.
+   Celá fotka 16 : 9 bez ořezu: 1920 px běžně, 4K pro displeje s vyšším DPI a monitory nad 1920 px. */
+body::before{content:""; position:fixed; inset:0; z-index:-1; background:url("../img/hp/pozadi.webp") center / cover no-repeat;
+  background-image:image-set(url("../img/hp/pozadi.webp") 1x, url("../img/hp/pozadi-4k.webp") 2x)}
+@media (min-width:1921px){ body::before{background-image:url("../img/hp/pozadi-4k.webp")} }
 main{flex:1; display:grid; place-items:center; padding:clamp(16px,4vw,56px)}
 /* ---- úvod: logo, průhledné dlaždice 3 × 3 na fotce (návrh WPD_web2026_n01) ---- */
 .home-head{text-align:center; padding:clamp(24px,3.5vw,48px) 16px 0}
@@ -52,6 +55,7 @@ footer a{color:inherit}
 footer .small{font-size:12px; opacity:.8}
 .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
 @media (max-width:760px){
+  /* Prostředek fotky na výšku (1080 × 2160), stačí i telefonům s 3× DPI. */
   body::before{background-image:url("../img/hp/pozadi-m.webp")}
   footer .social a{display:inline; margin:0 8px}
   .tile .lbl{letter-spacing:.04em}
